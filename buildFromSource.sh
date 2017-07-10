@@ -2,19 +2,20 @@
 
 npm -g install yarn rimraf
  
-git clone https://github.com/SouthbankSoftware/dbKoda
-git clone https://github.com/SouthbankSoftware/dbKoda-ui
-git clone https://github.com/SouthbankSoftware/dbKoda-controller
+git clone https://github.com/SouthbankSoftware/dbkoda
+git clone https://github.com/SouthbankSoftware/dbkoda-ui
+git clone https://github.com/SouthbankSoftware/dbkoda-controller
 
-cd dbKoda
-yarn dev:link
+
 
 cd ..
 
-for dir in dbKoda-ui dbKoda-controller dbKoda ;do
+for dir in dbkoda-ui dbkoda-controller dbkoda ;do
    ( cd $dir;yarn install  )
 done
  
+(cd dbkoda;yarn dev:link)
+
 (cd dbKoda-controller; npm rebuild) 
 
 (cd  dbKoda-ui;yarn dev) & 
