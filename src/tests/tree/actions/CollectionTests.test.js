@@ -31,6 +31,7 @@ const debug = false;
 describe('TreeAction:Collections', () => {
     /** Global (to current test suite) setup */
     config();
+    // config({setupFailFastTest: false});
 
     /** Global (to current test suite) vars */
     const r = {};
@@ -46,7 +47,7 @@ describe('TreeAction:Collections', () => {
                 console.error(e.stack);
             }
         }, Promise.resolve());
-    };
+        };
 
     beforeAll(async() => {
         try {
@@ -262,16 +263,17 @@ describe('TreeAction:Collections', () => {
 
             await r
                 .treeAction.fillInDialogue(r.createIXtemp, r.createIXInput);
+            if (debug) console.log('execute');
             await r
                 .treeAction
                 .execute()
                 .pause(500);
-
+            if (debug) console.log('close');
             await r
                 .treeAction
                 .close()
                 .pause(500);
-            // await r.debug();
+            // if (debug) await r.debug();
         });
 
     test('Index visible on tree', async() => {
@@ -298,6 +300,9 @@ describe('TreeAction:Collections', () => {
             .getTreeNodeByPath(['Databases', 'test', r.randomCollection, r.createIXInput.IndexName])
             .rightClick()
             .pause(500);
+
+        if (debug) console.log(r.createIXInput);
+
         await r.treeAction.clickContextMenu(r.dropIXtemp.Title);
                     await r
                 .browser
@@ -307,7 +312,7 @@ describe('TreeAction:Collections', () => {
             .treeAction
             .execute()
             .pause(1000);
-       // await r.debug();
+       if (debug) await r.debug();
        await r.treeAction.close().pause(500);
        // await r.debug();
     });
