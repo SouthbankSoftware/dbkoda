@@ -15,6 +15,8 @@ import Connection from '#/pageObjects/Connection';
 import { config, getApp } from '#/helpers';
 import { mongoPortOutput } from './uiDefinitions/inputAndTest/common';
 
+const debug = true;
+
 describe('TreeAction:AlterUser', () => {
   /** Global (to current test suite) setup */
   config();
@@ -84,7 +86,7 @@ describe('TreeAction:AlterUser', () => {
     r.templateInput.UserName = r.randomUser;
 
     r.createUserCmd = sprintf(
-      'db.getSiblingDB("admin").createUser(    {user: "%s" ,    pwd:  "password" ,   roles:[]}   ,{w: "majority"}  );\n',
+      'db.getSiblingDB("admin").createUser(    {user: "%s" ,    pwd:  "password" ,   roles:[{role:"read", db: "admin" }]}   ,{w: "majority"}  );\n',
       r.randomUser
     );
     r.dropUserCmd = sprintf(
@@ -95,7 +97,7 @@ describe('TreeAction:AlterUser', () => {
       '\nvar  userDoc=db.getSiblingDB("admin").system.users.find({_id:"%s"}).toArray()[0];\n  if (userDoc.roles.length==4) print (userDoc._id+" updated ok"); \n',
       r.adminRandomUser
     );
-
+    if (debug) console.log(r.createUserCmd);
     await mongoPortOutput(r.mongoDbPort, r.createUserCmd);
   });
 
@@ -125,6 +127,7 @@ describe('TreeAction:AlterUser', () => {
   /** Fill in action dialogue */
   test('allows user to fill in action dialogue', async () => {
     await r.browser.waitForExist('.dynamic-form').pause(500);
+    if (debug) await r.debug();
     await r.treeAction.fillInDialogue(r.template, r.templateInput);
 
     // example of getting value options for Select field
