@@ -258,11 +258,11 @@ describe('TreeAction:Collections', () => {
                 console.log(r.createIXtemp);
                 console.log(r.createIXInput);
             }
-            await r.browser.element('.dynamic-form > .form-scrollable > form > fieldset > div > div.right > span > span > a').click();
             await r.browser.pause(100);
             await r
                 .treeAction.fillInDialogue(r.createIXtemp, r.createIXInput);
             if (debug) console.log('execute');
+            await r.browser.pause(20000);
             await r
                 .treeAction
                 .execute()
@@ -279,7 +279,7 @@ describe('TreeAction:Collections', () => {
         await r
             .treeAction
             ._clickRefreshButton();
-        await r.browser.pause(1000);
+        await r.browser.pause(5000);
         await r
             .treeAction
             .getTreeNodeByPath(['Databases', 'test', r.randomCollection, r.createIXInput.IndexName])
