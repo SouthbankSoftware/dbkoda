@@ -3,31 +3,39 @@
 
 [![Build Status](https://drone.southbanksoftware.com/api/badges/SouthbankSoftware/dbkoda/status.svg)](https://drone.southbanksoftware.com/SouthbankSoftware/dbkoda)
 
-This repo defines dbKoda's building, user acceptance testing (UAT), launching and packaging workflows.
+This repository defines dbKoda's building, user acceptance testing (UAT), launching and packaging workflows.
 
 ## Requirement
 
 * Yarn 0.21.3+
+* To install and use this repository you will need to clone [dbkoda-ui](https://github.com/Southbanksoftware/dbkoda-ui) and [dbkoda-controller](https://github.com/Southbanksoftware/dbkoda-controller)
 
 ## Setup
 
-1. Make sure `dbkoda-ui`, `dbkoda-controller` and `dbkoda` are sibling folders to each other within a same parent folder
-2. **[Important]** In `dbkoda`, do `yarn dev:link`. This is only needed for the first setup. For Windows, use `yarn dev:link:win`
-3. `yarn install` in all 3 repos. If something unexpected happens, remove corresponding `node_modules` and `yarn install` again
-4. To build an app, `yarn run pack`. For Windows, use `yarn pack:win`
-5. To build an installer, `yarn run dist:dev` (without compression) and `yarn run dist` (with normal compression). For Windows, use `yarn dist:win`
-6. *[optional]* After you have tried above commands, your `dbkoda-controller`’s native modules will be built against `electron`‘s node version. If you want to go back to 'byo' mode, you need to `yarn dev:rebuild:current` to rebuild those native modules against your current `node` version
+1. Make sure `dbkoda-ui`, `dbkoda-controller` and `dbkoda` are sibling folders to each other within a same parent folder, e.g:
+```text
+root_folder
+├── dbkoda-ui
+├── dbkoda-controller
+├── dbkoda
+```
+2. **[Important]** In `dbkoda`, run the following command `yarn dev:link`. This is only needed for the first setup. If you are installing on windows, use `yarn dev:link:win`.
+3. Run `yarn install` within all 3 repos.
+4. To build a new the app, `yarn run pack`. For Windows, use `yarn pack:win`.
+5. To build a version of the app, run `yarn run dist:dev` (without compression) and `yarn run dist` (with normal compression). For Windows, use the command `yarn dist:win`.
+6. *[optional]* After you have tried above commands, your `dbkoda-controller`’s native modules will be built against `electron`‘s node version. If you want to go back to 'byo' mode, you need to run `yarn dev:rebuild:current` to rebuild these native modules against your current `node` version.
+7. *[optional]* If you encounter errors or irregularities during any of these steps, you can run `rm -rf node_modules` within each of the repositories, and then run `yarn install` again. If you are still having troubles, please check our FAQs or raise a new topic at our [support site](https://dbkoda.useresponse.com)
 
 ## Development
-App has four running modes: byo, super_dev, dev and prod
+In development mode dbKoda has four running modes: byo, super_dev, dev and prod
 
 ### Bring Your Own (BYO) Dev Mode (byo)
 You can separately launch your own copy of `dbkoda-ui` or `dbkoda-controller` to be used by `dbkoda` in this mode. You should `unlink` `dbkoda-ui` and `dbkoda-controller` from `dbkoda` in this mode to avoid unwanted interference.
 
-`yarn run byo` or `yarn byo`
+Start BYO mode using the commands `yarn run byo` or `yarn byo`.
 
 ### Super Dev Mode (super_dev)
-Hot-reloading of `dbkoda-ui` is enabled in this mode. When app launches, Webpack needs some time for packaging UI for the first time, so the launching speed is much slower than other modes
+Hot-reloading of `dbkoda-ui` is enabled in this mode. When app launches, Webpack needs some time to package the UI for the first time, so the launching speed is much slower than other modes.
 
 `yarn run super` or `yarn super`
 
@@ -36,7 +44,7 @@ Hot-reloading of `dbkoda-ui` is enabled in this mode. When app launches, Webpack
 `yarn run dev` or `yarn dev`
 
 ### [Devtron](https://github.com/electron/devtron#-devtron)
-An Electron DevTools extension to help you inspect, monitor, and debug your app
+Devtron is an Electron DevTools extension to help you inspect, monitor, and debug your app, to install Devtron, follow the steps below.
 
 1. `yarn add -D devtron`
 2. Run `require('devtron').install()` in Chrome DevTools. In either [BYO](#bring-your-own-byo-dev-mode) or [Super Dev](#super-dev-mode) mode, you should run this in DevTools of splash screen window. You can kill `dbkoda-ui`, and create a new window (<kbd>cmd+n</kbd>) in electron, so a new splash
@@ -76,7 +84,7 @@ Without compression (fastest, around 1 min):
 
 `yarn run dist:dev` or `yarn dist:dev`
 
-### Testing
+## Testing
 Following commands will run all test suites under `tests`. To run a particular test suite, e.g. `example1.test.js` and `example2.test.js` with `jest:dev` command:
 
 `yarn jest:dev "example[1,2].test.js"`
@@ -106,8 +114,8 @@ Run `jest` against previously packed app
 
 `yarn jest:prod:runonly`
 
-## Test
-Set up below environment variables for testing:
+## UAT Test
+Set up below environment variables for UAT testing:
 
 - EC2_SHARD_CLUSTER_HOSTNAME
 - EC2_SHARD_CLUSTER_USERNAME
