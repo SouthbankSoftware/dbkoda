@@ -262,7 +262,7 @@ describe('TreeAction:Collections', () => {
             await r
                 .treeAction.fillInDialogue(r.createIXtemp, r.createIXInput);
             if (debug) console.log('execute');
-            await r.browser.pause(20000);
+            await r.browser.pause(100);
             await r
                 .treeAction
                 .execute()
@@ -279,7 +279,7 @@ describe('TreeAction:Collections', () => {
         await r
             .treeAction
             ._clickRefreshButton();
-        await r.browser.pause(5000);
+        await r.browser.pause(100);
         await r
             .treeAction
             .getTreeNodeByPath(['Databases', 'test', r.randomCollection, r.createIXInput.IndexName])
@@ -309,7 +309,7 @@ describe('TreeAction:Collections', () => {
         await r
             .treeAction
             .execute()
-            .pause(1000);
+            .pause(500);
        if (debug) await r.debug();
        await r.treeAction.close().pause(500);
        // await r.debug();
