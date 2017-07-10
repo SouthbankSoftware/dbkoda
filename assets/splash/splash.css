@@ -1,0 +1,59 @@
+/**
+ * @Author: guiguan
+ * @Date:   2017-04-12T14:23:35+10:00
+ * @Last modified by:   guiguan
+ * @Last modified time: 2017-06-07T18:53:14+10:00
+ */
+
+* {
+  -webkit-user-select: none;
+  cursor: default !important;
+  -webkit-user-drag: none;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  margin: 0;
+  background: #363951;
+}
+
+#splash_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+#splash_loading_img {
+  width: 200px;
+  margin: 15px -10px;
+  display: inline-block;
+  vertical-align: middle;
+  animation: increase 0.5s ease-out;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes increase {
+  from {
+    opacity: 0;
+    width: 0;
+    margin: 52px 40px;
+  }
+  to {
+    opacity: 1;
+    width: 200px;
+    margin: 15px -10px;
+  }
+}

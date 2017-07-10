@@ -1,0 +1,7 @@
+{
+  "testRegex": "/tests/.*\\.test\\.jsx?$",
+  "testPathIgnorePatterns": ["/node_modules/", "/uiDefinitions/"],
+  "testEnvironment": "node",
+  "roots": ["./src"],
+  "testResultsProcessor": "./node_modules/jest-html-reporter"
+}
