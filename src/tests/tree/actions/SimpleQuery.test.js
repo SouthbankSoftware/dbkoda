@@ -153,8 +153,13 @@ describe('TreeAction:SimpleQuery', () => {
   /** Fill in action dialogue */
   test('allows user to fill in action dialogue', async() => {
     await r.browser.waitForExist('.dynamic-form').pause(1000);
-    await r.browser.element('.dynamic-form > .form-scrollable > form:nth-child(0) > div > div.right > span > span > a').click();
-    await r.browser.pause(50000);
+    let clicks = []; //eslint-disable-line
+    await r.browser.element('.dynamic-form > .form-scrollable > form > fieldset[label="Filter conditions"] > div > div.right > span > span > a').click();
+    await r.browser.element('.dynamic-form > .form-scrollable > form > fieldset[label="Projections"] > div > div.right > span > span > a').click();
+    await r.browser.element('.dynamic-form > .form-scrollable > form > fieldset[label="SortKeys"] > div > div.right > span > span > a').click();
+
+    await r.browser.pause(5000);
+
 
     await r.treeAction.fillInDialogue(r.template, r.templateInput);
 
