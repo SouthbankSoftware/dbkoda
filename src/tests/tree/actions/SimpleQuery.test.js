@@ -152,7 +152,10 @@ describe('TreeAction:SimpleQuery', () => {
 
   /** Fill in action dialogue */
   test('allows user to fill in action dialogue', async() => {
-    await r.browser.waitForExist('.dynamic-form').pause(5000);
+    await r.browser.waitForExist('.dynamic-form').pause(1000);
+    await r.browser.element('.dynamic-form > .form-scrollable > form:nth-child(0) > div > div.right > span > span > a').click();
+    await r.browser.pause(50000);
+
     await r.treeAction.fillInDialogue(r.template, r.templateInput);
 
     // // example of getting value options for Select field
