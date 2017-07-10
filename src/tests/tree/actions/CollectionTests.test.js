@@ -243,14 +243,12 @@ describe('TreeAction:Collections', () => {
                     'Direction': -1
                 }
             ];
-            // await r.debug();
             await r
                 .treeAction
                 .getTreeNodeByPath(['Databases', 'test', r.randomCollection])
                 .rightClick()
                 .pause(500);
             await r.treeAction.clickContextMenu(r.createIXtemp.Title);
-            // await r.debug();
             await r
                 .browser
                 .waitForExist('.dynamic-form')
@@ -259,7 +257,8 @@ describe('TreeAction:Collections', () => {
                 console.log(r.createIXtemp);
                 console.log(r.createIXInput);
             }
-
+            await r.browser.element('.dynamic-form > .form-scrollable > form > fieldset > div > div.right > span > span > a').click();
+            await r.browser.pause(100);
             await r
                 .treeAction.fillInDialogue(r.createIXtemp, r.createIXInput);
             await r
@@ -271,7 +270,6 @@ describe('TreeAction:Collections', () => {
                 .treeAction
                 .close()
                 .pause(500);
-            // await r.debug();
         });
 
     test('Index visible on tree', async() => {
