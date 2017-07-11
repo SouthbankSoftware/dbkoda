@@ -15,7 +15,7 @@ import Connection from '#/pageObjects/Connection';
 import { config, getApp } from '#/helpers';
 import { mongoPortOutput } from './uiDefinitions/inputAndTest/common';
 
-const debug = true;
+const debug = false;
 
 describe('TreeAction:AlterUser', () => {
   /** Global (to current test suite) setup */
@@ -128,6 +128,7 @@ describe('TreeAction:AlterUser', () => {
   test('allows user to fill in action dialogue', async () => {
     await r.browser.waitForExist('.dynamic-form').pause(500);
     if (debug) await r.debug();
+    await r.browser.pause(500);
     await r.treeAction.fillInDialogue(r.template, r.templateInput);
 
     // example of getting value options for Select field
