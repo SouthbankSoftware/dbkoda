@@ -1,9 +1,21 @@
-/**
- * @Author: Wahaj Shamim <wahaj>
- * @Date:   2017-03-03T10:05:42+11:00
- * @Email:  wahaj@southbanksoftware.com
- * @Last modified by:   guiguan
- * @Last modified time: 2017-06-24T01:25:14+10:00
+/*
+ * dbKoda - a modern, open source code editor, for MongoDB.
+ * Copyright (C) 2017-2018 Southbank Software
+ *
+ * This file is part of dbKoda.
+ *
+ * dbKoda is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * dbKoda is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 import _ from 'lodash';
@@ -56,7 +68,7 @@ global.PATHS = (() => {
     logs: path.resolve(userData, 'logs'),
     stateStore: global.UAT
       ? '/tmp/stateStore.json'
-      : path.resolve(home, 'stateStore.json')
+      : path.resolve(home, 'stateStore.json'),
   };
 })();
 
@@ -69,7 +81,7 @@ const configWinstonLogger = () => {
     colorize: 'all',
     timestamp() {
       return moment().format();
-    }
+    },
   };
 
   const transports = [new winston.transports.Console(commonOptions)];
@@ -83,9 +95,9 @@ const configWinstonLogger = () => {
           datePattern: 'yyyy-MM-dd.',
           localTime: true,
           prepend: true,
-          json: false
-        })
-      )
+          json: false,
+        }),
+      ),
     );
   }
 
@@ -98,16 +110,16 @@ const configWinstonLogger = () => {
       warn: 1,
       notice: 2,
       info: 3,
-      debug: 4
+      debug: 4,
     },
     colors: {
       error: 'red',
       warn: 'yellow',
       notice: 'green',
       info: 'black',
-      debug: 'blue'
+      debug: 'blue',
     },
-    transports
+    transports,
   });
 
   process.on('unhandledRejection', (reason) => {
@@ -126,7 +138,7 @@ l.notice(`Starting up with ${modeDescription} mode...`);
 let controllerProcess;
 const configController = () => {
   const controllerPath = require.resolve(
-    '@southbanksoftware/dbkoda-controller'
+    '@southbanksoftware/dbkoda-controller',
   );
 
   // NOTE: cwd option is not supported in asar, please avoid using it
@@ -136,10 +148,10 @@ const configController = () => {
       LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
       MONGO_SCRIPTS_PATH: path.resolve(
         app.getAppPath(),
-        '../app.asar.unpacked/node_modules/@southbanksoftware/dbkoda-controller/lib/'
+        '../app.asar.unpacked/node_modules/@southbanksoftware/dbkoda-controller/lib/',
       ),
-      UAT: global.UAT
-    }
+      UAT: global.UAT,
+    },
   });
 };
 if (global.MODE !== 'byo') {
@@ -160,15 +172,22 @@ const saveFileInEditor = () => {
   }
 };
 
+const saveFileAsInEditor = () => {
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('command', 'saveFileAs');
+  }
+};
+
 // Create main window with React UI
 const createWindow = (url, options) => {
   options = _.assign(
     {
       width: 1280,
       height: 900,
-      backgroundColor: '#363951'
+      backgroundColor: '#363951',
     },
-    options
+    options,
   );
   const win = new BrowserWindow(options);
 
@@ -182,9 +201,10 @@ const createWindow = (url, options) => {
 };
 
 const createMainWindow = () => {
-  const url = global.MODE === 'byo' || global.MODE === 'super_dev'
-    ? 'http://localhost:3000/ui/'
-    : 'http://localhost:3030/ui/';
+  const url =
+    global.MODE === 'byo' || global.MODE === 'super_dev'
+      ? 'http://localhost:3000/ui/'
+      : 'http://localhost:3030/ui/';
 
   if (global.UAT) {
     invokeApi(
@@ -193,14 +213,14 @@ const createMainWindow = () => {
         shouldRetryOnError(e) {
           return _.includes(
             ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
-            e.error.code || _.includes([404, 502], e.statusCode)
+            e.error.code || _.includes([404, 502], e.statusCode),
           );
         },
         errorHandler(err) {
           l.error(err.stack);
           throw err;
-        }
-      }
+        },
+      },
     ).then(() => {
       createWindow(url);
     });
@@ -209,14 +229,14 @@ const createMainWindow = () => {
 
   // show a splash screen
   const splashWindow = createWindow(
-    `file://${path.resolve(__dirname, '../assets/splash/index.html')}`
+    `file://${path.resolve(__dirname, '../assets/splash/index.html')}`,
   );
 
   // wait for uiUrl to become reachable and then show real main window
   // const uiPath = require.resolve('@southbanksoftware/dbkoda-ui');
   invokeApi(
     {
-      url
+      url,
     },
     {
       shouldRetryOnError(e) {
@@ -224,7 +244,7 @@ const createMainWindow = () => {
           !splashWindow.isDestroyed() &&
           (_.includes(
             ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
-            e.error.code
+            e.error.code,
           ) ||
             _.includes([404, 502], e.statusCode))
         );
@@ -235,14 +255,14 @@ const createMainWindow = () => {
         }
         l.error(err.stack);
         throw err;
-      }
-    }
+      },
+    },
   ).then(() => {
     if (splashWindow.isDestroyed()) {
       return;
     }
     const mainWindow = createWindow(url, {
-      show: false
+      show: false,
     });
     ipcMain.once('appReady', () => {
       if (splashWindow.isDestroyed()) {
@@ -270,6 +290,93 @@ const createMainWindow = () => {
 const setAppMenu = () => {
   const menus = [
     {
+      label: 'File',
+      submenu: [
+        // {
+        //   label: 'New Window',
+        //   accelerator: 'CmdOrCtrl+N',
+        //   click() {
+        //     createMainWindow();
+        //   }
+        // },
+        {
+          label: 'Open File',
+          accelerator: 'CmdOrCtrl+O',
+          click() {
+            openFileInEditor();
+          },
+        },
+        {
+          label: 'Save File',
+          accelerator: 'CmdOrCtrl+S',
+          click() {
+            saveFileInEditor();
+          },
+        },
+        {
+          label: 'Save File As...',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click() {
+            saveFileAsInEditor();
+          },
+        },
+        { role: 'close' },
+      ],
+    },
+    {
+      role: 'editMenu',
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'togglefullscreen' },
+        { role: 'resetzoom' },
+        { role: 'zoomin' },
+        { role: 'zoomout' },
+      ],
+    },
+    {
+      label: 'Development',
+      submenu: [
+        {
+          label: 'Reload UI',
+          accelerator: 'CmdOrCtrl+R',
+          role: 'forcereload',
+        },
+        {
+          label: 'Reload Controller',
+          accelerator: 'Shift+CmdOrCtrl+R',
+          click: () => {
+            controllerProcess && controllerProcess.kill();
+            configController();
+          },
+          enabled: global.MODE !== 'byo',
+        },
+        {
+          label: 'Toggle DevTools',
+          accelerator: 'Alt+CmdOrCtrl+I',
+          role: 'toggledevtools',
+        },
+      ],
+    },
+    {
+      role: 'window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { type: 'separator' },
+        { role: 'front' },
+      ],
+    },
+    {
+      label: 'Help',
+      role: 'help',
+      submenu: [],
+    },
+  ];
+
+  if (process.platform === 'darwin') {
+    menus.unshift({
       submenu: [
         { role: 'about' },
         { type: 'separator' },
@@ -279,87 +386,11 @@ const setAppMenu = () => {
         { role: 'hideothers' },
         { role: 'unhide' },
         { type: 'separator' },
-        { role: 'quit' }
-      ]
-    },
-    {
-      label: 'File',
-      submenu: [
-        {
-          label: 'New Window',
-          accelerator: 'CmdOrCtrl+N',
-          click() {
-            createMainWindow();
-          }
-        },
-        {
-          label: 'Open File',
-          accelerator: 'CmdOrCtrl+O',
-          click() {
-            openFileInEditor();
-          }
-        },
-        {
-          label: 'Save File',
-          accelerator: 'CmdOrCtrl+S',
-          click() {
-            saveFileInEditor();
-          }
-        },
-        { role: 'close' }
-      ]
-    },
-    {
-      role: 'editMenu'
-    },
-    {
-      label: 'View',
-      submenu: [
-        { role: 'togglefullscreen' },
-        { role: 'resetzoom' },
-        { role: 'zoomin' },
-        { role: 'zoomout' }
-      ]
-    },
-    {
-      label: 'Development',
-      submenu: [
-        {
-          label: 'Reload UI',
-          accelerator: 'CmdOrCtrl+R',
-          role: 'forcereload'
-        },
-        {
-          label: 'Reload Controller',
-          accelerator: 'Shift+CmdOrCtrl+R',
-          click: () => {
-            controllerProcess && controllerProcess.kill();
-            configController();
-          },
-          enabled: global.MODE !== 'byo'
-        },
-        {
-          label: 'Toggle DevTools',
-          accelerator: 'Alt+CmdOrCtrl+I',
-          role: 'toggledevtools'
-        }
-      ]
-    },
-    {
-      role: 'window',
-      submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
-        { type: 'separator' },
-        { role: 'front' }
-      ]
-    },
-    {
-      label: 'Help',
-      role: 'help',
-      submenu: []
-    }
-  ];
+        { role: 'quit' },
+      ],
+    });
+  }
+
   Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
 };
 
