@@ -158,6 +158,13 @@ if (global.MODE !== 'byo') {
   configController();
 }
 
+const newEditor = () => {
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('command', 'newEditor');
+  }
+};
+
 const openFileInEditor = () => {
   const activeWindow = BrowserWindow.getFocusedWindow();
   if (activeWindow) {
@@ -300,6 +307,13 @@ const setAppMenu = () => {
         //   }
         // },
         {
+          label: 'New Editor',
+          accelerator: 'CmdOrCtrl+N',
+          click() {
+            newEditor();
+          }
+        },
+        {
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
           click() {
@@ -340,7 +354,7 @@ const setAppMenu = () => {
       submenu: [
         {
           label: 'Reload UI',
-          accelerator: 'CmdOrCtrl+R',
+          accelerator: 'Ctrl+Alt+Cmd+R',
           role: 'forcereload',
         },
         {
@@ -368,11 +382,6 @@ const setAppMenu = () => {
         { role: 'front' },
       ],
     },
-    {
-      label: 'Help',
-      role: 'help',
-      submenu: [],
-    },
   ];
 
   if (process.platform === 'darwin') {
@@ -388,6 +397,11 @@ const setAppMenu = () => {
         { type: 'separator' },
         { role: 'quit' },
       ],
+    });
+    menus.push({
+      label: 'Help',
+      role: 'help',
+      submenu: [],
     });
   }
 
