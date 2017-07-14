@@ -39,6 +39,7 @@ describe('test explain', () => {
     return getApp().then((res) => {
       app = res;
       browser = app.client;
+      await browser.pause(10000);
       connectProfile = new ConnectionProfile(browser);
       explain = new Explain(browser);
       editor = new Editor(browser);
