@@ -95,7 +95,6 @@ describe('TreeAction:CheckAttributes', () => {
         });
         expect(await browser.waitForExist(treeAction.treeNodeSelector, 10000)).toBeTruthy;
         if (debug) await r.debug();
-        await browser.pause(10000);
     });
 
     const editorCommand = async(inputCommands) => {
@@ -129,26 +128,17 @@ describe('TreeAction:CheckAttributes', () => {
         if (debug) console.log(r.collections);
     });
 
-    test('Make sure all the collections can be found in the tree', async() => {
-        await r.treeAction.getTreeNodeByPath(['Databases', 'SampleCollections']).pause(2000);
-        for (let ci = 0; ci < r.collections.length; ci += 1) {
-            const col = r.collections[ci];
-            console.log('Now clicking on ' + col);
-            await r.treeAction.getTreeNodeByPath(['Databases', 'SampleCollections', col]).pause(500); // eslint-disable-line
-        }
-    });
     test('Make sure we can get attributes for all collections', async() => {
         await r.treeAction.getTreeNodeByPath(['Databases', 'SampleCollections']).pause(500);
         for (let ci = 0; ci < r.collections.length; ci += 1) {
             const col = r.collections[ci];
             if (col !== 'serverStats') {
                 console.log('Now getting attributes for ' + col);
-                await r.treeAction.getTreeNodeByPath(['Databases', 'SampleCollections', col]) // eslint-disable-line
-                    .rightClick().pause(1000);
+                await r.treeAction.getTreeNodeByPath(['Databases', 'SampleCollections', col]).rightClick().pause(1000);
                 await r.treeAction.clickContextMenu('Find\ Attributes'); // eslint-disable-line
                 await r.browser.pause(1000);
                 await r.treeAction.getTreeNodeByPath(['Databases', 'SampleCollections', col, 'Attributes']) // eslint-disable-line
-                    .rightClick().pause(1000);
+                    .leftClick().pause(1000);
             } else {
                 console.log('Skipping serverStats');
             }
