@@ -54,7 +54,7 @@ describe('test explain', () => {
         await editor._appendToEditor('db.users.createIndex({"user.age":1})\n');
         await editor._clickExecuteAll();
         // after execute all, normal output panel should be shown
-        await browser.pause(2000);
+        await browser.pause(10000);
       }).then(() => done());
     });
   });
