@@ -8,7 +8,7 @@ git clone https://github.com/SouthbankSoftware/dbkoda-controller
 
 
 
-cd ..
+
 
 for dir in dbkoda-ui dbkoda-controller dbkoda ;do
    ( cd $dir;yarn install  )
