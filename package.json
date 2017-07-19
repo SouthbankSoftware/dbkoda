@@ -35,8 +35,7 @@
     "pack:win:ia32": "rimraf dist/win-ia32-unpacked && yarn run pack -- --win --ia32",
     "pack:no:sign": "CSC_IDENTITY_AUTO_DISCOVERY=false yarn run pack",
     "dist": "yarn run cbuild && build --em.mode=prod",
-    "dist:win": "set ARCH=x64&& rimraf dist/win-unpacked && yarn run dist -- --win",
-    "dist:win:ia32": "set ARCH=ia32&& rimraf dist/win-ia32-unpacked && yarn run dist -- --win --ia32",
+    "dist:win": "rimraf dist/win-unpacked && rimraf dist/win-ia32-unpacked && yarn run dist -- --win --x64 --ia32",
     "dist:dev": "yarn run dist -- --config.compression=store",
     "postinstall": "yarn run cbuild",
     "byo": "MODE=byo yarn run dev",
@@ -105,7 +104,8 @@
     "request-promise-native": "^1.0.4",
     "shelljs": "^0.7.8",
     "winston": "^2.3.1",
-    "winston-daily-rotate-file": "^1.4.6"
+    "winston-daily-rotate-file": "^1.4.6",
+    "electron-updater": "^2.7.1"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

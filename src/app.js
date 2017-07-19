@@ -28,6 +28,7 @@ import winston from 'winston';
 import { ipcMain } from 'electron';
 import { identifyWorkingMode, invokeApi } from './helpers';
 import touchbar from './touchbar';
+import { autoUpdater } from "electron-updater"
 
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config/');
 const config = require('config');
@@ -133,6 +134,35 @@ const configWinstonLogger = () => {
 configWinstonLogger();
 
 l.notice(`Starting up with ${modeDescription} mode...`);
+
+autoUpdater.logger = l;
+autoUpdater.on('checking-for-update', () => {
+  l.notice('Checking for update...');
+})
+autoUpdater.on('update-available', (info) => {
+  l.notice('Update available.');
+})
+autoUpdater.on('update-not-available', (info) => {
+  l.notice('Update not available.');
+})
+autoUpdater.on('error', (err) => {
+  l.notice('Error in auto-updater.');
+})
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  l.notice(log_message);
+})
+autoUpdater.on('update-downloaded', (info) => {
+  l.notice('Update downloaded; will install in 5 seconds');
+});
+autoUpdater.on('update-downloaded', (info) => {
+  // Wait 5 seconds, then quit and install
+  setTimeout(function() {
+    autoUpdater.quitAndInstall();
+  }, 5000)
+})
 
 // Launch dbKoda Controller
 let controllerProcess;
@@ -411,6 +441,7 @@ const setAppMenu = () => {
 app.on('ready', () => {
   setAppMenu();
   createMainWindow();
+  autoUpdater.checkForUpdates();
 });
 
 // Quit when all windows are closed.

@@ -2,6 +2,12 @@
   "appId": "com.southbanksoftware.dbkoda",
   "compression": "normal",
   "npmRebuild": true,
+  "publish": [
+      {
+        "provider": "generic",
+        "url": "https://s3-ap-southeast-2.amazonaws.com/asiapac-sydney.release.dbkoda/"
+      }
+    ],
   "files": [
     "assets",
     "config",
@@ -27,12 +33,7 @@
       "y": 302,
       "type": "link",
       "path": "/Applications"
-    }],
-    "publish": {
-      "provider": "github",
-      "owner": "SouthbankSoftware",
-      "repo": "dbkoda-mac"
-    }
+    }]
   },
   "linux": {
     "target": [
@@ -47,6 +48,6 @@
   },
   "nsis": {
     "deleteAppDataOnUninstall": true,
-    "artifactName":"${productName}-${os}-${env.ARCH}-${version}.${ext}."
+    "perMachine": true
   }
 }
