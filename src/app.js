@@ -1,3 +1,13 @@
+/**
+ * @Author: Wahaj Shamim <wahaj>
+ * @Date:   2017-07-21T09:26:47+10:00
+ * @Email:  wahaj@southbanksoftware.com
+ * @Last modified by:   wahaj
+ * @Last modified time: 2017-07-21T09:49:19+10:00
+ */
+
+
+
 /*
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -23,12 +33,13 @@ import path from 'path';
 import sh from 'shelljs';
 import childProcess from 'child_process';
 import { app, BrowserWindow, Menu } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import moment from 'moment';
 import winston from 'winston';
 import { ipcMain } from 'electron';
 import { identifyWorkingMode, invokeApi } from './helpers';
 import touchbar from './touchbar';
-import { autoUpdater } from "electron-updater"
+
 
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config/');
 const config = require('config');
@@ -136,33 +147,31 @@ configWinstonLogger();
 l.notice(`Starting up with ${modeDescription} mode...`);
 
 autoUpdater.logger = l;
+let updateAvailable = false;
 autoUpdater.on('checking-for-update', () => {
   l.notice('Checking for update...');
-})
-autoUpdater.on('update-available', (info) => {
-  l.notice('Update available.');
-})
-autoUpdater.on('update-not-available', (info) => {
-  l.notice('Update not available.');
-})
-autoUpdater.on('error', (err) => {
-  l.notice('Error in auto-updater.');
-})
-autoUpdater.on('download-progress', (progressObj) => {
-  let log_message = "Download speed: " + progressObj.bytesPerSecond;
-  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
-  l.notice(log_message);
-})
-autoUpdater.on('update-downloaded', (info) => {
-  l.notice('Update downloaded; will install in 5 seconds');
 });
-autoUpdater.on('update-downloaded', (info) => {
-  // Wait 5 seconds, then quit and install
-  setTimeout(function() {
-    autoUpdater.quitAndInstall();
-  }, 5000)
-})
+autoUpdater.on('update-available', () => {
+  l.notice('Update available.');
+});
+autoUpdater.on('update-not-available', () => {
+  l.notice('Update not available.');
+});
+autoUpdater.on('error', () => {
+  l.notice('Error in auto-updater. ');
+});
+autoUpdater.on('download-progress', (progressObj) => {
+  let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
+  logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
+  logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
+  l.notice(logMessage);
+});
+autoUpdater.on('update-downloaded', () => {
+  l.notice('Update downloaded; will install on quit');
+  updateAvailable = true;
+  setAppMenu();
+});
+
 
 // Launch dbKoda Controller
 let controllerProcess;
@@ -433,6 +442,16 @@ const setAppMenu = () => {
       role: 'help',
       submenu: [],
     });
+  }
+
+  if (updateAvailable) {
+    menus[0].submenu.insert(1, {
+      label: 'Update and Restart',
+        click: () => {
+          autoUpdater.quitAndInstall();
+        }
+      }
+    );
   }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
