@@ -132,6 +132,7 @@
     "eslint-plugin-react": "^7.1.0",
     "fs-extra": "^3.0.1",
     "handlebars": "^4.0.10",
+    "http-server": "^0.10.0",
     "jest": "^20.0.4",
     "jest-html-reporter": "github:SouthbankSoftware/jest-html-reporter",
     "nodemon": "^1.11.0",
