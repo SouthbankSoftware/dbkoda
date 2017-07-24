@@ -4,8 +4,8 @@
   "npmRebuild": true,
   "publish": [
       {
-        "provider": "generic",
-        "url": "http://10.211.55.2:8080/"
+        "provider": "s3",
+        "bucket": "updates.dbkoda"
       }
     ],
   "files": [

@@ -3,7 +3,7 @@
  * @Date:   2017-07-21T09:26:47+10:00
  * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   wahaj
- * @Last modified time: 2017-07-21T16:54:12+10:00
+ * @Last modified time: 2017-07-24T10:00:19+10:00
  */
 
 /*
@@ -309,7 +309,9 @@ const createMainWindow = () => {
       if (global.MODE === 'prod') {
         autoUpdater.checkForUpdates();
         ipcMain.on('updateAndRestart', () => {
-          autoUpdater.quitAndInstall();
+          if (updateAvailable) {
+            autoUpdater.quitAndInstall();
+          }
         });
       }
     });
