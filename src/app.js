@@ -68,7 +68,7 @@ global.PATHS = (() => {
     logs: path.resolve(userData, 'logs'),
     stateStore: global.UAT
       ? '/tmp/stateStore.json'
-      : path.resolve(home, 'stateStore.json'),
+      : path.resolve(home, 'stateStore.json')
   };
 })();
 
@@ -140,7 +140,6 @@ const configController = () => {
   const controllerPath = require.resolve(
     '@southbanksoftware/dbkoda-controller',
   );
-
   // NOTE: cwd option is not supported in asar, please avoid using it
   controllerProcess = childProcess.fork(controllerPath, [], {
     env: {
@@ -148,8 +147,9 @@ const configController = () => {
       LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
       MONGO_SCRIPTS_PATH: path.resolve(
         app.getAppPath(),
-        '../app.asar.unpacked/node_modules/@southbanksoftware/dbkoda-controller/lib/',
+        'node_modules/@southbanksoftware/dbkoda-controller/lib/',
       ),
+      CONFIG_PATH: path.resolve(global.PATHS.home, 'config.yml'),
       UAT: global.UAT,
     },
   });
