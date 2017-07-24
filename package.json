@@ -35,6 +35,7 @@
     "pack:win:ia32": "rimraf dist/win-ia32-unpacked && yarn run pack -- --win --ia32",
     "pack:no:sign": "CSC_IDENTITY_AUTO_DISCOVERY=false yarn run pack",
     "dist": "yarn run cbuild && build --em.mode=prod",
+    "dist:no:publish": "yarn run cbuild && build --em.mode=prod --publish never",
     "dist:win": "set ARCH=x64&& rimraf dist/win-unpacked && yarn run dist -- --win",
     "dist:win:ia32": "set ARCH=ia32&& rimraf dist/win-ia32-unpacked && yarn run dist -- --win --ia32",
     "dist:dev": "yarn run dist -- --config.compression=store",
