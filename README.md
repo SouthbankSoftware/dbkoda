@@ -26,6 +26,21 @@ root_folder
 6. *[optional]* After you have tried above commands, your `dbkoda-controller`’s native modules will be built against `electron`‘s node version. If you want to go back to 'byo' mode, you need to run `yarn dev:rebuild:current` to rebuild these native modules against your current `node` version.
 7. *[optional]* If you encounter errors or irregularities during any of these steps, you can run `rm -rf node_modules` within each of the repositories, and then run `yarn install` again. If you are still having troubles, please check our FAQs or raise a new topic at our [support site](https://dbkoda.useresponse.com)
 
+## Config
+You can config dbKoda by putting a `config.yml` in your dbKoda home folder as follows:
+
+```yaml
+# Note: please use full path for all commands
+
+# Local mongo binary path. dbKoda will detect your mongo binary upon first launch in your login
+# shell
+mongoCmd: /usr/local/bin/mongo
+```
+
+### dbKoda Home Folder
+Mac & Linux: `~/.dbKoda/`
+Windows: `c:\Users\<username>\.dbKoda\`
+
 ## Development
 In development mode dbKoda has four running modes: byo, super_dev, dev and prod
 
