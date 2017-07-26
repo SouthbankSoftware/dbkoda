@@ -69,7 +69,7 @@
     "test:prod": "yarn run eslint && yarn run jest:prod",
     "eslint": "eslint src/. tests/.",
     "jest:dev": "bash -c 'yarn run cbuild:dev && rimraf uat-report.html && yarn jest -- $@; open -b com.google.chrome uat-report.html' --",
-    "jest:linux": "bash -c 'yarn run cbuild:dev && rimraf uat-report.html && yarn jest -- $@' --",
+    "jest:ci": "bash -c 'yarn run cbuild:dev && rimraf uat-report.html && yarn jest -- $@' --",
     "jest:dev:debug": "DEBUG=true CI=true yarn jest:dev --",
     "jest:dev:debug:inspect": "yarn run cbuild:dev && bash -c 'concurrently --kill-others \"yarn run dev:chrome\" \"node-inspector --preload=false\" \"export DBUS_SESSION_BUS_ADDRESS=/dev/null; node --debug-brk ./node_modules/.bin/jest --runInBand  --forceExit --config jest.json $@\"' --",
     "jest:prod": "bash -c 'yarn run cbuild && yarn run pack && rimraf uat-report.html && NODE_ENV=production yarn jest -- $@; open -b com.google.chrome uat-report.html' --",
