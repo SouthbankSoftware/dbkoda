@@ -159,7 +159,7 @@ const configController = () => {
       LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
       MONGO_SCRIPTS_PATH: path.resolve(
         app.getAppPath(),
-        '../app.asar.unpacked/node_modules/@southbanksoftware/dbkoda-controller/lib/'
+        'node_modules/@southbanksoftware/dbkoda-controller/lib/'
       ),
       UAT: global.UAT
     }
