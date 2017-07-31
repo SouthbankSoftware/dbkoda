@@ -79,7 +79,8 @@ global.PATHS = (() => {
     logs: path.resolve(userData, 'logs'),
     stateStore: global.UAT
       ? '/tmp/stateStore.json'
-      : path.resolve(home, 'stateStore.json')
+      : path.resolve(home, 'stateStore.json'),
+    CONFIG_PATH: path.resolve(global.PATHS.home, 'config.yml'),
   };
 })();
 
