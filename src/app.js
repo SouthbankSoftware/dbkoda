@@ -80,7 +80,6 @@ global.PATHS = (() => {
     stateStore: global.UAT
       ? '/tmp/stateStore.json'
       : path.resolve(home, 'stateStore.json'),
-    CONFIG_PATH: path.resolve(global.PATHS.home, 'config.yml'),
   };
 })();
 
@@ -162,7 +161,8 @@ const configController = () => {
         app.getAppPath(),
         'node_modules/@southbanksoftware/dbkoda-controller/lib/'
       ),
-      UAT: global.UAT
+      UAT: global.UAT,
+      CONFIG_PATH: path.resolve(global.PATHS.home, 'config.yml'),
     }
   });
 };
