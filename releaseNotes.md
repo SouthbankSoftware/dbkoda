@@ -12,6 +12,10 @@ To get help or to request features or simply to tell us what you think, visit ou
 
 To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
 
+## Release 0.6.1
+This is a hotfix that corrects the error "Create Shell Connection Failed" when mongodb binaries are located in a local path but not in the system path.  See https://dbkoda.useresponse.com/knowledge-base/article/dealing-with-create-shell-connection-failed-errors for further information about this bug. 
+
+## Release 0.6
 ### Improvements
 
 Absolutely everything in this release of dbKoda is an improvement over the previous version, which did not exist. 
