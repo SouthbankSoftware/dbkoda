@@ -14,6 +14,9 @@
     "lib",
     "node_modules"
   ],
+  "asarUnpack": [
+    "node_modules/@southbanksoftware/dbkoda-controller/lib/all-in-one.js"
+  ],
   "mac": {
     "category": "public.app-category.productivity",
     "icon": "build/icons/mac/icon.icns"
