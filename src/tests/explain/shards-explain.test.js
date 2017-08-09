@@ -3,7 +3,7 @@
  */
 import assert from 'assert';
 import uuidV1 from 'uuid/v1';
-import { getRandomPort, launchSingleInstance, killMongoInstance, launchMongoInstance, generateMongoData } from 'test-utils';
+import { getRandomPort, killMongoInstance, launchMongoInstance, generateMongoData } from 'test-utils';
 
 import ConnectionProfile from '../pageObjects/Connection';
 import Editor from '../pageObjects/Editor';
@@ -47,14 +47,14 @@ describe('test explain', () => {
         alias,
         url: 'mongodb://localhost:' + mongoPort,
         database: 'test'
-      })
+      });
     }).then(async() => {
       await editor._appendToEditor('use admin\n');
       await editor._appendToEditor('db.runCommand({enableSharding: "test"})\n');
       await editor._appendToEditor('use test\n');
       await editor._appendToEditor('db.users.createIndex({"user.age":1})\n');
       await editor._clickExecuteAll();
-      console.log('finish before all')
+      console.log('finish before all');
     });
   });
 
