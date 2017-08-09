@@ -15,7 +15,6 @@ import {config, getApp} from '../helpers';
 
 describe('test explain', () => {
   // always config test suite
-  config({setupFailFastTest: false});
 
   let app;
   let browser;
@@ -54,7 +53,7 @@ describe('test explain', () => {
         await editor._appendToEditor('db.users.createIndex({"user.age":1})\n');
         await editor._clickExecuteAll();
         // after execute all, normal output panel should be shown
-        await browser.pause(10000);
+        await browser.pause(60000);
       }).then(() => done());
     });
   });

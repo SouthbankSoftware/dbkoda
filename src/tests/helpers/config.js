@@ -21,7 +21,7 @@ export default (options) => {
   } = options || {};
 
   // timeout for each test case
-  global.jasmine.DEFAULT_TIMEOUT_INTERVAL = process.env.DEBUG ? 7200000 : 31000;
+  global.jasmine.DEFAULT_TIMEOUT_INTERVAL = process.env.DEBUG ? 7200000 : 120000;
 
   _initStateStore && initStateStore();
   _setupFailFastTest && setupFailFastTest();
