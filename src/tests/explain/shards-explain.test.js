@@ -9,7 +9,7 @@ import ConnectionProfile from '../pageObjects/Connection';
 import Editor from '../pageObjects/Editor';
 import Explain from '../pageObjects/Explain';
 
-import {config, getApp} from '../helpers';
+import {getApp} from '../helpers';
 
 /* eslint-disable  no-await-in-loop */
 
