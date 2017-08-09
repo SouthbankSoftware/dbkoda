@@ -5,6 +5,7 @@
  * @Last modified time: 2017-05-16T14:32:42+10:00
  */
 import assert from 'assert';
+import os from 'os';
 import {getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
 import ConnectionProfile from '../pageObjects/Connection';
 import {config, getApp} from '../helpers';
@@ -34,12 +35,14 @@ describe('connection-profile-test-suite', () => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     authMongoPort = getRandomPort();
-    launchSingleInstance(
-      authMongoPort,
-      '--auth --username admin --password 123456 --auth-db admin'
-    );
+    if (os.platform() !== 'win32') {
+      launchSingleInstance(
+        authMongoPort,
+        '--auth --username admin --password 123456 --auth-db admin'
+      );
+    }
     process.on('SIGINT', cleanup);
-    return getApp().then((res) => {
+    return getApp().then(async(res) => {
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
@@ -129,6 +132,9 @@ describe('connection-profile-test-suite', () => {
   });
 
   test('connect to mongo instance with authentication through hostname', () => {
+    if (os.platform() === 'win32') {
+      return;
+    }
     return connectProfile.connectProfileByHostname({
       alias: 'TestAuth' + mongoPort + '(' + getRandomPort() + ')',
       hostName: 'localhost',

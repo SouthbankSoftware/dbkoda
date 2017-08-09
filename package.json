@@ -144,7 +144,7 @@
     "source-map-support": "^0.4.15",
     "spectron": "^3.7.1",
     "sprintf-js": "^1.1.1",
-    "test-utils": "^1.0.17",
+    "test-utils": "^1.0.18",
     "uuid": "^3.1.0",
     "webdriverio": "4.7.1"
   }

@@ -50,6 +50,7 @@ rules:
   react/prefer-stateless-function: 0
   react/jsx-space-before-closing: 0
   react/jsx-first-prop-new-line: 0
+  linebreak-style: 0
   react/jsx-closing-bracket-location: 0
   react/no-multi-comp: 0
   react/no-did-mount-set-state: 0
