@@ -121,6 +121,9 @@ describe('connection-profile-test-suite', () => {
   });
 
   test('connect to mongo instance with authentication', () => {
+    if (os.platform() === 'win32') {
+      return;
+    }
     return connectProfile.connectProfileByURL({
       alias: 'TestAuth' + mongoPort + '(' + getRandomPort() + ')',
       url: 'mongodb://localhost:' + authMongoPort,
