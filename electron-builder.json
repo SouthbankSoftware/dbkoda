@@ -2,12 +2,7 @@
   "appId": "com.southbanksoftware.dbkoda",
   "compression": "normal",
   "npmRebuild": true,
-  "files": [
-    "assets",
-    "config",
-    "lib",
-    "node_modules"
-  ],
+  "files": ["assets", "config", "lib", "node_modules"],
   "asarUnpack": [
     "node_modules/@southbanksoftware/dbkoda-controller/lib/all-in-one.js"
   ],
@@ -19,21 +14,22 @@
     "background": "misc/dmgbackground.tiff",
     "icon": "build/icons/mac/icon.icns",
     "iconSize": 120,
-    "contents": [{
-      "x": 162,
-      "y": 302
-    }, {
-      "x": 540,
-      "y": 302,
-      "type": "link",
-      "path": "/Applications"
-    }]
+    "contents": [
+      {
+        "x": 162,
+        "y": 302
+      },
+      {
+        "x": 540,
+        "y": 302,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ]
   },
   "linux": {
-    "target": [
-      "AppImage",
-      "deb"
-    ],
+    "category": "Development",
+    "target": ["AppImage", "deb"],
     "icon": "build/icons/png/"
   },
   "win": {
