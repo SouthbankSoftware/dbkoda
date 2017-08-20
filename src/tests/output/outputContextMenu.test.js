@@ -3,7 +3,7 @@
  * @Date:   2017-08-16T15:51:55+10:00
  * @Email:  chris@southbanksoftware.com
  * @Last modified by:   chris
- * @Last modified time: 2017-08-18T10:54:10+10:00
+ * @Last modified time: 2017-08-21T09:16:10+10:00
  */
 
  import {getRandomPort, killMongoInstance, launchSingleInstance, generateMongoData} from 'test-utils';
@@ -70,7 +70,7 @@ describe('output-panel-test-suite', () => {
     expect(tabName).not.toContain('EnhancedJson-');
   });
 
-  test('open table view', async () => {
+  /* test('open table view', async () => {
     await output.openTableView(25);
     await browser.pause(200);
     const tabName = await output.activeTabName();
@@ -82,5 +82,5 @@ describe('output-panel-test-suite', () => {
     await browser.pause(200);
     const tabName = await output.activeTabName();
     expect(tabName).not.toContain('TableView-');
-  });
+  }); */
 });
