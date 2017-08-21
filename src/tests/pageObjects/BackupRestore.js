@@ -95,20 +95,11 @@ export default class BackupRestore extends Page {
    */
   async dumpDatabase(db, options) {
     const tree = new Tree(this.browser);
-    const treeAction = new TreeAction(this.browser);
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
-    await this.browser.waitForExist(tree.treeNodeSelector);
-    await this.browser.pause(1000);
-    await treeAction.getTreeNodeByPath(['Databases', db]).rightClick().pause(1000);
-    // await this.browser.rightClick(this._getDatabaseSelector(db));
-    await treeAction.clickContextMenu('Dump Database');
+    await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.DUMP_DATABASE, options);
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     const dbValue = await this.browser.getValue(this.prefixSelector + 'database-input');
     assert.equal(dbValue, db);
-    await this.fillInOptions(options);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
@@ -125,18 +116,10 @@ export default class BackupRestore extends Page {
    */
   async restoreDatabase(db, options) {
     const tree = new Tree(this.browser);
-    const treeAction = new TreeAction(this.browser);
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
-    await this.browser.waitForExist(tree.treeNodeSelector);
-    await this.browser.pause(1000);
-    await treeAction.getTreeNodeByPath(['Databases', db]).rightClick().pause(1000);
-    await treeAction.clickContextMenu('Restore Database');
+    await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.RESTORE_DATABASE, options);
     await this.browser.waitForExist(this.panelSelector);
     const dbValue = await this.browser.getValue(this.prefixSelector + 'database-input');
     assert.equal(dbValue, db);
-    await this.fillInOptions(options);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
