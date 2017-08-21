@@ -3,7 +3,7 @@
  * @Date:   2017-04-28T15:03:44+10:00
  * @Email:  chris@southbanksoftware.com
  * @Last modified by:   chris
- * @Last modified time: 2017-06-05T12:15:40+10:00
+ * @Last modified time: 2017-08-18T10:54:37+10:00
  */
 
 import Page from './Page';
@@ -18,6 +18,15 @@ export default class Output extends Page {
   currentVisibleOutputSelector = '.pt-tab-panel.visible .outputEditor';
   outputLinesSelector = '.pt-tab-panel.visible > .outputEditor > .ReactCodeMirror > textarea';
   newOutputCursor = 0;
+  codeMirrorSelector = this.outputPanelSelector + ' .CodeMirror';
+  // Context Menu selectors
+  menuSelector = '.outputContextMenu';
+  jsonViewSelector = this.menuSelector + ' .showJsonView';
+  jsonContentSelector = '';
+  tableViewSelector = this.menuSelector + ' .showTableView';
+  tableContentSelector = '';
+  LINE_HEIGHT = 18; // CodeMirror Output lines are 18 px high
+  LINE_OFFSET = 4;  // First 4px are padding to be skipped
 
   /** @type {WebDriverIoPromise} */
   get clearOutput() {
@@ -74,6 +83,10 @@ export default class Output extends Page {
     return this.browser.getHTML(this.outputLinesSelector, false);
   }
 
+  activeTabName() {
+    return this.browser.getHTML(this.selectedTabSelector, false);
+  }
+
   /** Sets the outputCursor such that subsequent calls to getNewOutputLines
    *  return only the output data after the current cursor value.
    */
@@ -101,4 +114,35 @@ export default class Output extends Page {
   _getOutputToolbarElement(name) {
     return this.browser.element(`.outputToolbar ${name}`);
   }
+
+  /*
+   *
+   */
+  async _openContextMenu(lineNumber) {
+    const xOffset = 15;
+    const yOffset = this.LINE_OFFSET + (this.LINE_HEIGHT * lineNumber);
+    return this
+      .browser
+      .waitForExist(`${this.codeMirrorSelector}-lines`)
+      .rightClick(`${this.codeMirrorSelector}-lines`, xOffset, yOffset)
+      .waitForExist(this.menuSelector);
+  }
+
+  async openJsonView(lineNumber) {
+    await this._openContextMenu(lineNumber);
+    return this
+      .browser
+      .waitForExist(`${this.jsonViewSelector}`)
+      .click(`${this.jsonViewSelector}`);
+  }
+
+  async openTableView(lineNumber) {
+    await this._openContextMenu(lineNumber);
+    return this
+      .browser
+      .waitForExist(`${this.tableViewSelector}`)
+      .click(`${this.tableViewSelector}`);
+  }
+
+
 }
