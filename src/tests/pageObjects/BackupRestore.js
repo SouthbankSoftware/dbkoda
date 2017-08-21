@@ -47,6 +47,10 @@ export const Options = {
   [ParameterName.readPreference]: {clsName: 'read-preference', type: 'input'},
 };
 
+const getOptionObject = (key) => {
+  return Options[key];
+};
+
 export default class BackupRestore extends Page {
   panelSelector = '.database-export-panel';
 
@@ -84,7 +88,6 @@ export default class BackupRestore extends Page {
     await tree.toogleExpandTreeNode(
       tree.databasesNodeSelector
     );
-
   }
 
   /**
@@ -135,7 +138,7 @@ export default class BackupRestore extends Page {
    */
   async fillInOptions(options) {
     await _.forOwn(options, async (value, key) => {
-      const o = this._getOptionObject(key);
+      const o = getOptionObject(key);
       if (o.type === 'input') {
         await this.browser.setValue(this.prefixSelector + o.clsName, value);
         await this.browser.waitForValue(this.prefixSelector + o.clsName);
@@ -164,9 +167,5 @@ export default class BackupRestore extends Page {
       const v = checked ? 'true' : null;
       return newValue === v;
     });
-  }
-
-  _getOptionObject(key) {
-    return Options[key];
   }
 }
