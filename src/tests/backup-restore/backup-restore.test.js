@@ -25,9 +25,10 @@ import {getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils
 import ConnectionProfile from '../pageObjects/Connection';
 import BackupRestore from '../pageObjects/BackupRestore';
 
-import {getApp} from '../helpers';
+import {getApp, config} from '../helpers';
 
 describe('backup restore test suite', () => {
+  config();
   let mongoPort;
   let connectProfile;
   let browser;
@@ -65,6 +66,6 @@ describe('backup restore test suite', () => {
         database: 'admin',
         port: mongoPort,
       });
-    await bkRestore.openPanel();
+    await bkRestore.dumpDatabase('admin', {'path-input': 'test/backup', 'gzip': true});
   });
 });

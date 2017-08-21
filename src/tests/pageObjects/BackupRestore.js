@@ -21,15 +21,86 @@
  * Created by joey on 17/8/17.
  */
 
+import _ from 'lodash';
+import assert from 'assert';
 import Page from './Page';
 import Tree from './Tree';
+import TreeAction from './TreeAction';
 
 export default class BackupRestore extends Page {
-  async openPanel(_) {
+
+  panelSelector = '.database-export-panel';
+
+  prefixSelector = '.db-backup-';
+
+  options = {'path-input': {type: 'input'},
+    'gzip': {type: 'checkbox'},
+    'all-collections': {type: 'checkbox'},
+    'all-databases': {type: 'checkbox'}};
+
+  /**
+   * run mongodump on the database
+   * @param db  the name of the database
+   * @param options the options of mongodump command
+   * @returns {Promise.<void>}
+   */
+  async dumpDatabase(db, options) {
     const tree = new Tree(this.browser);
-    await this.browser.waitForExist(tree.treeNodeSelector);
+    const treeAction = new TreeAction(this.browser);
     await tree.toogleExpandTreeNode(
       tree.databasesNodeSelector
     );
+    await this.browser.waitForExist(tree.treeNodeSelector);
+    await this.browser.pause(1000);
+    await this.browser.rightClick(this._getDatabaseSelector(db));
+    await treeAction.clickContextMenu('Dump Database');
+    await this.browser.waitForExist(this.panelSelector);
+    await this.browser.pause(1000);
+    const dbValue = await this.browser.getValue(this.prefixSelector + 'database-input');
+    assert.equal(dbValue, db);
+    await this.fillInOptions(options);
+    await this.browser.pause(10000);
+  }
+
+  /**
+   * fill in the given options on the panel
+   * @param options the options is a json object for the mongo command parameters:
+   * {
+   *  'path-input': '',
+   *
+   * }
+   * @returns {Promise.<void>}
+   */
+  async fillInOptions(options) {
+    await _.forOwn(options, async (value, key) => {
+      console.log('fill in options ', key, value);
+      await this.browser.leftClick(this.prefixSelector + key);
+      const o = this._getOptionObject(key);
+      if (o.type === 'input') {
+        await this.browser.setValue(this.prefixSelector + key, value);
+        await this.browser.waitForValue(this.prefixSelector + key);
+      } else if (o.type === 'checkbox') {
+        const checked = await this.browser.getValue(this.prefixSelector + key);
+        console.log('checked value', key, checked);
+        await this.browser.leftClick(this.prefixSelector + key);
+        console.log('checked value', key, await this.browser.getValue(this.prefixSelector + key));
+      }
+    });
+  }
+
+  /**
+   * get database xpath select based on database name
+   * @param db  the database name
+   * @private
+   */
+  _getDatabaseSelector(db) {
+    return `//span[@class="pt-tree-node-label"]/span[contains(string(),"${db}")]`;
+  }
+
+  _getOptionObject(key) {
+    if (key === 'all-databases') {
+      return this.options['all-collections'];
+    }
+    return this.options[key];
   }
 }
