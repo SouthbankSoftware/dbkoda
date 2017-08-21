@@ -26,22 +26,40 @@ import assert from 'assert';
 import Page from './Page';
 import Tree from './Tree';
 import TreeAction from './TreeAction';
+import {DELAY_TIMEOUT} from '../helpers/config';
+
+export const ParameterName = {
+  pathInput: 'pathInput', gzip: 'gzip', allCollections: 'all-collections', allDatabases: 'all-databases', repair: 'repair',
+  dumpDbUsersAndRoles: 'dumpDbUsersAndRoles', viewsAsCollections: 'viewsAsCollections', forceTableScan: 'forceTableScan',
+  query: 'query', readPreference: 'readPreference',
+};
+
+export const Options = {
+  [ParameterName.pathInput]: {clsName: 'path-input', type: 'input'},
+  [ParameterName.gzip]: {clsName: 'gzip input', type: 'checkbox'},
+  [ParameterName.allCollections]: {clsName: 'all-collections input', type: 'checkbox'},
+  [ParameterName.allDatabases]: {clsName: 'all-collections input', type: 'checkbox'},
+  [ParameterName.repair]: {clsName: 'repair input', type: 'checkbox'},
+  [ParameterName.dumpDbUsersAndRoles]: {clsName: 'dump-db-users-and-role input', type: 'checkbox'},
+  [ParameterName.viewsAsCollections]: {clsName: 'views-as-collections input', type: 'checkbox'},
+  [ParameterName.forceTableScan]: {clsName: 'force-table-scan input', type: 'checkbox'},
+  [ParameterName.query]: {clsName: 'query', type: 'input'},
+  [ParameterName.readPreference]: {clsName: 'read-preference', type: 'input'},
+};
 
 export default class BackupRestore extends Page {
-
   panelSelector = '.database-export-panel';
 
   prefixSelector = '.db-backup-';
 
-  options = {'path-input': {type: 'input'},
-    'gzip': {type: 'checkbox'},
-    'all-collections': {type: 'checkbox'},
-    'all-databases': {type: 'checkbox'}};
+  executeButtonSelector = this.prefixSelector + 'execute';
+
+  closeButtonSelector = this.prefixSelector + 'close';
 
   /**
    * run mongodump on the database
    * @param db  the name of the database
-   * @param options the options of mongodump command
+   * @param options the options of mongodump command. The parameters can be found at ParameterName objects
    * @returns {Promise.<void>}
    */
   async dumpDatabase(db, options) {
@@ -52,55 +70,103 @@ export default class BackupRestore extends Page {
     );
     await this.browser.waitForExist(tree.treeNodeSelector);
     await this.browser.pause(1000);
-    await this.browser.rightClick(this._getDatabaseSelector(db));
+    await treeAction.getTreeNodeByPath(['Databases', db]).rightClick().pause(1000);
+    // await this.browser.rightClick(this._getDatabaseSelector(db));
     await treeAction.clickContextMenu('Dump Database');
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     const dbValue = await this.browser.getValue(this.prefixSelector + 'database-input');
     assert.equal(dbValue, db);
     await this.fillInOptions(options);
-    await this.browser.pause(10000);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+
+  }
+
+  /**
+   * run mongorestore to restore databases
+   *
+   * @param db  the database name to be restored
+   * @param options
+   */
+  async restoreDatabase(db, options) {
+    const tree = new Tree(this.browser);
+    const treeAction = new TreeAction(this.browser);
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+    await this.browser.waitForExist(tree.treeNodeSelector);
+    await this.browser.pause(1000);
+    await treeAction.getTreeNodeByPath(['Databases', db]).rightClick().pause(1000);
+    await treeAction.clickContextMenu('Restore Database');
+    await this.browser.waitForExist(this.panelSelector);
+    const dbValue = await this.browser.getValue(this.prefixSelector + 'database-input');
+    assert.equal(dbValue, db);
+    await this.fillInOptions(options);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+  }
+
+  /**
+   * click execute button to run commands
+   */
+  async executeCommand() {
+    await this.browser.waitForExist(this.executeButtonSelector, DELAY_TIMEOUT);
+    await this.browser.leftClick(this.executeButtonSelector);
+  }
+
+  async closePanel() {
+    await this.browser.waitForExist(this.closeButtonSelector, DELAY_TIMEOUT);
+    await this.browser.leftClick(this.closeButtonSelector);
+    await this.browser.waitForExist(this.closeButtonSelector, DELAY_TIMEOUT, true);
   }
 
   /**
    * fill in the given options on the panel
-   * @param options the options is a json object for the mongo command parameters:
-   * {
-   *  'path-input': '',
-   *
-   * }
-   * @returns {Promise.<void>}
+   * @param options the options is a json object for the mongo command parameters
    */
   async fillInOptions(options) {
     await _.forOwn(options, async (value, key) => {
-      console.log('fill in options ', key, value);
-      await this.browser.leftClick(this.prefixSelector + key);
       const o = this._getOptionObject(key);
       if (o.type === 'input') {
-        await this.browser.setValue(this.prefixSelector + key, value);
-        await this.browser.waitForValue(this.prefixSelector + key);
+        await this.browser.setValue(this.prefixSelector + o.clsName, value);
+        await this.browser.waitForValue(this.prefixSelector + o.clsName);
       } else if (o.type === 'checkbox') {
-        const checked = await this.browser.getValue(this.prefixSelector + key);
-        console.log('checked value', key, checked);
-        await this.browser.leftClick(this.prefixSelector + key);
-        console.log('checked value', key, await this.browser.getValue(this.prefixSelector + key));
+        await this._setCheckbox(this.prefixSelector + o.clsName, value);
       }
+      await this.browser.pause(1000);
     });
   }
 
   /**
-   * get database xpath select based on database name
-   * @param db  the database name
-   * @private
+   * make the checkbox selected or unselected
+   * @param selector the checkbox selector
+   * @param checked whether select the checkbox
    */
-  _getDatabaseSelector(db) {
-    return `//span[@class="pt-tree-node-label"]/span[contains(string(),"${db}")]`;
+  async _setCheckbox(selector, checked) {
+    const current = await this.browser.getAttribute(selector, 'checked');
+      if (checked && current !== 'true') {
+        await this.browser.leftClick(selector);
+      } else if (!checked && current === 'true') {
+        await this.browser.leftClick(selector);
+      }
+    this.browser.pause(1000);
+    await this.browser.waitUntil(async () => {
+      const newValue = await this.browser.getAttribute(selector, 'checked');
+      const v = checked ? 'true' : null;
+      return newValue === v;
+    });
   }
 
   _getOptionObject(key) {
-    if (key === 'all-databases') {
-      return this.options['all-collections'];
-    }
-    return this.options[key];
+    return Options[key];
   }
 }

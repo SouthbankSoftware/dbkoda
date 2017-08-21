@@ -20,10 +20,12 @@
 /**
  * Created by joey on 17/8/17.
  */
-
-import {getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
+import assert from 'assert';
+import {getRandomPort, killMongoInstance, launchSingleInstance, generateMongoData} from 'test-utils';
 import ConnectionProfile from '../pageObjects/Connection';
-import BackupRestore from '../pageObjects/BackupRestore';
+import BackupRestore, {ParameterName} from '../pageObjects/BackupRestore';
+import TreeAction from '../pageObjects/TreeAction';
+import Tree from '../pageObjects/Tree';
 
 import {getApp, config} from '../helpers';
 
@@ -34,6 +36,8 @@ describe('backup restore test suite', () => {
   let browser;
   let bkRestore;
   let app;
+  let treeAction;
+  let tree;
 
   const cleanup = () => {
     killMongoInstance(mongoPort);
@@ -46,11 +50,13 @@ describe('backup restore test suite', () => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     process.on('SIGINT', cleanup);
-    return getApp().then((res) => {
+    return getApp().then(async (res) => {
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
       bkRestore = new BackupRestore(browser);
+      treeAction = new TreeAction(browser);
+      tree = new Tree(browser);
     });
   });
 
@@ -58,7 +64,11 @@ describe('backup restore test suite', () => {
     return cleanup();
   });
 
-  test('backup database test', async () => {
+  test('dump and restore a single database without any parameters', async () => {
+    const dumpDbName = 'testdump-' + getRandomPort();
+    const restoreDbName = 'testrestore-' + getRandomPort();
+    generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 500');
+    generateMongoData(mongoPort, restoreDbName, 'placeholder');
     await connectProfile
       .connectProfileByHostname({
         alias: 'test backup ' + mongoPort,
@@ -66,6 +76,17 @@ describe('backup restore test suite', () => {
         database: 'admin',
         port: mongoPort,
       });
-    await bkRestore.dumpDatabase('admin', {'path-input': 'test/backup', 'gzip': true});
+    // dump a test database
+    await bkRestore.dumpDatabase(dumpDbName, {[ParameterName.pathInput]: 'data/test/dump', [ParameterName.gzip]: false});
+    await browser.pause(1000);
+    // restore the dump data into a new database
+    await bkRestore.restoreDatabase(restoreDbName, {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol.bson`});
+    await browser.pause(1000);
+    await tree._clickRefreshButton();
+    await browser.pause(1000);
+    // TODO: verify the restored database
+    const nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol']);
+    console.log('get tree nodes ', nodes);
+    assert.notEqual(nodes, null);
   });
 });

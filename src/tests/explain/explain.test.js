@@ -3,7 +3,7 @@
  */
 import assert from 'assert';
 import uuidV1 from 'uuid/v1';
-import {getRandomPort, killMongoInstance, launchSingleInstance, generateMongoData} from 'test-utils';
+import {generateMongoData, getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
 
 import ConnectionProfile from '../pageObjects/Connection';
 import Editor from '../pageObjects/Editor';
@@ -35,7 +35,7 @@ describe('test explain', () => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     generateMongoData(mongoPort, 'test', 'users', '--num 500');
-   process.on('SIGINT', cleanup);
+    process.on('SIGINT', cleanup);
     return getApp().then(async (res) => {
       app = res;
       browser = app.client;
