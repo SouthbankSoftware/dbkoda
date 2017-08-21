@@ -28,23 +28,50 @@ import Tree from './Tree';
 import TreeAction from './TreeAction';
 import {DELAY_TIMEOUT} from '../helpers/config';
 
+/**
+ * all parameter names used on backup/restore commands
+ */
 export const ParameterName = {
-  pathInput: 'pathInput', gzip: 'gzip', allCollections: 'all-collections', allDatabases: 'all-databases', repair: 'repair',
-  dumpDbUsersAndRoles: 'dumpDbUsersAndRoles', viewsAsCollections: 'viewsAsCollections', forceTableScan: 'forceTableScan',
-  query: 'query', readPreference: 'readPreference',
+  pathInput: 'pathInput',
+  gzip: 'gzip',
+  allCollections: 'all-collections',
+  allDatabases: 'all-databases',
+  repair: 'repair',
+  dumpDbUsersAndRoles: 'dumpDbUsersAndRoles',
+  viewsAsCollections: 'viewsAsCollections',
+  forceTableScan: 'forceTableScan',
+  query: 'query',
+  readPreference: 'readPreference',
 };
 
+/**
+ * define each parameter classname and type
+ */
 export const Options = {
   [ParameterName.pathInput]: {clsName: 'path-input', type: 'input'},
   [ParameterName.gzip]: {clsName: 'gzip input', type: 'checkbox'},
   [ParameterName.allCollections]: {clsName: 'all-collections input', type: 'checkbox'},
   [ParameterName.allDatabases]: {clsName: 'all-collections input', type: 'checkbox'},
   [ParameterName.repair]: {clsName: 'repair input', type: 'checkbox'},
-  [ParameterName.dumpDbUsersAndRoles]: {clsName: 'dump-db-users-and-role input', type: 'checkbox'},
+  [ParameterName.dumpDbUsersAndRoles]: {clsName: 'dump-db-users-and-roles input', type: 'checkbox'},
   [ParameterName.viewsAsCollections]: {clsName: 'views-as-collections input', type: 'checkbox'},
   [ParameterName.forceTableScan]: {clsName: 'force-table-scan input', type: 'checkbox'},
   [ParameterName.query]: {clsName: 'query', type: 'input'},
   [ParameterName.readPreference]: {clsName: 'read-preference', type: 'input'},
+};
+
+/**
+ * tree action command name
+ */
+export const TreeActions = {
+  DUMP_DATABASE: 'Dump Database',
+  RESTORE_DATABASE: 'Restore Database',
+  IMPORT_COLLECTIONS: 'Import Collections',
+  EXPORT_COLLECTIONS: 'Export Collections',
+  DUMP_DATABASES: 'Dump Databases',
+  RESTORE_DATABASES: 'Restore Databases',
+  IMPORT_COLLECTION: 'Import Collection',
+  EXPORT_COLLECTION: 'Export Collection'
 };
 
 const getOptionObject = (key) => {
@@ -119,6 +146,27 @@ export default class BackupRestore extends Page {
   }
 
   /**
+   * open the backup restore panel
+   * @param nodePath the node path to be selected. For example, ['Databases', 'admin'] means select the admin database node
+   * @param action the context menu action, can be one of the value from
+   *        {TreeActions.DUMP_DATABASE, TreeActions.DUMP_DATABASES, TreeActions.RESTORE_DATABASE, TreeActions.RESTORE_DATABASES,
+   *         TreeActions.IMPORT_COLLECTION, TreeACtions.IMPORT_COLLECTIONS, TreeActions.EXPORT_COLLECTION, TreeActions.EXPORT_COLLECTIONS}
+   * @param options  the parameter values on the panel. All parameter names are defined in ParameterName object
+   */
+  async openMongoBackupRestorePanel(nodePath, action, options) {
+    const tree = new Tree(this.browser);
+    const treeAction = new TreeAction(this.browser);
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+    await this.browser.waitForExist(tree.treeNodeSelector);
+    await this.browser.pause(1000);
+    await treeAction.getTreeNodeByPath(nodePath).rightClick().pause(1000);
+    await treeAction.clickContextMenu(action);
+    await this.fillInOptions(options);
+  }
+
+  /**
    * click execute button to run commands
    */
   async executeCommand() {
@@ -130,6 +178,30 @@ export default class BackupRestore extends Page {
     await this.browser.waitForExist(this.closeButtonSelector, DELAY_TIMEOUT);
     await this.browser.leftClick(this.closeButtonSelector);
     await this.browser.waitForExist(this.closeButtonSelector, DELAY_TIMEOUT, true);
+  }
+
+  /**
+   * get the parameter value from the panel
+   * @param name
+   */
+  async getParameterValue(name) {
+    const parameterSelector = this.getParameterSelector(name);
+    const o = getOptionObject(name);
+    if (o.type === 'checkbox') {
+      return this.browser.getAttribute(parameterSelector, 'checked');
+    } else if (o.type === 'input') {
+      return this.browser.getValue(parameterSelector);
+    }
+  }
+
+
+  /**
+   * get parameter class name selector
+   * @param name   the name of the parameter
+   * @returns {string}
+   */
+  getParameterSelector(name) {
+    return this.prefixSelector + getOptionObject(name).clsName;
   }
 
   /**
@@ -156,16 +228,11 @@ export default class BackupRestore extends Page {
    */
   async _setCheckbox(selector, checked) {
     const current = await this.browser.getAttribute(selector, 'checked');
-      if (checked && current !== 'true') {
-        await this.browser.leftClick(selector);
-      } else if (!checked && current === 'true') {
-        await this.browser.leftClick(selector);
-      }
+    if (checked && current !== 'true') {
+      await this.browser.click(selector.replace(' input', ''));
+    } else if (!checked && current === 'true') {
+      await this.browser.click(selector.replace(' input', ''));
+    }
     this.browser.pause(1000);
-    await this.browser.waitUntil(async () => {
-      const newValue = await this.browser.getAttribute(selector, 'checked');
-      const v = checked ? 'true' : null;
-      return newValue === v;
-    });
   }
 }
