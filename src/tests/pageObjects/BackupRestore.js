@@ -33,6 +33,7 @@ import {DELAY_TIMEOUT} from '../helpers/config';
  */
 export const ParameterName = {
   database: 'database',
+  collection: 'collection',
   pathInput: 'pathInput',
   gzip: 'gzip',
   allCollections: 'all-collections',
@@ -65,6 +66,7 @@ export const ParameterName = {
  */
 export const Options = {
   [ParameterName.database]: {clsName: 'database-input', type: 'input'},
+  [ParameterName.collection]: {clsName: 'collection-input', type: 'input'},
   [ParameterName.pathInput]: {clsName: 'path-input', type: 'input'},
   [ParameterName.gzip]: {clsName: 'gzip input', type: 'checkbox'},
   [ParameterName.allCollections]: {clsName: 'all-collections input', type: 'checkbox'},
@@ -82,14 +84,14 @@ export const Options = {
   [ParameterName.noOptionsRestore]: {clsName: 'no-options-restore input', type: 'checkbox'},
   [ParameterName.keepIndexVersion]: {clsName: 'keep-index-version input', type: 'checkbox'},
   [ParameterName.maintainInsertionOrder]: {clsName: 'maintain-insertion-order input', type: 'checkbox'},
-  [ParameterName.numParallelCollections]: {clsName: 'num-parallel-collections', type: 'input'},
-  [ParameterName.numInsertionWorkers]: {clsName: 'num-insertion-workers', type: 'input'},
-  [ParameterName.stopOnError]: {clsName: 'stop-on-error', type: 'checkbox'},
+  [ParameterName.numParallelCollections]: {clsName: 'num-parallel-collections input', type: 'input'},
+  [ParameterName.numInsertionWorkers]: {clsName: 'num-insertion-workers input', type: 'input'},
+  [ParameterName.stopOnError]: {clsName: 'stop-on-error input', type: 'checkbox'},
   [ParameterName.bypassDocumentValidation]: {clsName: 'bypass-document-validation input', type: 'checkbox'},
   [ParameterName.objcheck]: {clsName: 'objcheck input', type: 'checkbox'},
   [ParameterName.oplogReplay]: {clsName: 'oplog-replay input', type: 'checkbox'},
   [ParameterName.oplogLimit]: {clsName: 'oplog-limit', type: 'input'},
-  [ParameterName.restoreDbUsersAndRoles]: {clsName: 'restore-db-users-and-roles', type: 'input'},
+  [ParameterName.restoreDbUsersAndRoles]: {clsName: 'restore-db-users-and-roles input', type: 'checkbox'},
 };
 
 /**
@@ -244,7 +246,6 @@ export default class BackupRestore extends Page {
    */
   async _setCheckbox(selector, checked) {
     const current = await this.browser.getAttribute(selector, 'checked');
-    console.log('get current value ', current, selector);
     if (checked && current !== 'true') {
       await this.browser.click(selector.replace(' input', ''));
     } else if (!checked && current === 'true') {

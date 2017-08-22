@@ -24,7 +24,6 @@
  */
 
 import assert from 'assert';
-import _ from 'lodash';
 import {generateMongoData, getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
 import ConnectionProfile from '../pageObjects/Connection';
 import BackupRestore, {ParameterName, TreeActions} from '../pageObjects/BackupRestore';
@@ -105,7 +104,7 @@ describe('backup restore test suite', () => {
       );
     } catch (err) {
       console.error('get error ', err);
-      assert.fail(err.message);
+      assert.fail(true, false, err.message);
     }
   });
 
@@ -139,7 +138,7 @@ describe('backup restore test suite', () => {
       );
     } catch (err) {
       console.error('get error ', err);
-      assert.fail(err.message);
+      assert.fail(true, false, err.message);
     }
   });
 
@@ -173,7 +172,7 @@ describe('backup restore test suite', () => {
       );
     } catch (err) {
       console.error('get error ', err);
-      assert.fail(err.message);
+      assert.fail(true, false, err.message);
     }
   });
 
@@ -201,19 +200,136 @@ describe('backup restore test suite', () => {
       };
       await bkRestore.openMongoBackupRestorePanel(['Databases'], TreeActions.RESTORE_DATABASES, params);
       await browser.pause(1000);
-      _.forOwn(params, async (value, key) => {
-        console.log('check key ', key);
-        const nvalue = await bkRestore.getParameterValue(key);
-        console.log('compare ', nvalue, value);
-        assert.equal(nvalue, value);
-      });
+      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dumpDbName);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.drop), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.dryRun), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.writeConcern), 'majority');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.noIndexRestore), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.noOptionsRestore), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.keepIndexVersion), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.maintainInsertionOrder), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.numParallelCollections), '5');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.numInsertionWorkers), '3');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.stopOnError), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.bypassDocumentValidation), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.objcheck), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.oplogReplay), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.oplogLimit), '10');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.restoreDbUsersAndRoles), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       await bkRestore.closePanel();
       await tree.toogleExpandTreeNode(
         tree.databasesNodeSelector
       );
     } catch (err) {
       console.error('get error ', err);
-      assert.fail(err.message);
+      assert.fail(true, false);
+    }
+  });
+
+  test('restore a database to verify its parameter values', async () => {
+      try {
+        const params = {
+          [ParameterName.drop]: true,
+          [ParameterName.collection]: 'testcol',
+          [ParameterName.pathInput]: 'data/test/dump',
+          [ParameterName.dryRun]: true,
+          [ParameterName.writeConcern]: 'majority',
+          [ParameterName.noIndexRestore]: true,
+          [ParameterName.noOptionsRestore]: true,
+          [ParameterName.keepIndexVersion]: true,
+          [ParameterName.maintainInsertionOrder]: true,
+          [ParameterName.numParallelCollections]: 5,
+          [ParameterName.numInsertionWorkers]: 3,
+          [ParameterName.stopOnError]: true,
+          [ParameterName.bypassDocumentValidation]: true,
+          [ParameterName.objcheck]: true,
+          [ParameterName.oplogReplay]: true,
+          [ParameterName.oplogLimit]: 10,
+          [ParameterName.restoreDbUsersAndRoles]: true,
+          [ParameterName.gzip]: true,
+        };
+        await bkRestore.openMongoBackupRestorePanel(['Databases', dumpDbName], TreeActions.RESTORE_DATABASE, params);
+        await browser.pause(1000);
+        assert.equal(await bkRestore.getParameterValue(ParameterName.database), dumpDbName);
+        assert.equal(await bkRestore.getParameterValue(ParameterName.collection), 'testcol');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.drop), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.dryRun), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.writeConcern), 'majority');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.noIndexRestore), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.noOptionsRestore), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.keepIndexVersion), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.maintainInsertionOrder), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.numParallelCollections), '5');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.numInsertionWorkers), '3');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.stopOnError), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.bypassDocumentValidation), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.objcheck), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.oplogReplay), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.oplogLimit), '10');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.restoreDbUsersAndRoles), 'true');
+        assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
+        await bkRestore.closePanel();
+        await tree.toogleExpandTreeNode(
+          tree.databasesNodeSelector
+        );
+      } catch (err) {
+        console.error('get error ', err);
+        assert.fail(true, false);
+      }
+  });
+
+  test('restore a collection to verify its parameter values', async () => {
+    try {
+      const params = {
+        [ParameterName.drop]: true,
+        [ParameterName.pathInput]: 'data/test/dump',
+        [ParameterName.dryRun]: true,
+        [ParameterName.writeConcern]: 'majority',
+        [ParameterName.noIndexRestore]: true,
+        [ParameterName.noOptionsRestore]: true,
+        [ParameterName.keepIndexVersion]: true,
+        [ParameterName.maintainInsertionOrder]: true,
+        [ParameterName.numParallelCollections]: 5,
+        [ParameterName.numInsertionWorkers]: 3,
+        [ParameterName.stopOnError]: true,
+        [ParameterName.bypassDocumentValidation]: true,
+        [ParameterName.objcheck]: true,
+        [ParameterName.oplogReplay]: true,
+        [ParameterName.oplogLimit]: 10,
+        [ParameterName.restoreDbUsersAndRoles]: true,
+        [ParameterName.gzip]: true,
+      };
+      await bkRestore.openMongoBackupRestorePanel(['Databases', dumpDbName, 'testcol'], TreeActions.RESTORE_COLLECTION, params);
+      await browser.pause(1000);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dumpDbName);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.collection), 'testcol');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.drop), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.dryRun), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.writeConcern), 'majority');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.noIndexRestore), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.noOptionsRestore), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.keepIndexVersion), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.maintainInsertionOrder), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.numParallelCollections), '5');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.numInsertionWorkers), '3');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.stopOnError), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.bypassDocumentValidation), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.objcheck), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.oplogReplay), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.oplogLimit), '10');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.restoreDbUsersAndRoles), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
+      await bkRestore.closePanel();
+      await tree.toogleExpandTreeNode(
+        tree.databasesNodeSelector
+      );
+    } catch (err) {
+      console.error('get error ', err);
+      assert.fail(true, false);
     }
   });
 });
