@@ -3,7 +3,7 @@
  * @Date:   2017-05-01T09:06:09+10:00
  * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   wahaj
- * @Last modified time: 2017-05-17T11:24:19+10:00
+ * @Last modified time: 2017-08-22T12:13:49+10:00
  */
 
 import Page from './Page';
@@ -35,6 +35,26 @@ export default class ConnectionProfile extends Page {
   databaseInputSelector = '.database-input';
 
   sslCheckboxSelector = '.ssl-input-content label input';
+
+  sshCheckboxSelector = '.ssh-input-content label input';
+
+  remoteHostInputSelector = '.remoteHost-input-content .remoteHost-input';
+
+  sshPortInputSelector = '.sshPort-input-content .sshPort-input';
+
+  remotePortInputSelector = '.remotePort-input-content .remotePort-input';
+
+  remoteUserInputSelector = '.remoteUser-input-content .remoteUser-input';
+
+  passRadioSelector = '.passRadio-input-content input';
+
+  remotePassInputSelector = '.remotePass-input-content .remotePass-input';
+
+  keyRadioSelector = '.keyRadio-input-content input';
+
+  sshKeyFileInputSelector = '.sshKeyFile-input-content .sshKeyFile-input';
+
+  passPhraseInputSelector = '.passPhrase-input-content .passPhrase-input';
 
   connectButtonSelector = '.connectButton';
   closeButtonSelector = '.close-button';
@@ -151,6 +171,37 @@ export default class ConnectionProfile extends Page {
         .waitForValue(this.hostNameInputSelector, profile.hostName)
         .setValue(this.portInputSelector, profile.port)
         .waitForValue(this.portInputSelector, profile.port);
+    }
+    if (profile.ssh) {
+      await bro
+        .leftClick(this.sshCheckboxSelector)
+        .pause(1000)
+        .setValue(this.remoteHostInputSelector, profile.remoteHost)
+        .waitForValue(this.remoteHostInputSelector, profile.remoteHost)
+        .setValue(this.sshPortInputSelector, profile.sshPort)
+        .waitForValue(this.sshPortInputSelector, profile.sshPort)
+        .setValue(this.remotePortInputSelector, profile.remotePort)
+        .waitForValue(this.remotePortInputSelector, profile.remotePort)
+        .setValue(this.remoteUserInputSelector, profile.remoteUser)
+        .waitForValue(this.remoteUserInputSelector, profile.remoteUser);
+      if (profile.passRadio) {
+        await bro
+          .leftClick(this.passRadioSelector)
+          .waitForEnabled(this.remotePassInputSelector)
+          .setValue(this.remotePassInputSelector, profile.remotePass)
+          .waitForValue(this.remotePassInputSelector, profile.remotePass);
+      } else if (profile.keyRadio) {
+        await bro
+          .leftClick(this.keyRadioSelector)
+          .waitForEnabled(this.sshKeyFileInputSelector)
+          .setValue(this.sshKeyFileInputSelector, profile.sshKeyFile)
+          .waitForValue(this.sshKeyFileInputSelector, profile.sshKeyFile)
+          .waitForEnabled(this.passPhraseInputSelector);
+          if (profile.passPhrase) {
+            await bro.setValue(this.passPhraseInputSelector, profile.passPhrase)
+            .waitForValue(this.passPhraseInputSelector, profile.passPhrase);
+          }
+      }
     }
     await this._selectSSL(profile, bro);
     await this._fillInAuthentication(profile, bro);
@@ -278,6 +329,46 @@ export default class ConnectionProfile extends Page {
 
   get password() {
     return this._getProfileElement(this.passwordInputSelector);
+  }
+
+  get sshCheckbox() {
+    return this._getProfileElement(this.sshCheckboxSelector);
+  }
+
+  get remoteHost() {
+    return this._getProfileElement(this.remoteHostInputSelector);
+  }
+
+  get sshPort() {
+    return this._getProfileElement(this.sshPortInputSelector);
+  }
+
+  get remotePort() {
+    return this._getProfileElement(this.remotePortInputSelector);
+  }
+
+  get remoteUser() {
+    return this._getProfileElement(this.remoteUserInputSelector);
+  }
+
+  get passRadio() {
+    return this._getProfileElement(this.passRadioSelector);
+  }
+
+  get remotePass() {
+    return this._getProfileElement(this.remotePassInputSelector);
+  }
+
+  get keyRadio() {
+    return this._getProfileElement(this.keyRadioSelector);
+  }
+
+  get sshKeyFile() {
+    return this._getProfileElement(this.sshKeyFileInputSelector);
+  }
+
+  get passPhrase() {
+    return this._getProfileElement(this.passPhraseInputSelector);
   }
 
   get connect() {
