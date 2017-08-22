@@ -1,8 +1,8 @@
 /**
  * Test connection profile
  *
- * @Last modified by:   guiguan
- * @Last modified time: 2017-05-16T14:32:42+10:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2017-08-22T12:30:15+10:00
  */
 import assert from 'assert';
 import os from 'os';
@@ -14,6 +14,8 @@ describe('connection-profile-test-suite', () => {
   // always config test suite
   config({setupFailFastTest: false});
   const closeApp = true;  // Set to false if you want to play with app after connections are created
+  /** Global (to current test suite) vars */
+  const r = {};
   let app;
   let browser;
   let mongoPort;
@@ -32,6 +34,16 @@ describe('connection-profile-test-suite', () => {
   };
 
   beforeAll(async () => {
+    r.ec2 = process.env.EC2_SHARD_CLUSTER_HOSTNAME;
+    r.ec2User = process.env.EC2_SHARD_CLUSTER_USERNAME;
+    r.ec2Pass = process.env.EC2_SHARD_CLUSTER_PASSWORD;
+    r.ec2SshUser = process.env.EC2_SHARD_CLUSTER_USER_SSH;
+    r.ec2SshKey = process.env.EC2_SHARD_CLUSTER_USER_KEY;
+    r.ec2SshKey2 = process.env.EC2_SHARD_CLUSTER_USER_KEY2;
+    r.ec2SshKeyPass = process.env.EC2_SHARD_CLUSTER_USER_PASSPHRASE;
+    r.ec2LocalPort = getRandomPort();
+    r.ec2LocalPort2 = getRandomPort();
+
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     authMongoPort = getRandomPort();
@@ -168,6 +180,51 @@ describe('connection-profile-test-suite', () => {
         hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
         port: 27032,
         database: 'test'
+      })
+      .catch(err => assert.fail(false, true, err));
+  });
+
+  test('open connection profile through hostname via SSH Tunnel', () => {
+    console.log(r);
+    return connectProfile
+      .connectProfileByHostname({
+        alias: 'Test ' + mongoPort + '(' + r.ec2LocalPort + ')',
+        hostName: 'localhost',
+        port: r.ec2LocalPort,
+        database: 'admin',
+        ssh: true,
+        remoteHost: r.ec2,
+        sshPort: 22,
+        remotePort: 27017,
+        remoteUser: r.ec2SshUser,
+        keyRadio: true,
+        sshKeyFile: r.ec2SshKey2,
+        authentication: true,
+        userName: r.ec2User,
+        password: r.ec2Pass
+      })
+      .catch(err => assert.fail(false, true, err));
+  });
+
+  test('open connection profile through hostname via SSH Tunnel with passPhrase', () => {
+    console.log(r);
+    return connectProfile
+      .connectProfileByHostname({
+        alias: 'Test ' + mongoPort + '(' + r.ec2LocalPort2 + ')',
+        hostName: 'localhost',
+        port: r.ec2LocalPort2,
+        database: 'admin',
+        ssh: true,
+        remoteHost: r.ec2,
+        sshPort: 22,
+        remotePort: 27017,
+        remoteUser: r.ec2SshUser,
+        keyRadio: true,
+        sshKeyFile: r.ec2SshKey,
+        passPhrase: r.ec2SshKeyPass,
+        authentication: true,
+        userName: r.ec2User,
+        password: r.ec2Pass
       })
       .catch(err => assert.fail(false, true, err));
   });
