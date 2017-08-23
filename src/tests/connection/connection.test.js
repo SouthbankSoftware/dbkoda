@@ -2,7 +2,7 @@
  * Test connection profile
  *
  * @Last modified by:   wahaj
- * @Last modified time: 2017-08-22T12:30:15+10:00
+ * @Last modified time: 2017-08-23T15:39:12+10:00
  */
 import assert from 'assert';
 import os from 'os';
@@ -188,14 +188,12 @@ describe('connection-profile-test-suite', () => {
     console.log(r);
     return connectProfile
       .connectProfileByHostname({
-        alias: 'Test ' + mongoPort + '(' + r.ec2LocalPort + ')',
-        hostName: 'localhost',
-        port: r.ec2LocalPort,
+        alias: 'Test EC2 with SSH (27017)',
+        hostName: r.ec2,
+        port: 27017,
         database: 'admin',
         ssh: true,
         remoteHost: r.ec2,
-        sshPort: 22,
-        remotePort: 27017,
         remoteUser: r.ec2SshUser,
         keyRadio: true,
         sshKeyFile: r.ec2SshKey2,
@@ -210,14 +208,12 @@ describe('connection-profile-test-suite', () => {
     console.log(r);
     return connectProfile
       .connectProfileByHostname({
-        alias: 'Test ' + mongoPort + '(' + r.ec2LocalPort2 + ')',
-        hostName: 'localhost',
-        port: r.ec2LocalPort2,
+        alias: 'Test EC2 with SSH + passPhrase(27017)',
+        hostName: r.ec2,
+        port: 27017,
         database: 'admin',
         ssh: true,
         remoteHost: r.ec2,
-        sshPort: 22,
-        remotePort: 27017,
         remoteUser: r.ec2SshUser,
         keyRadio: true,
         sshKeyFile: r.ec2SshKey,

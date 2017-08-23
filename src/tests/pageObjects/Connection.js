@@ -3,7 +3,7 @@
  * @Date:   2017-05-01T09:06:09+10:00
  * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   wahaj
- * @Last modified time: 2017-08-22T12:13:49+10:00
+ * @Last modified time: 2017-08-23T15:37:56+10:00
  */
 
 import Page from './Page';
@@ -39,10 +39,6 @@ export default class ConnectionProfile extends Page {
   sshCheckboxSelector = '.ssh-input-content label input';
 
   remoteHostInputSelector = '.remoteHost-input-content .remoteHost-input';
-
-  sshPortInputSelector = '.sshPort-input-content .sshPort-input';
-
-  remotePortInputSelector = '.remotePort-input-content .remotePort-input';
 
   remoteUserInputSelector = '.remoteUser-input-content .remoteUser-input';
 
@@ -178,10 +174,6 @@ export default class ConnectionProfile extends Page {
         .pause(1000)
         .setValue(this.remoteHostInputSelector, profile.remoteHost)
         .waitForValue(this.remoteHostInputSelector, profile.remoteHost)
-        .setValue(this.sshPortInputSelector, profile.sshPort)
-        .waitForValue(this.sshPortInputSelector, profile.sshPort)
-        .setValue(this.remotePortInputSelector, profile.remotePort)
-        .waitForValue(this.remotePortInputSelector, profile.remotePort)
         .setValue(this.remoteUserInputSelector, profile.remoteUser)
         .waitForValue(this.remoteUserInputSelector, profile.remoteUser);
       if (profile.passRadio) {
