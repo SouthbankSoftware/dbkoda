@@ -3,14 +3,14 @@
  * @Date:   2017-08-22T14:20:20+10:00
  * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   wahaj
- * @Last modified time: 2017-08-22T15:47:03+10:00
+ * @Last modified time: 2017-08-25T09:58:22+10:00
  */
 
 
 
  /**
  * @Last modified by:   wahaj
- * @Last modified time: 2017-08-22T15:47:03+10:00
+ * @Last modified time: 2017-08-25T09:58:22+10:00
   */
 
  import _ from 'lodash';
@@ -164,7 +164,7 @@
        .getTreeNodeByPath(['Databases'])
        .rightClick()
        .pause(2000);
-     await r.treeAction.clickContextMenu('Storage Drill Down');
+     await r.treeAction.clickContextMenu('Database Storage');
    });
 
    /** Fill in action dialogue */

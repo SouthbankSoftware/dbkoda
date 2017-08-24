@@ -2,7 +2,7 @@
  * Test connection profile
  *
  * @Last modified by:   wahaj
- * @Last modified time: 2017-08-23T15:39:12+10:00
+ * @Last modified time: 2017-08-25T09:48:46+10:00
  */
 import assert from 'assert';
 import os from 'os';
@@ -185,7 +185,6 @@ describe('connection-profile-test-suite', () => {
   });
 
   test('open connection profile through hostname via SSH Tunnel', () => {
-    console.log(r);
     return connectProfile
       .connectProfileByHostname({
         alias: 'Test EC2 with SSH (27017)',
@@ -205,7 +204,6 @@ describe('connection-profile-test-suite', () => {
   });
 
   test('open connection profile through hostname via SSH Tunnel with passPhrase', () => {
-    console.log(r);
     return connectProfile
       .connectProfileByHostname({
         alias: 'Test EC2 with SSH + passPhrase(27017)',
