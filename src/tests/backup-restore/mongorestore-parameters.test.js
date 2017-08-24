@@ -33,7 +33,7 @@ import Editor from '../pageObjects/Editor';
 import {config, getApp} from '../helpers';
 
 describe('mongo restore test suite', () => {
-  config({initStateStore: true});
+  config({initStateStore: false});
   let mongoPort;
   let connectProfile;
   let browser;

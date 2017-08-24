@@ -215,6 +215,7 @@ export default class BackupRestore extends Page {
     await treeAction.clickContextMenu(action);
     await this.browser.pause(1000);
     await this.fillInOptions(options);
+    await this.browser.pause(1000);
   }
 
   /**
@@ -274,8 +275,8 @@ export default class BackupRestore extends Page {
       } else if (o.type === 'select') {
         await this.browser.selectByValue(this.prefixSelector + o.clsName, value);
       }
-      await this.browser.pause(1000);
     });
+    await this.browser.pause(3000);
   }
 
   /**
@@ -290,6 +291,5 @@ export default class BackupRestore extends Page {
     } else if (!checked && current === 'true') {
       await this.browser.click(selector.replace(' input', ''));
     }
-    await this.browser.pause(500);
   }
 }
