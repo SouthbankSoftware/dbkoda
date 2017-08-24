@@ -18,7 +18,7 @@
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * Test mongo restore parameter selections
+ * Test mongo export parameter selections
  *
  * Created by joey on 21/8/17.
  */
@@ -101,7 +101,7 @@ describe('mongo restore test suite', () => {
         [ParameterName.limit]: 1000,
         [ParameterName.sort]: '1',
       };
-      await bkRestore.openMongoBackupRestorePanel(['Databases', dbName], TreeActions.EXPORT_DATABASE, params);
+      await bkRestore.openMongoBackupRestorePanel(['Databases', dbName], TreeActions.EXPORT_COLLECTIONS, params);
       await browser.pause(1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.database), dbName);
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');

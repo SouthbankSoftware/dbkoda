@@ -54,6 +54,7 @@ export const ParameterName = {
   maintainInsertionOrder: 'maintainInsertionOrder',
   numParallelCollections: 'numParallelCollections',
   numInsertionWorkers: 'numInsertionWorkers',
+  numInsertionWorkersImport: 'numInsertionWorkersImport',
   stopOnError: 'stopOnError',
   bypassDocumentValidation: 'bypassDocumentValidation',
   objcheck: 'objcheck',
@@ -68,7 +69,11 @@ export const ParameterName = {
   skip: 'skip',
   limit: 'limit',
   sort: 'sort',
-  type: 'type'
+  type: 'type',
+  headerLine: 'headerLine',
+  columnsHaveTypes: 'columnsHaveTypes',
+  ignoreBlanks: 'ignoreBlanks',
+  upsertFields: 'upsertFields',
 };
 
 /**
@@ -97,6 +102,7 @@ export const Options = {
   [ParameterName.maintainInsertionOrder]: {clsName: 'maintain-insertion-order input', type: 'checkbox'},
   [ParameterName.numParallelCollections]: {clsName: 'num-parallel-collections input', type: 'input'},
   [ParameterName.numInsertionWorkers]: {clsName: 'num-insertion-workers input', type: 'input'},
+  [ParameterName.numInsertionWorkersImport]: {clsName: 'num-insertion-workers', type: 'input'},
   [ParameterName.stopOnError]: {clsName: 'stop-on-error input', type: 'checkbox'},
   [ParameterName.bypassDocumentValidation]: {clsName: 'bypass-document-validation input', type: 'checkbox'},
   [ParameterName.objcheck]: {clsName: 'objcheck input', type: 'checkbox'},
@@ -111,7 +117,12 @@ export const Options = {
   [ParameterName.skip]: {clsName: 'skip input', type: 'number'},
   [ParameterName.limit]: {clsName: 'limit input', type: 'number'},
   [ParameterName.sort]: {clsName: 'export-sort', type: 'input'},
-  [ParameterName.type]: {clsName: 'type', type: 'select'}
+  [ParameterName.type]: {clsName: 'type', type: 'select'},
+  [ParameterName.headerLine]: {clsName: 'change-header-line input', type: 'checkbox'},
+  [ParameterName.columnsHaveTypes]: {clsName: 'columns-have-types', type: 'input'},
+  [ParameterName.ignoreBlanks]: {clsName: 'ignore-blanks input', type: 'checkbox'},
+  [ParameterName.maintainInsertionOrder]: {clsName: 'maintain-insertion-order input', type: 'checkbox'},
+  [ParameterName.upsertFields]: {clsName: 'upsert-fields', type: 'input'},
 };
 
 /**
@@ -121,7 +132,7 @@ export const TreeActions = {
   DUMP_DATABASE: 'Dump Database',
   RESTORE_DATABASE: 'Restore Database',
   IMPORT_COLLECTIONS: 'Import Collections',
-  EXPORT_DATABASE: 'Export Collections',
+  EXPORT_COLLECTIONS: 'Export Collections',
   DUMP_DATABASES: 'Dump Databases',
   RESTORE_DATABASES: 'Restore Databases',
   IMPORT_COLLECTION: 'Import Collection',
@@ -189,7 +200,7 @@ export default class BackupRestore extends Page {
    * @param nodePath the node path to be selected. For example, ['Databases', 'admin'] means select the admin database node
    * @param action the context menu action, can be one of the value from
    *        {TreeActions.DUMP_DATABASE, TreeActions.DUMP_DATABASES, TreeActions.RESTORE_DATABASE, TreeActions.RESTORE_DATABASES,
-   *         TreeActions.IMPORT_COLLECTION, TreeACtions.IMPORT_COLLECTIONS, TreeActions.EXPORT_COLLECTION, TreeActions.EXPORT_DATABASE}
+   *         TreeActions.IMPORT_COLLECTION, TreeACtions.IMPORT_COLLECTIONS, TreeActions.EXPORT_COLLECTION, TreeActions.EXPORT_COLLECTIONS}
    * @param options  the parameter values on the panel. All parameter names are defined in ParameterName object
    */
   async openMongoBackupRestorePanel(nodePath, action, options) {
