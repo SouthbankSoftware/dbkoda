@@ -84,6 +84,47 @@ describe('mongo restore test suite', () => {
     );
   });
 
+  test('export a database to verify its parameter values', async () => {
+    try {
+      const params = {
+        [ParameterName.pathInput]: 'data/test/dump',
+        [ParameterName.pretty]: true,
+        [ParameterName.allCollections]: true,
+        [ParameterName.jsonArray]: true,
+        [ParameterName.noHeaderLine]: true,
+        [ParameterName.fields]: '',
+        [ParameterName.forceTableScan]: true,
+        [ParameterName.assertExists]: true,
+        [ParameterName.query]: '{name: "joey"}',
+        [ParameterName.readPreference]: 'primaryPreferred',
+        [ParameterName.skip]: 100,
+        [ParameterName.limit]: 1000,
+        [ParameterName.sort]: '1',
+      };
+      await bkRestore.openMongoBackupRestorePanel(['Databases', dbName], TreeActions.EXPORT_DATABASE, params);
+      await browser.pause(1000);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dbName);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.pretty), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.jsonArray), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.noHeaderLine), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.fields), '');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.forceTableScan), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.assertExists), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.query), '{name: "joey"}');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.readPreference), 'primaryPreferred');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.type), 'json');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.skip), 100);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.limit), 1000);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.sort), '1');
+      const cmd = await editor._getEditorContentsAsString();
+      assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump/testcol.json `);
+    } catch (err) {
+      console.error(err);
+      assert.fail(true, false, err.message);
+    }
+  });
+
   test('export a collection to verify its parameter values', async () => {
     try {
       const params = {
@@ -105,7 +146,7 @@ describe('mongo restore test suite', () => {
       await browser.pause(1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.database), dbName);
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
-      // assert.equal(await bkRestore.getParameterValue(ParameterName.collection), 'testcol');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.collectionSelect), 'testcol');
       assert.equal(await bkRestore.getParameterValue(ParameterName.pretty), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.jsonArray), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.noHeaderLine), 'true');
@@ -118,8 +159,6 @@ describe('mongo restore test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.skip), 100);
       assert.equal(await bkRestore.getParameterValue(ParameterName.limit), 1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.sort), '1');
-
-
       const cmd = await editor._getEditorContentsAsString();
       assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump/testcol.json `);
     } catch (err) {

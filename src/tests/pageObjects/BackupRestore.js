@@ -34,6 +34,7 @@ import {DELAY_TIMEOUT} from '../helpers/config';
 export const ParameterName = {
   database: 'database',
   collection: 'collection',
+  collectionSelect : 'collectionSelect',
   pathInput: 'pathInput',
   gzip: 'gzip',
   allCollections: 'all-collections',
@@ -76,6 +77,7 @@ export const ParameterName = {
 export const Options = {
   [ParameterName.database]: {clsName: 'database-input', type: 'input'},
   [ParameterName.collection]: {clsName: 'collection-input', type: 'input'},
+  [ParameterName.collectionSelect]: {clsName: 'list-select', type: 'select'},
   [ParameterName.pathInput]: {clsName: 'path-input', type: 'input'},
   [ParameterName.gzip]: {clsName: 'gzip input', type: 'checkbox'},
   [ParameterName.allCollections]: {clsName: 'all-collections input', type: 'checkbox'},
@@ -119,7 +121,7 @@ export const TreeActions = {
   DUMP_DATABASE: 'Dump Database',
   RESTORE_DATABASE: 'Restore Database',
   IMPORT_COLLECTIONS: 'Import Collections',
-  EXPORT_COLLECTIONS: 'Export Collections',
+  EXPORT_DATABASE: 'Export Collections',
   DUMP_DATABASES: 'Dump Databases',
   RESTORE_DATABASES: 'Restore Databases',
   IMPORT_COLLECTION: 'Import Collection',
@@ -187,7 +189,7 @@ export default class BackupRestore extends Page {
    * @param nodePath the node path to be selected. For example, ['Databases', 'admin'] means select the admin database node
    * @param action the context menu action, can be one of the value from
    *        {TreeActions.DUMP_DATABASE, TreeActions.DUMP_DATABASES, TreeActions.RESTORE_DATABASE, TreeActions.RESTORE_DATABASES,
-   *         TreeActions.IMPORT_COLLECTION, TreeACtions.IMPORT_COLLECTIONS, TreeActions.EXPORT_COLLECTION, TreeActions.EXPORT_COLLECTIONS}
+   *         TreeActions.IMPORT_COLLECTION, TreeACtions.IMPORT_COLLECTIONS, TreeActions.EXPORT_COLLECTION, TreeActions.EXPORT_DATABASE}
    * @param options  the parameter values on the panel. All parameter names are defined in ParameterName object
    */
   async openMongoBackupRestorePanel(nodePath, action, options) {
