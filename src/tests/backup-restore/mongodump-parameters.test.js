@@ -77,7 +77,7 @@ describe('mongo dump test suite', () => {
     return cleanup();
   });
 
-  afterEach( async () => {
+  afterEach(async () => {
     await bkRestore.closePanel();
     await tree.toogleExpandTreeNode(
       tree.databasesNodeSelector

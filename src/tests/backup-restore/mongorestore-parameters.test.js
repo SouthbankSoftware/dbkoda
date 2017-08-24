@@ -39,7 +39,7 @@ describe('mongo restore test suite', () => {
   let browser;
   let bkRestore;
   let app;
-  let dumpDbName;
+  let dbName;
   let tree;
   let editor;
 
@@ -55,8 +55,8 @@ describe('mongo restore test suite', () => {
     launchSingleInstance(mongoPort);
     process.on('SIGINT', cleanup);
     return getApp().then(async (res) => {
-      dumpDbName = 'testdump-' + getRandomPort();
-      generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 10');
+      dbName = 'testdump-' + getRandomPort();
+      generateMongoData(mongoPort, dbName, 'testcol', '--num 10');
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
@@ -77,7 +77,7 @@ describe('mongo restore test suite', () => {
     return cleanup();
   });
 
-  afterEach( async () => {
+  afterEach(async () => {
     await bkRestore.closePanel();
     await tree.toogleExpandTreeNode(
       tree.databasesNodeSelector
@@ -87,7 +87,7 @@ describe('mongo restore test suite', () => {
   test('restore a server to verify parameter values', async () => {
     try {
       const params = {
-        [ParameterName.database]: dumpDbName,
+        [ParameterName.database]: dbName,
         [ParameterName.drop]: true,
         [ParameterName.pathInput]: 'data/test/dump',
         [ParameterName.dryRun]: true,
@@ -108,7 +108,7 @@ describe('mongo restore test suite', () => {
       };
       await bkRestore.openMongoBackupRestorePanel(['Databases'], TreeActions.RESTORE_DATABASES, params);
       await browser.pause(1000);
-      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dumpDbName);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dbName);
       assert.equal(await bkRestore.getParameterValue(ParameterName.drop), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
       assert.equal(await bkRestore.getParameterValue(ParameterName.dryRun), 'true');
@@ -127,7 +127,7 @@ describe('mongo restore test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.restoreDbUsersAndRoles), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db ${dumpDbName} --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation data/test/dump`);
+      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db ${dbName} --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation data/test/dump`);
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false);
@@ -156,9 +156,9 @@ describe('mongo restore test suite', () => {
         [ParameterName.restoreDbUsersAndRoles]: true,
         [ParameterName.gzip]: true,
       };
-      await bkRestore.openMongoBackupRestorePanel(['Databases', dumpDbName], TreeActions.RESTORE_DATABASE, params);
+      await bkRestore.openMongoBackupRestorePanel(['Databases', dbName], TreeActions.RESTORE_DATABASE, params);
       await browser.pause(1000);
-      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dumpDbName);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dbName);
       assert.equal(await bkRestore.getParameterValue(ParameterName.collection), 'testcol');
       assert.equal(await bkRestore.getParameterValue(ParameterName.drop), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
@@ -178,7 +178,7 @@ describe('mongo restore test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.restoreDbUsersAndRoles), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db ${dumpDbName} --collection testcol --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation data/test/dump`);
+      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation data/test/dump`);
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false);
@@ -206,9 +206,9 @@ describe('mongo restore test suite', () => {
         [ParameterName.restoreDbUsersAndRoles]: true,
         [ParameterName.gzip]: true,
       };
-      await bkRestore.openMongoBackupRestorePanel(['Databases', dumpDbName, 'testcol'], TreeActions.RESTORE_COLLECTION, params);
+      await bkRestore.openMongoBackupRestorePanel(['Databases', dbName, 'testcol'], TreeActions.RESTORE_COLLECTION, params);
       await browser.pause(1000);
-      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dumpDbName);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dbName);
       assert.equal(await bkRestore.getParameterValue(ParameterName.collection), 'testcol');
       assert.equal(await bkRestore.getParameterValue(ParameterName.drop), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
@@ -228,7 +228,7 @@ describe('mongo restore test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.restoreDbUsersAndRoles), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db ${dumpDbName} --collection testcol --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation data/test/dump`);
+      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation data/test/dump`);
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false);

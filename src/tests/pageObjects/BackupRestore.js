@@ -67,6 +67,7 @@ export const ParameterName = {
   skip: 'skip',
   limit: 'limit',
   sort: 'sort',
+  type: 'type'
 };
 
 /**
@@ -105,10 +106,10 @@ export const Options = {
   [ParameterName.noHeaderLine]: {clsName: 'no-header-line input', type: 'checkbox'},
   [ParameterName.fields]: {clsName: 'output-fields', type: 'input'},
   [ParameterName.assertExists]: {clsName: 'assert-exists input', type: 'checkbox'},
-  [ParameterName.skip]: {clsName: 'skip', type: 'number'},
-  [ParameterName.limit]: {clsName: 'limit', type: 'number'},
+  [ParameterName.skip]: {clsName: 'skip input', type: 'number'},
+  [ParameterName.limit]: {clsName: 'limit input', type: 'number'},
   [ParameterName.sort]: {clsName: 'export-sort', type: 'input'},
-
+  [ParameterName.type]: {clsName: 'type', type: 'select'}
 };
 
 /**
@@ -199,6 +200,7 @@ export default class BackupRestore extends Page {
     await this.browser.pause(1000);
     await treeAction.getTreeNodeByPath(nodePath).rightClick().pause(1000);
     await treeAction.clickContextMenu(action);
+    await this.browser.pause(1000);
     await this.fillInOptions(options);
   }
 
@@ -225,7 +227,7 @@ export default class BackupRestore extends Page {
     const o = getOptionObject(name);
     if (o.type === 'checkbox') {
       return this.browser.getAttribute(parameterSelector, 'checked');
-    } else if (o.type === 'input') {
+    } else if (o.type === 'input' || o.type === 'number' || o.type === 'select') {
       return this.browser.getValue(parameterSelector);
     }
   }
@@ -256,6 +258,8 @@ export default class BackupRestore extends Page {
         await this.browser.waitForValue(this.prefixSelector + o.clsName);
       } else if (o.type === 'checkbox') {
         await this._setCheckbox(this.prefixSelector + o.clsName, value);
+      } else if (o.type === 'select') {
+        await this.browser.selectByValue(this.prefixSelector + o.clsName, value);
       }
       await this.browser.pause(1000);
     });
@@ -273,6 +277,6 @@ export default class BackupRestore extends Page {
     } else if (!checked && current === 'true') {
       await this.browser.click(selector.replace(' input', ''));
     }
-    this.browser.pause(1000);
+    await this.browser.pause(500);
   }
 }

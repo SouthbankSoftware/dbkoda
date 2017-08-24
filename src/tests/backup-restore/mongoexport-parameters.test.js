@@ -39,7 +39,7 @@ describe('mongo restore test suite', () => {
   let browser;
   let bkRestore;
   let app;
-  let dumpDbName;
+  let dbName;
   let tree;
   let editor;
 
@@ -55,8 +55,8 @@ describe('mongo restore test suite', () => {
     launchSingleInstance(mongoPort);
     process.on('SIGINT', cleanup);
     return getApp().then(async (res) => {
-      dumpDbName = 'testdump-' + getRandomPort();
-      generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 10');
+      dbName = 'testdump-' + getRandomPort();
+      generateMongoData(mongoPort, dbName, 'testcol', '--num 10');
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
@@ -96,14 +96,14 @@ describe('mongo restore test suite', () => {
         [ParameterName.assertExists]: true,
         [ParameterName.query]: '{name: "joey"}',
         [ParameterName.readPreference]: 'primaryPreferred',
-        // TODO fix number input issue
-        // [ParameterName.skip]: 100,
-        // [ParameterName.limit]: 1000,
+        [ParameterName.type]: 'json',
+        [ParameterName.skip]: 100,
+        [ParameterName.limit]: 1000,
         [ParameterName.sort]: '1',
       };
-      await bkRestore.openMongoBackupRestorePanel(['Databases', dumpDbName, 'testcol'], TreeActions.EXPORT_COLLECTION, params);
+      await bkRestore.openMongoBackupRestorePanel(['Databases', dbName, 'testcol'], TreeActions.EXPORT_COLLECTION, params);
       await browser.pause(1000);
-      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dumpDbName);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dbName);
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
       // assert.equal(await bkRestore.getParameterValue(ParameterName.collection), 'testcol');
       assert.equal(await bkRestore.getParameterValue(ParameterName.pretty), 'true');
@@ -114,13 +114,14 @@ describe('mongo restore test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.assertExists), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.query), '{name: "joey"}');
       assert.equal(await bkRestore.getParameterValue(ParameterName.readPreference), 'primaryPreferred');
-      // assert.equal(await bkRestore.getParameterValue(ParameterName.skip), 100);
-      // assert.equal(await bkRestore.getParameterValue(ParameterName.limit), 1000);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.type), 'json');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.skip), 100);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.limit), 1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.sort), '1');
 
 
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dumpDbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --sort 1 --assertExists -o data/test/dump/testcol.json `);
+      assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump/testcol.json `);
     } catch (err) {
       console.error(err);
       assert.fail(true, false, err.message);
