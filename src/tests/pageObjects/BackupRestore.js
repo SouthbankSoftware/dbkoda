@@ -59,6 +59,14 @@ export const ParameterName = {
   oplogReplay: 'oplogReplay',
   oplogLimit: 'oplogLimit',
   restoreDbUsersAndRoles: 'restoreDbUsersAndRoles',
+  pretty: 'pretty',
+  jsonArray: 'json-array',
+  noHeaderLine: 'noHeaderLine',
+  fields: 'fields',
+  assertExists: 'assertExists',
+  skip: 'skip',
+  limit: 'limit',
+  sort: 'sort',
 };
 
 /**
@@ -92,6 +100,15 @@ export const Options = {
   [ParameterName.oplogReplay]: {clsName: 'oplog-replay input', type: 'checkbox'},
   [ParameterName.oplogLimit]: {clsName: 'oplog-limit', type: 'input'},
   [ParameterName.restoreDbUsersAndRoles]: {clsName: 'restore-db-users-and-roles input', type: 'checkbox'},
+  [ParameterName.pretty]: {clsName: 'pretty input', type: 'checkbox'},
+  [ParameterName.jsonArray]: {clsName: 'json-array input', type: 'checkbox'},
+  [ParameterName.noHeaderLine]: {clsName: 'no-header-line input', type: 'checkbox'},
+  [ParameterName.fields]: {clsName: 'output-fields', type: 'input'},
+  [ParameterName.assertExists]: {clsName: 'assert-exists input', type: 'checkbox'},
+  [ParameterName.skip]: {clsName: 'skip', type: 'number'},
+  [ParameterName.limit]: {clsName: 'limit', type: 'number'},
+  [ParameterName.sort]: {clsName: 'export-sort', type: 'input'},
+
 };
 
 /**
@@ -229,7 +246,12 @@ export default class BackupRestore extends Page {
   async fillInOptions(options) {
     await _.forOwn(options, async (value, key) => {
       const o = getOptionObject(key);
+      await this.browser.waitForExist(this.prefixSelector + o.clsName);
       if (o.type === 'input') {
+        await this.browser.setValue(this.prefixSelector + o.clsName, value);
+        await this.browser.waitForValue(this.prefixSelector + o.clsName);
+      } else if (o.type === 'number') {
+        await this.browser.leftClick(this.prefixSelector + o.clsName);
         await this.browser.setValue(this.prefixSelector + o.clsName, value);
         await this.browser.waitForValue(this.prefixSelector + o.clsName);
       } else if (o.type === 'checkbox') {
