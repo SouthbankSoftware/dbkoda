@@ -21,7 +21,6 @@
  * Created by joey on 17/8/17.
  */
 
-import _ from 'lodash';
 import assert from 'assert';
 import Page from './Page';
 import Tree from './Tree';
