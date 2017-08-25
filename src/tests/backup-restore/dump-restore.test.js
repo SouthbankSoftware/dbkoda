@@ -57,6 +57,14 @@ describe('backup restore test suite', () => {
       bkRestore = new BackupRestore(browser);
       treeAction = new TreeAction(browser);
       tree = new Tree(browser);
+
+      await connectProfile
+        .connectProfileByHostname({
+          alias: 'test backup ' + mongoPort,
+          hostName: 'localhost',
+          database: 'admin',
+          port: mongoPort,
+        });
     });
   });
 
@@ -69,16 +77,9 @@ describe('backup restore test suite', () => {
     const restoreDbName = 'testrestore-' + getRandomPort();
     generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 500');
     generateMongoData(mongoPort, restoreDbName, 'placeholder');
-    await connectProfile
-      .connectProfileByHostname({
-        alias: 'test backup ' + mongoPort,
-        hostName: 'localhost',
-        database: 'admin',
-        port: mongoPort,
-      });
-    // dump a test database
+    await tree._clickRefreshButton();
+    await browser.pause(1000);
     await bkRestore.dumpDatabase(dumpDbName, {[ParameterName.pathInput]: 'data/test/dump', [ParameterName.gzip]: false});
-    // restore the dump data into a new database
     await bkRestore.restoreDatabase(restoreDbName, {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol.bson`});
     await tree._clickRefreshButton();
     // TODO: verify the restored database
@@ -92,13 +93,8 @@ describe('backup restore test suite', () => {
     generateMongoData(mongoPort, dumpDbName + '1', 'testcol1', '--num 500');
     generateMongoData(mongoPort, dumpDbName + '2', 'testcol2', '--num 500');
     generateMongoData(mongoPort, dumpDbName + '3', 'testcol3', '--num 500');
-    await connectProfile
-      .connectProfileByHostname({
-        alias: 'test backup ' + mongoPort,
-        hostName: 'localhost',
-        database: 'admin',
-        port: mongoPort,
-      });
+    await tree._clickRefreshButton();
+    await browser.pause(1000);
     await bkRestore.dumpServerDatabases([dumpDbName + '1', dumpDbName + '2', dumpDbName + '3'], {[ParameterName.pathInput]: 'data/test/dump'});
     // restore the dump data into a new database
     await bkRestore.restoreDatabase('restoreDb1', {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}1/testcol1.bson`});
@@ -121,13 +117,8 @@ describe('backup restore test suite', () => {
   test('dump and restore a collection', async () => {
     const dumpDbName = 'testdump-' + getRandomPort();
     generateMongoData(mongoPort, dumpDbName, 'testcol1', '--num 10');
-    await connectProfile
-      .connectProfileByHostname({
-        alias: 'test backup ' + mongoPort,
-        hostName: 'localhost',
-        database: 'admin',
-        port: mongoPort,
-      });
+    await tree._clickRefreshButton();
+    await browser.pause(1000);
     await bkRestore.dumpCollection(dumpDbName, 'testcol1', {[ParameterName.pathInput]: 'data/test/dump'});
     await bkRestore.restoreCollection(dumpDbName, 'testcol1', {
       [ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol1.bson`,
@@ -151,13 +142,8 @@ describe('backup restore test suite', () => {
     generateMongoData(mongoPort, dumpDbName, 'testcol2', '--num 10');
     generateMongoData(mongoPort, dumpDbName, 'testcol3', '--num 10');
     generateMongoData(mongoPort, restoreDbName, 'test', '--num 10');
-    await connectProfile
-      .connectProfileByHostname({
-        alias: 'test backup ' + mongoPort,
-        hostName: 'localhost',
-        database: 'admin',
-        port: mongoPort,
-      });
+    await tree._clickRefreshButton();
+    await browser.pause(1000);
     await bkRestore.dumpDatabaseCollections(dumpDbName, ['testcol1', 'testcol2', 'testcol3'], {[ParameterName.pathInput]: 'data/test/dump'});
     await bkRestore.restoreDatabaseCollections(restoreDbName, 'testcol1', {
       [ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol1.bson`,

@@ -57,6 +57,13 @@ describe('backup restore test suite', () => {
       bkRestore = new BackupRestore(browser);
       treeAction = new TreeAction(browser);
       tree = new Tree(browser);
+      await connectProfile
+        .connectProfileByHostname({
+          alias: 'test backup ' + mongoPort,
+          hostName: 'localhost',
+          database: 'admin',
+          port: mongoPort,
+        });
     });
   });
 
@@ -68,13 +75,8 @@ describe('backup restore test suite', () => {
     const dbName = 'testdb-' + getRandomPort();
     generateMongoData(mongoPort, dbName, 'testcol', '--num 500');
     generateMongoData(mongoPort, dbName, 'exportcol');
-    await connectProfile
-      .connectProfileByHostname({
-        alias: 'test backup ' + mongoPort,
-        hostName: 'localhost',
-        database: 'admin',
-        port: mongoPort,
-      });
+    await tree._clickRefreshButton();
+    await browser.pause(1000);
     await bkRestore.exportCollection(dbName, 'testcol', {[ParameterName.pathInput]: `data/test/dump/${dbName}`});
     await bkRestore.importCollection(dbName, 'exportcol', {[ParameterName.pathInput]: `data/test/dump/${dbName}/testcol.json`});
     await tree._clickRefreshButton();
@@ -89,13 +91,8 @@ describe('backup restore test suite', () => {
     const restoreDbName = 'testrestore-' + getRandomPort();
     generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 500');
     generateMongoData(mongoPort, restoreDbName, 'placeholder');
-    await connectProfile
-      .connectProfileByHostname({
-        alias: 'test backup ' + mongoPort,
-        hostName: 'localhost',
-        database: 'admin',
-        port: mongoPort,
-      });
+    await tree._clickRefreshButton();
+    await browser.pause(1000);
     await bkRestore.exportDatabase(dumpDbName, {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}`});
     await bkRestore.importCollectionToDatabase(restoreDbName, 'testcol', {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol.json`});
     await tree._clickRefreshButton();
