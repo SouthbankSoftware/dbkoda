@@ -250,7 +250,7 @@ export default class BackupRestore extends Page {
     const tree = new Tree(this.browser);
     options[ParameterName.allCollections] = false;
     options[ParameterName.selectedCollections] = cols;
-    await this.openMongoBackupRestorePanel(['Databases', db, cols], TreeActions.DUMP_DATABASE, options);
+    await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.DUMP_DATABASE, options);
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();
@@ -262,16 +262,53 @@ export default class BackupRestore extends Page {
   }
 
   /**
-   * restore multiple collections from one database
+   * restore a collection from database node
    * @param db  the name of the database
-   * @param cols  an array includes collection names
+   * @param col  the name of the collection
    * @param options
    */
-  async restoreDatabaseCollections(db, cols, options) {
+  async restoreDatabaseCollections(db, col, options) {
     const tree = new Tree(this.browser);
-    options[ParameterName.allCollections] = false;
-    options[ParameterName.selectedCollections] = cols;
-    await this.openMongoBackupRestorePanel(['Databases', db, cols], TreeActions.RESTORE_DATABASE, options);
+    options[ParameterName.collection] = col;
+    await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.RESTORE_DATABASE, options);
+    await this.browser.waitForExist(this.panelSelector);
+    await this.browser.pause(1000);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+  }
+
+  /**
+   * dump a collection.
+   * @param db  the name of database
+   * @param col  the name of the collection
+   * @param options
+   */
+  async dumpCollection(db, col, options) {
+    const tree = new Tree(this.browser);
+    await this.openMongoBackupRestorePanel(['Databases', db, col], TreeActions.DUMP_COLLECTION, options);
+    await this.browser.waitForExist(this.panelSelector);
+    await this.browser.pause(1000);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+  }
+
+  /**
+   * restore a collection
+   * @param db  the name of the database
+   * @param col  the name of the collection
+   * @param options
+   */
+  async restoreCollection(db, col, options) {
+    const tree = new Tree(this.browser);
+    await this.openMongoBackupRestorePanel(['Databases', db, col], TreeActions.RESTORE_COLLECTION, options);
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();

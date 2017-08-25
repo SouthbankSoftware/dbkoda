@@ -64,28 +64,28 @@ describe('backup restore test suite', () => {
     return cleanup();
   });
 
-  // test('dump and restore a single database without any parameters', async () => {
-  //   const dumpDbName = 'testdump-' + getRandomPort();
-  //   const restoreDbName = 'testrestore-' + getRandomPort();
-  //   generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 500');
-  //   generateMongoData(mongoPort, restoreDbName, 'placeholder');
-  //   await connectProfile
-  //     .connectProfileByHostname({
-  //       alias: 'test backup ' + mongoPort,
-  //       hostName: 'localhost',
-  //       database: 'admin',
-  //       port: mongoPort,
-  //     });
-  //   // dump a test database
-  //   await bkRestore.dumpDatabase(dumpDbName, {[ParameterName.pathInput]: 'data/test/dump', [ParameterName.gzip]: false});
-  //   // restore the dump data into a new database
-  //   await bkRestore.restoreDatabase(restoreDbName, {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol.bson`});
-  //   await tree._clickRefreshButton();
-  //   // TODO: verify the restored database
-  //   const nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol']);
-  //   console.log('get tree nodes ', nodes);
-  //   assert.notEqual(nodes, null);
-  // });
+  test('dump and restore a single database without any parameters', async () => {
+    const dumpDbName = 'testdump-' + getRandomPort();
+    const restoreDbName = 'testrestore-' + getRandomPort();
+    generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 500');
+    generateMongoData(mongoPort, restoreDbName, 'placeholder');
+    await connectProfile
+      .connectProfileByHostname({
+        alias: 'test backup ' + mongoPort,
+        hostName: 'localhost',
+        database: 'admin',
+        port: mongoPort,
+      });
+    // dump a test database
+    await bkRestore.dumpDatabase(dumpDbName, {[ParameterName.pathInput]: 'data/test/dump', [ParameterName.gzip]: false});
+    // restore the dump data into a new database
+    await bkRestore.restoreDatabase(restoreDbName, {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol.bson`});
+    await tree._clickRefreshButton();
+    // TODO: verify the restored database
+    const nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol']);
+    console.log('get tree nodes ', nodes);
+    assert.notEqual(nodes, null);
+  });
 
   test('dump and restore multiple databases', async () => {
     const dumpDbName = 'testdump-' + getRandomPort();
@@ -99,7 +99,6 @@ describe('backup restore test suite', () => {
         database: 'admin',
         port: mongoPort,
       });
-    // dump a test database
     await bkRestore.dumpServerDatabases([dumpDbName + '1', dumpDbName + '2', dumpDbName + '3'], {[ParameterName.pathInput]: 'data/test/dump'});
     // restore the dump data into a new database
     await bkRestore.restoreDatabase('restoreDb1', {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}1/testcol1.bson`});
@@ -116,6 +115,70 @@ describe('backup restore test suite', () => {
     nodes = await treeAction.getTreeNodeByPath(['Databases', 'restoreDb2', 'testcol2']);
     assert.notEqual(nodes, null);
     nodes = await treeAction.getTreeNodeByPath(['Databases', 'restoreDb3', 'testcol3']);
+    assert.notEqual(nodes, null);
+  });
+
+  test('dump and restore a collection', async () => {
+    const dumpDbName = 'testdump-' + getRandomPort();
+    generateMongoData(mongoPort, dumpDbName, 'testcol1', '--num 10');
+    await connectProfile
+      .connectProfileByHostname({
+        alias: 'test backup ' + mongoPort,
+        hostName: 'localhost',
+        database: 'admin',
+        port: mongoPort,
+      });
+    await bkRestore.dumpCollection(dumpDbName, 'testcol1', {[ParameterName.pathInput]: 'data/test/dump'});
+    await bkRestore.restoreCollection(dumpDbName, 'testcol1', {
+      [ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol1.bson`,
+      [ParameterName.drop]: true,
+    });
+    await tree._clickRefreshButton();
+    await browser.pause(5000);
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+    await treeAction.getTreeNodeByPath(['Databases', dumpDbName]).leftClick();
+    // TODO: verify the restored database
+    const nodes = await treeAction.getTreeNodeByPath(['Databases', dumpDbName, 'testcol1']);
+    assert.notEqual(nodes, null);
+  });
+
+  test('dump and restore multiple collections', async () => {
+    const dumpDbName = 'testdump-' + getRandomPort();
+    const restoreDbName = 'restore-' + getRandomPort();
+    generateMongoData(mongoPort, dumpDbName, 'testcol1', '--num 10');
+    generateMongoData(mongoPort, dumpDbName, 'testcol2', '--num 10');
+    generateMongoData(mongoPort, dumpDbName, 'testcol3', '--num 10');
+    generateMongoData(mongoPort, restoreDbName, 'test', '--num 10');
+    await connectProfile
+      .connectProfileByHostname({
+        alias: 'test backup ' + mongoPort,
+        hostName: 'localhost',
+        database: 'admin',
+        port: mongoPort,
+      });
+    await bkRestore.dumpDatabaseCollections(dumpDbName, ['testcol1', 'testcol2', 'testcol3'], {[ParameterName.pathInput]: 'data/test/dump'});
+    await bkRestore.restoreDatabaseCollections(restoreDbName, 'testcol1', {
+      [ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol1.bson`,
+    });
+    await bkRestore.restoreDatabaseCollections(restoreDbName, 'testcol2', {
+      [ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol2.bson`,
+    });
+    await bkRestore.restoreDatabaseCollections(restoreDbName, 'testcol3', {
+      [ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol3.bson`,
+    });
+    await tree._clickRefreshButton();
+    await browser.pause(5000);
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+    // TODO: verify the restored database
+    let nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol1']);
+    assert.notEqual(nodes, null);
+    nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol2']);
+    assert.notEqual(nodes, null);
+    nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol3']);
     assert.notEqual(nodes, null);
   });
 });
