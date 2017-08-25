@@ -3,7 +3,7 @@
  * @Date:   2017-04-28T15:03:44+10:00
  * @Email:  chris@southbanksoftware.com
  * @Last modified by:   chris
- * @Last modified time: 2017-08-18T10:54:37+10:00
+ * @Last modified time: 2017-08-25T10:25:28+10:00
  */
 
 import Page from './Page';
@@ -123,8 +123,8 @@ export default class Output extends Page {
     const yOffset = this.LINE_OFFSET + (this.LINE_HEIGHT * lineNumber);
     return this
       .browser
-      .waitForExist(`${this.codeMirrorSelector}-lines`)
-      .rightClick(`${this.codeMirrorSelector}-lines`, xOffset, yOffset)
+      .waitForExist(`${this.codeMirrorSelector}-scroll`)
+      .rightClick(`${this.codeMirrorSelector}-scroll`, xOffset, yOffset)
       .waitForExist(this.menuSelector);
   }
 
