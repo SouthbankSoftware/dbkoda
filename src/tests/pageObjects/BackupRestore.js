@@ -28,11 +28,15 @@ import Tree from './Tree';
 import TreeAction from './TreeAction';
 import {DELAY_TIMEOUT} from '../helpers/config';
 
+/* eslint "no-await-in-loop": 0 */
+
 /**
  * all parameter names used on backup/restore commands
  */
 export const ParameterName = {
   database: 'database',
+  selectedCollections: 'selectedCollections',
+  selectedDatabases: 'selectedDatabases',
   collection: 'collection',
   collectionSelect : 'collectionSelect',
   pathInput: 'pathInput',
@@ -123,6 +127,7 @@ export const Options = {
   [ParameterName.ignoreBlanks]: {clsName: 'ignore-blanks input', type: 'checkbox'},
   [ParameterName.maintainInsertionOrder]: {clsName: 'maintain-insertion-order input', type: 'checkbox'},
   [ParameterName.upsertFields]: {clsName: 'upsert-fields', type: 'input'},
+  [ParameterName.selectedCollections]: {clsName: 'list-select', type: 'select'},
 };
 
 /**
@@ -260,23 +265,40 @@ export default class BackupRestore extends Page {
    * @param options the options is a json object for the mongo command parameters
    */
   async fillInOptions(options) {
-    await _.forOwn(options, async (value, key) => {
-      const o = getOptionObject(key);
-      await this.browser.waitForExist(this.prefixSelector + o.clsName);
-      if (o.type === 'input') {
-        await this.browser.setValue(this.prefixSelector + o.clsName, value);
-        await this.browser.waitForValue(this.prefixSelector + o.clsName);
-      } else if (o.type === 'number') {
-        await this.browser.leftClick(this.prefixSelector + o.clsName);
-        await this.browser.setValue(this.prefixSelector + o.clsName, value);
-        await this.browser.waitForValue(this.prefixSelector + o.clsName);
-      } else if (o.type === 'checkbox') {
-        await this._setCheckbox(this.prefixSelector + o.clsName, value);
-      } else if (o.type === 'select') {
-        await this.browser.selectByValue(this.prefixSelector + o.clsName, value);
+    for (const key in options) {
+      if (Object.prototype.hasOwnProperty.call(options, key)) {
+        const o = getOptionObject(key);
+        const value = options[key];
+        await this.browser.waitForExist(this.prefixSelector + o.clsName);
+        if (key === ParameterName.selectedCollections) {
+          await this.selectCollections(value);
+        } else if (o.type === 'input') {
+          await this.browser.setValue(this.prefixSelector + o.clsName, value);
+          // await this.browser.waitForValue(this.prefixSelector + o.clsName);
+        } else if (o.type === 'number') {
+          await this.browser.leftClick(this.prefixSelector + o.clsName);
+          await this.browser.setValue(this.prefixSelector + o.clsName, value);
+          await this.browser.waitForValue(this.prefixSelector + o.clsName);
+        } else if (o.type === 'checkbox') {
+          await this._setCheckbox(this.prefixSelector + o.clsName, value);
+        } else if (o.type === 'select') {
+          await this.browser.selectByVisibleText(this.prefixSelector + o.clsName, value);
+        }
       }
-    });
-    await this.browser.pause(3000);
+      await this.browser.pause(500);
+    }
+  }
+
+  async selectCollections(value) {
+    await this.browser.waitForExist('.collection-list');
+    const header = await this.browser.getText('.collection-list .header .key');
+    assert.equal(header, 'Collection');
+    for (let i = 0; i < value.length; i += 1) {
+      const selector = `div.collection-list div:nth-child(${i + 2}) .db-backup-list-select`;
+      await this.browser.waitForExist(selector);
+      await this.browser.selectByVisibleText(selector, value[i]);
+    }
+    await this.browser.pause(1000);
   }
 
   /**

@@ -57,6 +57,9 @@ describe('mongo restore test suite', () => {
     return getApp().then(async (res) => {
       dbName = 'testdump-' + getRandomPort();
       generateMongoData(mongoPort, dbName, 'testcol', '--num 10');
+      generateMongoData(mongoPort, dbName + '-multi', 'testcol1', '--num 10');
+      generateMongoData(mongoPort, dbName + '-multi', 'testcol2', '--num 10');
+      generateMongoData(mongoPort, dbName + '-multi', 'testcol3', '--num 10');
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
@@ -82,6 +85,52 @@ describe('mongo restore test suite', () => {
     await tree.toogleExpandTreeNode(
       tree.databasesNodeSelector
     );
+  });
+
+  test('export a database for multiple collections to verify its parameter values', async () => {
+    try {
+      const params = {
+        [ParameterName.pathInput]: 'data/test/dump',
+        [ParameterName.pretty]: true,
+        [ParameterName.allCollections]: false,
+        [ParameterName.selectedCollections]: ['testcol1', 'testcol2'],
+        [ParameterName.jsonArray]: true,
+        [ParameterName.type]: 'csv',
+        [ParameterName.noHeaderLine]: true,
+        [ParameterName.fields]: '',
+        [ParameterName.forceTableScan]: true,
+        [ParameterName.assertExists]: true,
+        [ParameterName.query]: '{name: "joey"}',
+        [ParameterName.readPreference]: 'primaryPreferred',
+        [ParameterName.skip]: 100,
+        [ParameterName.limit]: 1000,
+        [ParameterName.sort]: '1',
+      };
+      await bkRestore.openMongoBackupRestorePanel(['Databases', dbName + '-multi'], TreeActions.EXPORT_COLLECTIONS, params);
+      await browser.pause(1000);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.database), dbName + '-multi');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.allCollections), null);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.pretty), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.jsonArray), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.type), 'csv');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.noHeaderLine), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.fields), '');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.forceTableScan), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.assertExists), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.query), '{name: "joey"}');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.readPreference), 'primaryPreferred');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.skip), 100);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.limit), 1000);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.sort), '1');
+      const cmd = await editor._getEditorContentsAsArray();
+      assert.equal(cmd.length, 2);
+      assert.equal(cmd[0], `mongoexport --host localhost --port ${mongoPort} --db ${dbName}-multi --collection testcol1 --pretty --jsonArray --noHeaderLine --type csv -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump/testcol1.json `);
+      assert.equal(cmd[1], `mongoexport --host localhost --port ${mongoPort} --db ${dbName}-multi --collection testcol2 --pretty --jsonArray --noHeaderLine --type csv -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump/testcol2.json `);
+    } catch (err) {
+      console.error(err);
+      assert.fail(true, false, err.message);
+    }
   });
 
   test('export a database to verify its parameter values', async () => {
