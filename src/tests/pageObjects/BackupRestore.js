@@ -160,10 +160,9 @@ export default class BackupRestore extends Page {
   closeButtonSelector = this.prefixSelector + 'close';
 
   /**
-   * run mongodump on the database
+   * run mongodump on the given database
    * @param db  the name of the database
    * @param options the options of mongodump command. The parameters can be found at ParameterName objects
-   * @returns {Promise.<void>}
    */
   async dumpDatabase(db, options) {
     const tree = new Tree(this.browser);
@@ -188,10 +187,93 @@ export default class BackupRestore extends Page {
    */
   async restoreDatabase(db, options) {
     const tree = new Tree(this.browser);
-    await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.RESTORE_DATABASE, options);
+    options[ParameterName.database] = db;
+    await this.openMongoBackupRestorePanel(['Databases'], TreeActions.RESTORE_DATABASES, options);
     await this.browser.waitForExist(this.panelSelector);
     const dbValue = await this.browser.getValue(this.prefixSelector + 'database-input');
     assert.equal(dbValue, db);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+  }
+
+  /**
+   * open mongo dump tree panel from Databases tree node and dump the database from array parameter
+   * @param dbs an array including database names
+   * @param options
+   */
+  async dumpServerDatabases(dbs, options) {
+    const tree = new Tree(this.browser);
+    options[ParameterName.allDatabases] = false;
+    options[ParameterName.selectedDatabases] = dbs;
+    await this.openMongoBackupRestorePanel(['Databases'], TreeActions.DUMP_DATABASES, options);
+    await this.browser.waitForExist(this.panelSelector);
+    await this.browser.pause(1000);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+  }
+
+  /**
+   * restore multiple databases
+   * @param dbs an array includes database names
+   * @param options
+   */
+  async restoreServerDatabases(dbs, options) {
+    const tree = new Tree(this.browser);
+    options[ParameterName.selectedDatabases] = dbs;
+    options[ParameterName.allDatabases] = false;
+    options[ParameterName.restoreDbUsersAndRoles] = false;
+    await this.openMongoBackupRestorePanel(['Databases'], TreeActions.RESTORE_DATABASES, options);
+    await this.browser.waitForExist(this.panelSelector);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+  }
+
+  /**
+   * dump database collections. It will select the collections from the given array
+   * @param db  the name of database
+   * @param cols  an array includes collection names
+   * @param options
+   */
+  async dumpDatabaseCollections(db, cols, options) {
+    const tree = new Tree(this.browser);
+    options[ParameterName.allCollections] = false;
+    options[ParameterName.selectedCollections] = cols;
+    await this.openMongoBackupRestorePanel(['Databases', db, cols], TreeActions.DUMP_DATABASE, options);
+    await this.browser.waitForExist(this.panelSelector);
+    await this.browser.pause(1000);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+  }
+
+  /**
+   * restore multiple collections from one database
+   * @param db  the name of the database
+   * @param cols  an array includes collection names
+   * @param options
+   */
+  async restoreDatabaseCollections(db, cols, options) {
+    const tree = new Tree(this.browser);
+    options[ParameterName.allCollections] = false;
+    options[ParameterName.selectedCollections] = cols;
+    await this.openMongoBackupRestorePanel(['Databases', db, cols], TreeActions.RESTORE_DATABASE, options);
+    await this.browser.waitForExist(this.panelSelector);
+    await this.browser.pause(1000);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
