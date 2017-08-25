@@ -225,7 +225,6 @@ describe('mongo restore test suite', () => {
         assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump\\testcol.json `);
       } else {
         assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump/testcol.json `);
-        
       }
     } catch (err) {
       console.error(err);
