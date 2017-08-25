@@ -40,6 +40,7 @@ describe('mongo dump test suite', () => {
   let bkRestore;
   let app;
   let dumpDbName;
+  let dumpDbMultiCol;
   let tree;
   let editor;
 
@@ -56,7 +57,11 @@ describe('mongo dump test suite', () => {
     process.on('SIGINT', cleanup);
     return getApp().then(async (res) => {
       dumpDbName = 'testdump-' + getRandomPort();
+      dumpDbMultiCol = dumpDbName + '-multi';
       generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 10');
+      generateMongoData(mongoPort, dumpDbMultiCol, 'testcol1', '--num 10');
+      generateMongoData(mongoPort, dumpDbMultiCol, 'testcol2', '--num 10');
+      generateMongoData(mongoPort, dumpDbMultiCol, 'testcol3', '--num 10');
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
@@ -175,6 +180,44 @@ describe('mongo dump test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
       const cmd = await editor._getEditorContentsAsString();
       assert.equal(cmd, `mongodump --host localhost --port ${mongoPort} --db ${dumpDbName} --gzip --repair --dumpDbUsersAndRoles --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o data/test/dump `);
+    } catch (err) {
+      console.error('get error ', err);
+      assert.fail(true, false, err.message);
+    }
+  });
+
+  /**
+   * select one database and click dump database from tree action, verify each parameter values
+   */
+  test('mongodump on a single database with mutiple collections to verify parameter values', async () => {
+    try {
+      await bkRestore.openMongoBackupRestorePanel(['Databases', dumpDbMultiCol], TreeActions.DUMP_DATABASE,
+        {
+          [ParameterName.gzip]: true,
+          [ParameterName.forceTableScan]: true,
+          [ParameterName.allCollections]: false,
+          [ParameterName.selectedCollections]: ['testcol1', 'testcol2', 'testcol3'],
+          [ParameterName.query]: '{user.name: "Joey"}',
+          [ParameterName.pathInput]: 'data/test/dump',
+          [ParameterName.readPreference]: 'primaryPreferred',
+          [ParameterName.repair]: true,
+          [ParameterName.viewsAsCollections]: true
+        });
+      await browser.pause(1000);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.allCollections), null);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.forceTableScan), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.repair), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.dumpDbUsersAndRoles), null);
+      assert.equal(await bkRestore.getParameterValue(ParameterName.viewsAsCollections), 'true');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.query), '{user.name: "Joey"}');
+      assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
+      const cmd = await editor._getEditorContentsAsArray();
+      console.log('get command ', cmd);
+      assert.equal(cmd.length, 3);
+      assert.equal(cmd[0], `mongodump --host localhost --port ${mongoPort} --db ${dumpDbMultiCol} --collection testcol1 --gzip --repair --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o data/test/dump `);
+      assert.equal(cmd[1], `mongodump --host localhost --port ${mongoPort} --db ${dumpDbMultiCol} --collection testcol2 --gzip --repair --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o data/test/dump `);
+      assert.equal(cmd[2], `mongodump --host localhost --port ${mongoPort} --db ${dumpDbMultiCol} --collection testcol3 --gzip --repair --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o data/test/dump `);
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false, err.message);
