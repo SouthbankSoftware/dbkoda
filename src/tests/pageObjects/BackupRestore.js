@@ -357,6 +357,45 @@ export default class BackupRestore extends Page {
   }
 
   /**
+   * export a collection
+   *
+   * @param db  database name
+   * @param col collection name
+   * @param options
+   */
+  async exportCollection(db, col, options) {
+    const tree = new Tree(this.browser);
+    await this.openMongoBackupRestorePanel(['Databases', db, col], TreeActions.EXPORT_COLLECTION, options);
+    await this.browser.waitForExist(this.panelSelector);
+    await this.browser.pause(1000);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+  }
+
+  /**
+   * import collection from collection node
+   * @param db  database name
+   * @param col collection name
+   * @param options
+   */
+  async importCollection(db, col, options) {
+    const tree = new Tree(this.browser);
+    await this.openMongoBackupRestorePanel(['Databases', db, col], TreeActions.IMPORT_COLLECTION, options);
+    await this.browser.waitForExist(this.panelSelector);
+    await this.browser.pause(1000);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+  }
+
+  /**
    * open the backup restore panel
    * @param nodePath the node path to be selected. For example, ['Databases', 'admin'] means select the admin database node
    * @param action the context menu action, can be one of the value from

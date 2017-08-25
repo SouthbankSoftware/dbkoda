@@ -64,6 +64,26 @@ describe('backup restore test suite', () => {
     return cleanup();
   });
 
+  test('import export a collection', async () => {
+    const dbName = 'testdb-' + getRandomPort();
+    generateMongoData(mongoPort, dbName, 'testcol', '--num 500');
+    generateMongoData(mongoPort, dbName, 'exportcol');
+    await connectProfile
+      .connectProfileByHostname({
+        alias: 'test backup ' + mongoPort,
+        hostName: 'localhost',
+        database: 'admin',
+        port: mongoPort,
+      });
+    await bkRestore.exportCollection(dbName, 'testcol', {[ParameterName.pathInput]: `data/test/dump/${dbName}`});
+    await bkRestore.importCollection(dbName, 'exportcol', {[ParameterName.pathInput]: `data/test/dump/${dbName}/testcol.json`});
+    await tree._clickRefreshButton();
+    // TODO: verify the restored database
+    const nodes = await treeAction.getTreeNodeByPath(['Databases', dbName, 'exportcol']);
+    console.log('get tree nodes ', nodes);
+    assert.notEqual(nodes, null);
+  });
+
   test('import export a database', async () => {
     const dumpDbName = 'testdump-' + getRandomPort();
     const restoreDbName = 'testrestore-' + getRandomPort();
