@@ -80,7 +80,6 @@ describe('backup restore test suite', () => {
     await bkRestore.exportCollection(dbName, 'testcol', {[ParameterName.pathInput]: `data/test/dump/${dbName}`});
     await bkRestore.importCollection(dbName, 'exportcol', {[ParameterName.pathInput]: `data/test/dump/${dbName}/testcol.json`});
     await tree._clickRefreshButton();
-    // TODO: verify the restored database
     const nodes = await treeAction.getTreeNodeByPath(['Databases', dbName, 'exportcol']);
     console.log('get tree nodes ', nodes);
     assert.notEqual(nodes, null);
@@ -96,8 +95,32 @@ describe('backup restore test suite', () => {
     await bkRestore.exportDatabase(dumpDbName, {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}`});
     await bkRestore.importCollectionToDatabase(restoreDbName, 'testcol', {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol.json`});
     await tree._clickRefreshButton();
-    // TODO: verify the restored database
     const nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol']);
+    console.log('get tree nodes ', nodes);
+    assert.notEqual(nodes, null);
+  });
+
+  test('import export multiple collections from a database', async () => {
+    const dumpDbName = 'testdump-' + getRandomPort();
+    const restoreDbName = 'testrestore-' + getRandomPort();
+    generateMongoData(mongoPort, dumpDbName, 'testcol1', '--num 500');
+    generateMongoData(mongoPort, dumpDbName, 'testcol2', '--num 500');
+    generateMongoData(mongoPort, dumpDbName, 'testcol3', '--num 500');
+    generateMongoData(mongoPort, restoreDbName, 'placeholder');
+    await tree._clickRefreshButton();
+    await browser.pause(1000);
+    await bkRestore.exportDatabaseCollections(dumpDbName, ['testcol1', 'testcol2', 'testcol3'], {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}`});
+    await bkRestore.importCollectionToDatabase(restoreDbName, 'testcol1', {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol1.json`});
+    await bkRestore.importCollectionToDatabase(restoreDbName, 'testcol2', {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol2.json`});
+    await bkRestore.importCollectionToDatabase(restoreDbName, 'testcol3', {[ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol3.json`});
+    await tree._clickRefreshButton();
+    let nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol1']);
+    console.log('get tree nodes ', nodes);
+    assert.notEqual(nodes, null);
+    nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol2']);
+    console.log('get tree nodes ', nodes);
+    assert.notEqual(nodes, null);
+    nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol3']);
     console.log('get tree nodes ', nodes);
     assert.notEqual(nodes, null);
   });

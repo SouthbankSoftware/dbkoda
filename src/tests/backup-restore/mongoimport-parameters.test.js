@@ -126,7 +126,7 @@ describe('mongo import test suite', () => {
     }
   });
 
-  test('import a database to verify its parameter values', async () => {
+  test('import a collection to verify its parameter values', async () => {
     try {
       const params = {
         [ParameterName.pathInput]: 'data/test/dump',

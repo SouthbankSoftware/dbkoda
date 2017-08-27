@@ -221,26 +221,6 @@ export default class BackupRestore extends Page {
   }
 
   /**
-   * restore multiple databases
-   * @param dbs an array includes database names
-   * @param options
-   */
-  async restoreServerDatabases(dbs, options) {
-    const tree = new Tree(this.browser);
-    options[ParameterName.selectedDatabases] = dbs;
-    options[ParameterName.allDatabases] = false;
-    options[ParameterName.restoreDbUsersAndRoles] = false;
-    await this.openMongoBackupRestorePanel(['Databases'], TreeActions.RESTORE_DATABASES, options);
-    await this.browser.waitForExist(this.panelSelector);
-    await this.executeCommand();
-    await this.browser.pause(3000);
-    await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
-  }
-
-  /**
    * dump database collections. It will select the collections from the given array
    * @param db  the name of database
    * @param cols  an array includes collection names
@@ -385,6 +365,28 @@ export default class BackupRestore extends Page {
   async importCollection(db, col, options) {
     const tree = new Tree(this.browser);
     await this.openMongoBackupRestorePanel(['Databases', db, col], TreeActions.IMPORT_COLLECTION, options);
+    await this.browser.waitForExist(this.panelSelector);
+    await this.browser.pause(1000);
+    await this.executeCommand();
+    await this.browser.pause(3000);
+    await this.closePanel();
+    await tree.toogleExpandTreeNode(
+      tree.databasesNodeSelector
+    );
+  }
+
+  /**
+   * export multiple collections from one database
+   *
+   * @param db  the name of the database
+   * @param cols  the array of collection names
+   * @param options
+   */
+  async exportDatabaseCollections(db, cols, options) {
+    const tree = new Tree(this.browser);
+    options[ParameterName.allCollections] = false;
+    options[ParameterName.selectedCollections] = cols;
+    await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.EXPORT_COLLECTIONS, options);
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();
