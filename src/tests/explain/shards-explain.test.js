@@ -33,7 +33,7 @@ describe('test explain', () => {
   beforeAll(async(done) => {
     mongoPort = getRandomPort();
     launchMongoInstance('--replicaset', mongoPort, '--mongos 3 --sharded 3 --hostname localhost');
-    setTimeout( () => {
+    setTimeout(() => {
       generateMongoData(mongoPort, 'test', 'users', '--num 500');
       process.on('SIGINT', cleanup);
       return getApp().then(async(res) => {
@@ -58,7 +58,7 @@ describe('test explain', () => {
         console.log('finish before all');
         done();
       });
-    }, 120000)
+    }, 120000);
   });
 
   afterAll(() => {
