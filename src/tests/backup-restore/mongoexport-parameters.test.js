@@ -129,11 +129,11 @@ describe('mongo restore test suite', () => {
       assert.equal(cmd.length, 2);
       console.log('get command ', cmd);
       if (os.platform() === 'win32') {
-        assert.equal(cmd[0], `mongoexport --host localhost --port ${mongoPort} --db ${dbName}-multi --collection testcol1 --pretty --jsonArray --noHeaderLine --type csv -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump\\testcol1.json `);
-        assert.equal(cmd[1], `mongoexport --host localhost --port ${mongoPort} --db ${dbName}-multi --collection testcol2 --pretty --jsonArray --noHeaderLine --type csv -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump\\testcol2.json `);
+        assert.equal(cmd[0], `mongoexport --host localhost --port ${mongoPort} --db ${dbName}-multi --collection testcol1 --pretty --jsonArray --noHeaderLine --type csv -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o "data/test/dump\\testcol1.json" `);
+        assert.equal(cmd[1], `mongoexport --host localhost --port ${mongoPort} --db ${dbName}-multi --collection testcol2 --pretty --jsonArray --noHeaderLine --type csv -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o "data/test/dump\\testcol2.json" `);
       } else {
-        assert.equal(cmd[0], `mongoexport --host localhost --port ${mongoPort} --db ${dbName}-multi --collection testcol1 --pretty --jsonArray --noHeaderLine --type csv -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump/testcol1.json `);
-        assert.equal(cmd[1], `mongoexport --host localhost --port ${mongoPort} --db ${dbName}-multi --collection testcol2 --pretty --jsonArray --noHeaderLine --type csv -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump/testcol2.json `);
+        assert.equal(cmd[0], `mongoexport --host localhost --port ${mongoPort} --db ${dbName}-multi --collection testcol1 --pretty --jsonArray --noHeaderLine --type csv -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o "data/test/dump/testcol1.json" `);
+        assert.equal(cmd[1], `mongoexport --host localhost --port ${mongoPort} --db ${dbName}-multi --collection testcol2 --pretty --jsonArray --noHeaderLine --type csv -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o "data/test/dump/testcol2.json" `);
       }
     } catch (err) {
       console.error(err);
@@ -176,9 +176,9 @@ describe('mongo restore test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.sort), '1');
       const cmd = await editor._getEditorContentsAsString();
       if (os.platform() === 'win32') {
-        assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump\\testcol.json `);
+        assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o "data/test/dump\\testcol.json" `);
       } else {
-        assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump/testcol.json `);
+        assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o "data/test/dump/testcol.json" `);
       }
     } catch (err) {
       console.error(err);
@@ -222,9 +222,9 @@ describe('mongo restore test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.sort), '1');
       const cmd = await editor._getEditorContentsAsString();
       if (os.platform() === 'win32') {
-        assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump\\testcol.json `);
+        assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o "data/test/dump\\testcol.json" `);
       } else {
-        assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o data/test/dump/testcol.json `);
+        assert.equal(cmd, `mongoexport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --pretty --jsonArray --noHeaderLine --type json -q {name: "joey"} --readPreference primaryPreferred --forceTableScan --skip 100 --limit 1000 --sort 1 --assertExists -o "data/test/dump/testcol.json" `);
       }
     } catch (err) {
       console.error(err);

@@ -145,13 +145,13 @@ describe('backup restore test suite', () => {
     await tree._clickRefreshButton();
     await browser.pause(1000);
     await bkRestore.dumpDatabaseCollections(dumpDbName, ['testcol1', 'testcol2', 'testcol3'], {[ParameterName.pathInput]: 'data/test/dump'});
-    await bkRestore.restoreDatabaseCollections(restoreDbName, 'testcol1', {
+    await bkRestore.restoreDatabaseCollections(restoreDbName, {
       [ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol1.bson`,
     });
-    await bkRestore.restoreDatabaseCollections(restoreDbName, 'testcol2', {
+    await bkRestore.restoreDatabaseCollections(restoreDbName, {
       [ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol2.bson`,
     });
-    await bkRestore.restoreDatabaseCollections(restoreDbName, 'testcol3', {
+    await bkRestore.restoreDatabaseCollections(restoreDbName, {
       [ParameterName.pathInput]: `data/test/dump/${dumpDbName}/testcol3.bson`,
     });
     await tree._clickRefreshButton();

@@ -160,7 +160,7 @@ describe('mongo import test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.writeConcern), '');
       assert.equal(await bkRestore.getParameterValue(ParameterName.bypassDocumentValidation), 'true');
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongoimport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --headerLine --jsonArray --parseGrace stop --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --mode insert --bypassDocumentValidation data/test/dump`);
+      assert.equal(cmd, `mongoimport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --headerLine --jsonArray --parseGrace stop --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --mode insert --bypassDocumentValidation "data/test/dump"`);
     } catch (err) {
       console.error(err);
       assert.fail(true, false, err.message);

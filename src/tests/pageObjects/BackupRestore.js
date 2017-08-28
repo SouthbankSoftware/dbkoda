@@ -247,9 +247,8 @@ export default class BackupRestore extends Page {
    * @param col  the name of the collection
    * @param options
    */
-  async restoreDatabaseCollections(db, col, options) {
+  async restoreDatabaseCollections(db, options) {
     const tree = new Tree(this.browser);
-    options[ParameterName.collection] = col;
     await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.RESTORE_DATABASE, options);
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
