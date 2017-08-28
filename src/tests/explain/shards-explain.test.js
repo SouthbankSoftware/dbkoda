@@ -30,32 +30,35 @@ describe('test explain', () => {
     }
   };
 
-  beforeAll(async() => {
+  beforeAll(async(done) => {
     mongoPort = getRandomPort();
     launchMongoInstance('--replicaset', mongoPort, '--mongos 3 --sharded 3 --hostname localhost');
-    generateMongoData(mongoPort, 'test', 'users', '--num 500');
-    process.on('SIGINT', cleanup);
-    return getApp().then(async(res) => {
-      app = res;
-      browser = app.client;
-      await browser.pause(10000);
-      connectProfile = new ConnectionProfile(browser);
-      explain = new Explain(browser);
-      editor = new Editor(browser);
-      const alias = 'connection:' + uuidV1();
-      return connectProfile.connectProfileByURL({
-        alias,
-        url: 'mongodb://localhost:' + mongoPort,
-        database: 'test'
+    setTimeout( () => {
+      generateMongoData(mongoPort, 'test', 'users', '--num 500');
+      process.on('SIGINT', cleanup);
+      return getApp().then(async(res) => {
+        app = res;
+        browser = app.client;
+        await browser.pause(10000);
+        connectProfile = new ConnectionProfile(browser);
+        explain = new Explain(browser);
+        editor = new Editor(browser);
+        const alias = 'connection:' + uuidV1();
+        return connectProfile.connectProfileByURL({
+          alias,
+          url: 'mongodb://localhost:' + mongoPort,
+          database: 'test'
+        });
+      }).then(async() => {
+        await editor._appendToEditor('use admin\n');
+        await editor._appendToEditor('db.runCommand({enableSharding: "test"})\n');
+        await editor._appendToEditor('use test\n');
+        await editor._appendToEditor('db.users.createIndex({"user.age":1})\n');
+        await editor._clickExecuteAll();
+        console.log('finish before all');
+        done();
       });
-    }).then(async() => {
-      await editor._appendToEditor('use admin\n');
-      await editor._appendToEditor('db.runCommand({enableSharding: "test"})\n');
-      await editor._appendToEditor('use test\n');
-      await editor._appendToEditor('db.users.createIndex({"user.age":1})\n');
-      await editor._clickExecuteAll();
-      console.log('finish before all');
-    });
+    }, 120000)
   });
 
   afterAll(() => {
