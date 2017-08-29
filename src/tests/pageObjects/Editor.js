@@ -1,4 +1,5 @@
 import path from 'path';
+import os from 'os';
 import fs from 'fs-extra';
 import Page from './Page';
 
@@ -215,9 +216,15 @@ export default class Editor extends Page {
       .element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]')
       .click();
 
-    await this
+    if (os.platform() === 'win32') {
+      await this
       .browser
-      .keys(['Command', 'a']).keys('NULL');
+      .keys(['Control', 'a']).keys('NULL');
+    } else {
+      await this
+        .browser
+        .keys(['Command', 'a']).keys('NULL');
+    }
 
     await this.browser.pause(500);
 
