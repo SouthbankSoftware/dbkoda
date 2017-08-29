@@ -118,7 +118,8 @@ describe('mongo import test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.upsertFields), '');
       assert.equal(await bkRestore.getParameterValue(ParameterName.writeConcern), '');
       assert.equal(await bkRestore.getParameterValue(ParameterName.bypassDocumentValidation), 'true');
-      const cmd = await editor._getEditorContentsAsString();
+      let cmd = await editor._getEditorContentsAsString();
+      cmd = cmd.replace(' --parseGrace stop ', ' ').replace(' --mode insert ', ' ');
       assert.equal(cmd, `mongoimport --host localhost --port ${mongoPort} --db ${dbName} --collection test-import-collections --headerLine --jsonArray --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --bypassDocumentValidation "data/test/dump"`);
     } catch (err) {
       console.error(err);
@@ -159,7 +160,8 @@ describe('mongo import test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.upsertFields), '');
       assert.equal(await bkRestore.getParameterValue(ParameterName.writeConcern), '');
       assert.equal(await bkRestore.getParameterValue(ParameterName.bypassDocumentValidation), 'true');
-      const cmd = await editor._getEditorContentsAsString();
+      let cmd = await editor._getEditorContentsAsString();
+      cmd = cmd.replace(' --parseGrace stop ', ' ').replace(' --mode insert ', ' ');
       assert.equal(cmd, `mongoimport --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --headerLine --jsonArray --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --bypassDocumentValidation "data/test/dump"`);
     } catch (err) {
       console.error(err);
