@@ -216,7 +216,7 @@ export default class Editor extends Page {
       .element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]')
       .click();
 
-    if (os.platform() === 'win32') {
+    if (os.platform() !== 'darwin') {
       await this
       .browser
       .keys(['Control', 'a']).keys('NULL');
