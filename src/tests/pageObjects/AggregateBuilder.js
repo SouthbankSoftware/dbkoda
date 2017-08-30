@@ -69,9 +69,30 @@ export default class AggregateBuilder extends Page {
     await this.browser.waitForExist(this.aggregatePaletteWrapperSelector);
   }
 
-  async isBlockSelected(blockType) {
+  async isBlockSelected(blockIndex) {
+    blockIndex += 1;
     await this.browser.waitForExist(
-      '.aggregateBlock.' + blockType + '.selected_true',
+      '.graphicalBuilderBlockList > div:nth-child(' +
+        blockIndex +
+        ').selected_true',
     );
+  }
+
+  async selectBlock(blockIndex) {
+    blockIndex += 1;
+    const indexSelector =
+      '.graphicalBuilderBlockList > div:nth-child(' + blockIndex + ')';
+    await this.browser.waitForExist(indexSelector);
+    await this.browser.element(indexSelector).click().pause(500);
+  }
+
+  async removeBlock(blockIndex) {
+    blockIndex += 1;
+    const indexSelector =
+      '.graphicalBuilderBlockList > div:nth-child(' +
+      blockIndex +
+      ') > div > svg.closeBlockIcon';
+    await this.browser.waitForExist(indexSelector);
+    await this.browser.element(indexSelector).click().pause(500);
   }
 }
