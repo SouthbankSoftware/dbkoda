@@ -7,3 +7,4 @@
 
 export identifyWorkingMode from './identifyWorkingMode';
 export invokeApi from './invokeApi';
+export getAvailablePort from './getAvailablePort';

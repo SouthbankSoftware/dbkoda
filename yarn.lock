@@ -23,7 +23,7 @@
     "7zip-bin-win" "^2.1.0"
 
 "@southbanksoftware/dbkoda-controller@file:build/controller-placeholder":
-  version "0.0.0+placeholder"
+  version "0.0.0"
 
 "@types/node@^7.0.18":
   version "7.0.21"
@@ -2461,6 +2461,10 @@ fill-range@^2.1.0:
     randomatic "^1.1.3"
     repeat-element "^1.1.2"
     repeat-string "^1.5.2"
+
+find-free-port@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/find-free-port/-/find-free-port-1.0.2.tgz#b817d8f25d378338172c74aaac9ce46e061dbeda"
 
 find-up@^1.0.0:
   version "1.1.2"

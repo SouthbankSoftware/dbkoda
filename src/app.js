@@ -35,7 +35,7 @@ import { autoUpdater } from 'electron-updater';
 import moment from 'moment';
 import winston from 'winston';
 import { ipcMain } from 'electron';
-import { identifyWorkingMode, invokeApi } from './helpers';
+import { identifyWorkingMode, invokeApi, getAvailablePort } from './helpers';
 import touchbar from './touchbar';
 
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config/');
@@ -82,6 +82,10 @@ global.PATHS = (() => {
       : path.resolve(home, 'stateStore.json'),
   };
 })();
+
+global.getRandomPort = (startPortRange, endPortRange, host) => {
+  return getAvailablePort(startPortRange, endPortRange, host);
+};
 
 // TODO create an uninstaller
 // ensure paths exist
@@ -487,3 +491,4 @@ app.on('will-quit', () => {
   l.notice('Shutting down...');
   controllerProcess && controllerProcess.kill();
 });
+
