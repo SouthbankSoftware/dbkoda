@@ -114,10 +114,87 @@ describe('aggregate-test-suite', () => {
   // Checks that all the elemnt selectors exist on the page.
   test('Add a block from common.', async () => {
     try {
+      // No group by yet.
+      let res = await editor._getEditorContentsAsString();
+      expect(res).not.toMatch('{ $group:{     _id:{  }');
+
+      // Add block.
       await aggregate.openCategory('Common');
       await browser.pause(500);
       await aggregate.addBlockFromPalette('Group');
-      await aggregate.isBlockSelected('Group');
+      await aggregate.isBlockSelected(2);
+      // Check Output - Unfilled.
+      res = await output.getAllOutputLines();
+      expect(res).toMatch(
+        'Please fill in Stage details and click on the stage to see results',
+      );
+
+      // Check Editor for block.
+      res = await editor._getEditorContentsAsString();
+      expect(res).toMatch('{ $group:{     _id:{  }');
+
+      expect(true).toBe(true);
+    } catch (error) {
+      console.log(error);
+      expect(false).toBe(true);
+    }
+  });
+
+  // Click the group block and ensure the output / editor has updated.
+  test('Select a block in Graphical Builder.', async () => {
+    try {
+      // Select Second Block (Group)
+      await aggregate.selectBlock(2);
+
+      // Check Output - Results
+      let res = await output.getAllOutputLines();
+      expect(res).toMatch('{"_id":{},"count":20}');
+
+      // Check Editor for block.
+      res = await editor._getEditorContentsAsString();
+      expect(res).toMatch('{ $group:{     _id:{  }');
+
+      expect(true).toBe(true);
+    } catch (error) {
+      console.log(error);
+      expect(false).toBe(true);
+    }
+  });
+
+  // Click the Start block and check the editor comments.
+  test('Select the Start Block.', async () => {
+    try {
+      // Select First Block
+      await aggregate.selectBlock(1);
+
+      // Check Output - All Rows.
+      let res = await output.getAllOutputLines();
+      expect(res).toMatch('{"_id":"ObjectId');
+
+      // Check Editor for block.
+      await aggregate.selectBlock(1);
+      res = await editor._getEditorContentsAsString();
+      expect(res).toMatch('{ $group:{     _id:{  }');
+      expect(true).toBe(true);
+    } catch (error) {
+      console.log(error);
+      expect(false).toBe(true);
+    }
+  });
+
+  // Remove a block and check block has auto swapped.
+  test('Remove Block.', async () => {
+    try {
+      // Add another block to remove.
+      await aggregate.addBlockFromPalette('Group');
+      await aggregate.isBlockSelected(3);
+
+      // Remove the second (non-selected) block.
+      await aggregate.removeBlock(3);
+      await browser.pause(500);
+
+      await aggregate.isBlockSelected(2);
+
       expect(true).toBe(true);
     } catch (error) {
       console.log(error);

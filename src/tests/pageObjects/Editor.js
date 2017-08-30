@@ -3,8 +3,8 @@ import os from 'os';
 import fs from 'fs-extra';
 import Page from './Page';
 
+/* eslint class-methods-use-this: 0 */
 export default class Editor extends Page {
-
   electronPath = path.join(__dirname, '..', 'node_modules', '.bin', 'electron');
   // Toolbar
   executeLineButtonSelector = '.executeLineButton';
@@ -14,7 +14,7 @@ export default class Editor extends Page {
   allPlansExecutionButtonSelector = '.allPlansExecutionButton';
   executionStatsButtonSelector = '.executionStatsButton';
   stopExecutionButtonSelector = '.stopExecutionButton';
-  addEditorButtonSelector = '.addEditorButton'
+  addEditorButtonSelector = '.addEditorButton';
   openFileButtonSelector = '.openFileButton';
   saveFileButtonSelector = '.saveFileButton';
   editorContextDropdownSelector = '.editorContextDropdown';
@@ -67,182 +67,143 @@ export default class Editor extends Page {
   }
 
   async _editorElementsExist() {
-    this
-      .editorContextDropdown
-      .waitForExist();
-    this
-      .executeLineButton
-      .waitForExist();
-    this
-      .executeAllButton
-      .waitForExist();
-    this
-      .explainPlanButton
-      .waitForExist();
-    this
-      .stopExecutionButton
-      .waitForExist();
+    this.editorContextDropdown.waitForExist();
+    this.executeLineButton.waitForExist();
+    this.executeAllButton.waitForExist();
+    this.explainPlanButton.waitForExist();
+    this.stopExecutionButton.waitForExist();
 
-    this
-      .addEditorButton
-      .waitForExist();
-    this
-      .openFileButton
-      .waitForExist();
-    this
-      .saveFileButton
-      .waitForExist();
-    this
-      .editorPanel
-      .waitForExist();
-    this
-      .welcomeTab
-      .waitForExist();
+    this.addEditorButton.waitForExist();
+    this.openFileButton.waitForExist();
+    this.saveFileButton.waitForExist();
+    this.editorPanel.waitForExist();
+    this.welcomeTab.waitForExist();
   }
 
   async _selectConnectionContext(value) {
-    await this
-      .browser
-      .selectByVisibleText(this.editorContextDropdownSelector, value);
+    await this.browser.selectByVisibleText(
+      this.editorContextDropdownSelector,
+      value,
+    );
   }
   async _getConnectionContextText() {
-    const result = await this
-      .browser
+    const result = await this.browser
       .element(this.editorContextDropdownSelector)
       .getText('option:checked');
     return result;
   }
   async _getConnectionContextValue() {
-    const result = await this
-      .browser
+    const result = await this.browser
       .element(this.editorContextDropdownSelector)
       .getValue();
     return result;
   }
   async _clickExecuteLine() {
-    await this
-      .executeLineButton
-      .click();
+    await this.executeLineButton.click();
   }
   async _clickExecuteAll() {
-    await this
-      .executeAllButton
-      .click();
+    await this.executeAllButton.click();
   }
   async _clickExplainPlan() {
-    await this
-      .explainPlanButton
-      .click();
+    await this.explainPlanButton.click();
   }
   async _clickExplainQueryPlanner() {
-    await this
-      ._clickExplainPlan();
+    await this._clickExplainPlan();
     await this.browser.waitForExist(this.queryPlannerButtonSelector);
     await this.queryPlannerButton.click();
   }
   async clickExplainExecutionStats() {
-    await this
-      ._clickExplainPlan();
+    await this._clickExplainPlan();
     await this.browser.waitForExist(this.executionStatsButtonSelector);
     await this.executionStatsButton.click();
   }
   async clickExplainAllPlansExecution() {
-    await this
-      ._clickExplainPlan();
+    await this._clickExplainPlan();
     await this.browser.waitForExist(this.allPlansExecutionButtonSelector);
     await this.allPlansExecutionButton.click();
   }
   async _clickStopExecution() {
-    await this
-      .stopExecutionButton
-      .click();
+    await this.stopExecutionButton.click();
   }
   async _clickAddNewEditor() {
-    await this
-      .addEditorButton
-      .click();
+    await this.addEditorButton.click();
   }
-  async _loadFile(filePath) { // eslint-disable-line
+  async _loadFile(filePath) {
+    // eslint-disable-line
     filePath = path.join(__dirname, filePath);
-    await fs.readFile(filePath, 'utf-8', async(err, data) => {
+    await fs.readFile(filePath, 'utf-8', async (err, data) => {
       console.log(data);
       return data;
     });
   }
   async _saveFileButton() {
-    await this
-      .saveFileButton
-      .click();
+    await this.saveFileButton.click();
   }
   async _appendToEditor(value) {
-    await this
-      .browser
+    await this.browser
       .element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]')
       .click();
-    await this
-      .browser
-      .keys(value.split('')).keys(['NULL']);
+    await this.browser.keys(value.split('')).keys(['NULL']);
   }
 
   async _getEditorContentsAsArray() {
-      let res = await this.browser.getText('.pt-tab-panel.editorTab.visible[aria-hidden="false"] .CodeMirror-code');
-      res = res.split(/\r?\n/);
-      let tmp = []; //eslint-disable-line
-      for (let i = 1; i < res.length; i += 2) {
+    let res = await this.browser.getText(
+      '.pt-tab-panel.editorTab.visible[aria-hidden="false"] .CodeMirror-code',
+    );
+    res = res.split(/\r?\n/);
+    let tmp = []; //eslint-disable-line
+    for (let i = 1; i < res.length; i += 1) {
+      if (res[i].match(/[0-9]+/g)) {
+        // Probably a number?
+      } else {
         tmp.push(res[i]);
       }
-      return tmp;
+    }
+    return tmp;
   }
 
-    async _getEditorContentsAsString() {
-      let res = await this.browser.getText('.pt-tab-panel.editorTab.visible[aria-hidden="false"] .CodeMirror-code');
-      res = res.split(/\r?\n/);
-      let tmp = []; //eslint-disable-line
-      for (let i = 1; i < res.length; i += 2) {
+  async _getEditorContentsAsString() {
+    let res = await this.browser.getText(
+      '.pt-tab-panel.editorTab.visible[aria-hidden="false"] .CodeMirror-code',
+    );
+    res = res.split(/\r?\n/);
+    let tmp = []; //eslint-disable-line
+    for (let i = 1; i < res.length; i += 1) {
+      if (res[i].match(/[0-9]+/g)) {
+        // Probably a number?
+      } else {
         tmp.push(res[i]);
       }
-      return tmp.join('\n');
+    }
+    return tmp.join('\n');
   }
 
   async _clickEditorTab(editorName) {
-    await this
-      .browser
-      .element('.editorTab.' + editorName)
-      .click();
+    await this.browser.element('.editorTab.' + editorName).click();
   }
   async _clearEditor() {
-    await this
-      .browser
+    await this.browser
       .element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]')
       .click();
 
     if (os.platform() !== 'darwin') {
-      await this
-      .browser
-      .keys(['Control', 'a']).keys('NULL');
+      await this.browser.keys(['Control', 'a']).keys('NULL');
     } else {
-      await this
-        .browser
-        .keys(['Command', 'a']).keys('NULL');
+      await this.browser.keys(['Command', 'a']).keys('NULL');
     }
 
     await this.browser.pause(500);
 
-    await this
-      .browser
-      .keys(['Back space']).keys('NULL');
+    await this.browser.keys(['Back space']).keys('NULL');
 
-    await this
-      .browser
+    await this.browser
       .element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]')
       .click();
 
     await this.browser.pause(500);
   }
   getEditorElement(name) {
-    return this
-      .browser
-      .element(name);
+    return this.browser.element(name);
   }
 
   /**
@@ -250,7 +211,7 @@ export default class Editor extends Page {
    * @param text
    */
   async moveToText(text) {
-    await this.browser.click('//span[text()=\'' + text + '\']');
+    await this.browser.click("//span[text()='" + text + "']");
   }
 
   /**
@@ -258,7 +219,9 @@ export default class Editor extends Page {
    * @returns {Promise.<void>}
    */
   async getLineNumber() {
-    return this.browser.elements('.editorView .CodeMirror-code > div[style="position: relative;"]').elements.value.length;
+    return this.browser.elements(
+      '.editorView .CodeMirror-code > div[style="position: relative;"]',
+    ).elements.value.length;
   }
 
   /**
@@ -268,6 +231,10 @@ export default class Editor extends Page {
    */
   async moveToLine(index) {
     index += 1;
-    this.browser.click('.editorView .CodeMirror-code > div[style="position: relative;"]:nth-child(' + index + ')');
+    this.browser.click(
+      '.editorView .CodeMirror-code > div[style="position: relative;"]:nth-child(' +
+        index +
+        ')',
+    );
   }
 }
