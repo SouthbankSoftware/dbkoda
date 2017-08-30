@@ -127,7 +127,7 @@ describe('mongo restore test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.restoreDbUsersAndRoles), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db ${dbName} --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation "data/test/dump"`);
+      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db "${dbName}" --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation "data/test/dump"`);
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false);
@@ -176,7 +176,7 @@ describe('mongo restore test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.restoreDbUsersAndRoles), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db ${dbName} --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation "data/test/dump"`);
+      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db "${dbName}" --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation "data/test/dump"`);
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false);
@@ -226,7 +226,7 @@ describe('mongo restore test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.restoreDbUsersAndRoles), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db ${dbName} --collection testcol --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation "data/test/dump bk"`);
+      assert.equal(cmd, `mongorestore --host localhost --port ${mongoPort} --db "${dbName}" --collection "testcol" --objcheck --oplogReplay --oplogLimit 10 --restoreDbUsersAndRoles --gzip --drop -dryRun --writeConcern majority --noIndexRestore --noOptionsRestore --keepIndexVersion --maintainInsertionOrder --numParallelCollections 5 --numInsertionWorkersPerCollection 3 --stopOnError --bypassDocumentValidation "data/test/dump bk"`);
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false);
