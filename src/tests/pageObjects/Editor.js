@@ -153,7 +153,7 @@ export default class Editor extends Page {
     res = res.split(/\r?\n/);
     let tmp = []; //eslint-disable-line
     for (let i = 1; i < res.length; i += 1) {
-      if (res[i].match(/[0-9]+/g)) {
+      if (res[i].match(/^[0-9]+$/g)) {
         // Probably a number?
       } else {
         tmp.push(res[i]);
@@ -169,7 +169,7 @@ export default class Editor extends Page {
     res = res.split(/\r?\n/);
     let tmp = []; //eslint-disable-line
     for (let i = 1; i < res.length; i += 1) {
-      if (res[i].match(/[0-9]+/g)) {
+      if (res[i].match(/^[0-9]+$/g)) {
         // Probably a number?
       } else {
         tmp.push(res[i]);
