@@ -31,6 +31,8 @@ describe('aggregate-test-suite', () => {
   let editor; // eslint-disable-line
   let profile; // eslint-disable-line
   let output; // eslint-disable-line
+  let template; // eslint-disable-line
+  let templateInput; // eslint-disable-line
   const debug = false; // Set to true to stop app closing at end of test, etc
 
   // Executes before the test suite begins.
@@ -45,6 +47,20 @@ describe('aggregate-test-suite', () => {
       profile = new ConnectionProfile(browser);
       editor = new Editor(browser);
       output = new Output(browser);
+      template = require('./blockDefinitions/ddd/Group.ddd.json');
+      templateInput = {
+        GroupByKeys: [
+          {
+            AttributeName: 'founded_year',
+          },
+        ],
+        AggregateKeys: [
+          {
+            AttributeName: 'founded_year',
+            Aggregation: 'sum',
+          },
+        ],
+      };
 
       // Create our mongo instances.
       mongoPort1 = getRandomPort();
@@ -72,7 +88,7 @@ describe('aggregate-test-suite', () => {
         database: 'test',
       });
       await editor._appendToEditor(
-        'use test\nfor (var i=2000;i<2020;i+=1) { db.companies.insertOne({name:"company"+i,founded_year:i,}); };\n',
+        'use test\nfor (var i=2000;i<2020;i+=1) { db.companies.insertOne({name:"company"+i,founded_year:i,});\n db.companies.insertOne({name:"company2"+i,founded_year:i,}); };\n',
       );
       await browser.pause(500);
       await editor._clickExecuteAll();
@@ -148,7 +164,7 @@ describe('aggregate-test-suite', () => {
 
       // Check Output - Results
       let res = await output.getAllOutputLines();
-      expect(res).toMatch('{"_id":{},"count":20}');
+      expect(res).toMatch('{"_id":{},"count":40}');
 
       // Check Editor for block.
       res = await editor._getEditorContentsAsString();
@@ -182,7 +198,7 @@ describe('aggregate-test-suite', () => {
     }
   });
 
-  // Remove a block and check block has auto swapped.
+  // Remove a block and check block has auto swapped
   test('Remove Block.', async () => {
     try {
       // Add another block to remove.
@@ -194,6 +210,20 @@ describe('aggregate-test-suite', () => {
       await browser.pause(500);
 
       await aggregate.isBlockSelected(2);
+
+      expect(true).toBe(true);
+    } catch (error) {
+      console.log(error);
+      expect(false).toBe(true);
+    }
+  });
+
+  // Remove a block and check block has auto swapped
+  test('Fill in Dialog.', async () => {
+    try {
+      // await browser.pause(50000);
+      // await treeAction.fillInDialogue(template, templateInput);
+      // await browser.pause(50000);
 
       expect(true).toBe(true);
     } catch (error) {
