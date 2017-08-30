@@ -103,6 +103,7 @@
     "chromedriver": "^2.31.0",
     "config": "^1.26.1",
     "electron-updater": "^2.7.1",
+    "find-free-port": "^1.0.2",
     "global": "^4.3.2",
     "js-yaml": "^3.8.4",
     "lodash": "^4.17.4",
