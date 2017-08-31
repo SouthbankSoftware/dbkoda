@@ -2,6 +2,10 @@
     "appId": "com.southbanksoftware.dbkoda",
     "compression": "normal",
     "npmRebuild": true,
+    "publish": [{
+        "provider": "s3",
+        "bucket": "southbanksoftware.com"
+    }],
     "files": ["assets", "config", "lib", "node_modules"],
     "asarUnpack": [
         "node_modules/@southbanksoftware/dbkoda-controller/lib/all-in-one.js"
