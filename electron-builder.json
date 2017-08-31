@@ -4,7 +4,7 @@
     "npmRebuild": true,
     "publish": [{
         "provider": "s3",
-        "bucket": "southbanksoftware.com"
+        "bucket": "updates.dbkoda"
     }],
     "files": ["assets", "config", "lib", "node_modules"],
     "asarUnpack": [
