@@ -1,0 +1,58 @@
+{
+  "Title": "Group",
+  "Fields": [
+    {
+      "name": "GroupByKeys",
+      "label": "Columns To Group By",
+      "type": "Table",
+      "columns": [
+        {
+          "name": "AttributeName",
+          "label": "Attribute",
+          "tooltip": "Name of the attribute to be filtered",
+          "type": "Combo",
+          "lookup": "dbkodaListAttributesAgg",
+          "lookup_arguments": [
+            {
+              "name": "prevAttributes",
+              "value": "prevAttributes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AggregateKeys",
+      "label": "Columns To Aggregate",
+      "type": "Table",
+      "columns": [
+        {
+          "name": "AttributeName",
+          "label": "Attribute",
+          "tooltip": "Name of the attribute to be filtered",
+          "type": "Combo",
+          "lookup": "dbkodaListAttributesAgg",
+          "lookup_arguments": [
+            {
+              "name": "prevAttributes",
+              "value": "prevAttributes"
+            }
+          ]
+        },
+        {
+          "name": "Aggregation",
+          "Label": "Aggregation",
+          "type": "Combo",
+          "tooltip": "Aggregation Operation",
+          "lookup": "dbkodaAggOperators",
+          "lookup_arguments": [
+            {
+              "name": "db",
+              "value": "database"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
