@@ -1,4 +1,8 @@
+#
+# Collect logs and other information for dbKoda support 
+# 
 cd ~\.dbKoda  
+systeminfo >systeminfo.txt
 Compress-Archive -Force -Path * -DestinationPath ~\.dbKoda\dbKodaSupport.zip 
 cd ~\AppData\Roaming\dbKoda\logs
 gci . | sort LastWriteTime | select -last 4 | Foreach-Object {
