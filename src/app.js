@@ -65,6 +65,7 @@ if (global.MODE == 'byo') {
 global.UAT = process.env.UAT === 'true';
 
 global.NAME = app.getName();
+global.APP_VERSION = app.getVersion();
 global.PATHS = (() => {
   const userHome = app.getPath('home');
   const home = path.resolve(userHome, `.${global.NAME}`);
@@ -302,7 +303,7 @@ const createMainWindow = () => {
       }
       splashWindow.destroy();
       mainWindow.setTouchBar(touchbar);
-      if (global.MODE === 'prod') {
+      if (global.MODE === 'prod' && (process.platform === 'darwin' || process.platform === 'win32')) {
         autoUpdater.checkForUpdates();
       }
     });
@@ -312,6 +313,7 @@ const createMainWindow = () => {
 // Configure Auto-Updater
 autoUpdater.logger = l;
 autoUpdater.autoDownload = false;
+global.updateEnabled = true;
 autoUpdater.on('checking-for-update', () => {
   l.notice('Checking for update...');
 });
@@ -332,10 +334,12 @@ autoUpdater.on('update-available', () => {
 });
 autoUpdater.on('update-not-available', () => {
   l.notice('Update not available.');
-  dialog.showMessageBox({
-    title: 'No Updates',
-    message: 'Current version is up-to-date.'
-  });
+  if (global.updateEnabled == false) {
+    dialog.showMessageBox({
+      title: 'No Updates',
+      message: 'Current version is up-to-date.'
+    });
+  }
   global.updateEnabled = true;
 });
 autoUpdater.on('error', (event, error) => {
@@ -367,6 +371,17 @@ autoUpdater.on('update-downloaded', () => {
 function checkForUpdates () {
   global.updateEnabled = false;
   autoUpdater.checkForUpdates();
+}
+function aboutDBKoda() {
+  let strAbout = 'Version ';
+  strAbout += global.APP_VERSION;
+  strAbout += '\n\n';
+  strAbout += 'Copyright © 2017 Southbank Software';
+  dialog.showMessageBox({
+    title: 'About dbKoda',
+    message: strAbout
+  }, () => {
+  });
 }
 // Set app menu
 const setAppMenu = () => {
@@ -490,7 +505,10 @@ const setAppMenu = () => {
       label: 'Help',
       role: 'help',
       submenu: [
-        { role: 'about' },
+        { label: 'About',
+        click: () => {
+          aboutDBKoda();
+        }, },
         {
           label: 'Check for Updates',
           click: () => {
