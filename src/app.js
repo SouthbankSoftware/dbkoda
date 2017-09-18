@@ -30,7 +30,7 @@ import _ from 'lodash';
 import path from 'path';
 import sh from 'shelljs';
 import childProcess from 'child_process';
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, Menu, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import moment from 'moment';
 import winston from 'winston';
@@ -40,8 +40,6 @@ import touchbar from './touchbar';
 
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config/');
 const config = require('config');
-
-let updateAvailable = false;
 
 identifyWorkingMode();
 
@@ -202,13 +200,6 @@ const saveFileAsInEditor = () => {
   }
 };
 
-const updateReadyToInstall = () => {
-  const activeWindow = BrowserWindow.getFocusedWindow();
-  if (activeWindow) {
-    activeWindow.webContents.send('update', 'updateReady');
-  }
-};
-
 // Create main window with React UI
 const createWindow = (url, options) => {
   options = _.assign(
@@ -313,16 +304,70 @@ const createMainWindow = () => {
       mainWindow.setTouchBar(touchbar);
       if (global.MODE === 'prod') {
         autoUpdater.checkForUpdates();
-        ipcMain.on('updateAndRestart', () => {
-          if (updateAvailable) {
-            autoUpdater.quitAndInstall();
-          }
-        });
       }
     });
   });
 };
 
+// Configure Auto-Updater
+autoUpdater.logger = l;
+autoUpdater.autoDownload = false;
+autoUpdater.on('checking-for-update', () => {
+  l.notice('Checking for update...');
+});
+autoUpdater.on('update-available', () => {
+  l.notice('Update available.');
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Found Updates',
+    message: 'Found updates, do you want update now?',
+    buttons: ['Sure', 'No']
+  }, (buttonIndex) => {
+    if (buttonIndex === 0) {
+      autoUpdater.downloadUpdate();
+    } else {
+      global.updateEnabled = true;
+    }
+  });
+});
+autoUpdater.on('update-not-available', () => {
+  l.notice('Update not available.');
+  dialog.showMessageBox({
+    title: 'No Updates',
+    message: 'Current version is up-to-date.'
+  });
+  global.updateEnabled = true;
+});
+autoUpdater.on('error', (event, error) => {
+  l.notice('Error in auto-updater. ', (error.stack || error).toString());
+  dialog.showErrorBox('Error: ', 'Unable to download update at the moment, Please try again later.');
+});
+autoUpdater.on('download-progress', (progressObj) => {
+  let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
+  logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
+  logMessage =
+    logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
+  l.notice(logMessage);
+});
+autoUpdater.on('update-downloaded', () => {
+  l.notice('Update downloaded; will install on quit');
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Install Updates',
+    message: 'Updates downloaded, application will be quit for update...',
+    buttons: ['Sure', 'Later']
+  }, (buttonIndex) => {
+    if (buttonIndex === 0) {
+      setImmediate(() => autoUpdater.quitAndInstall());
+    } else {
+      global.updateEnabled = true;
+    }
+  });
+});
+function checkForUpdates () {
+  global.updateEnabled = false;
+  autoUpdater.checkForUpdates();
+}
 // Set app menu
 const setAppMenu = () => {
   const menus = [
@@ -418,6 +463,13 @@ const setAppMenu = () => {
     menus.unshift({
       submenu: [
         { role: 'about' },
+        {
+          label: 'Check for Updates',
+          click: () => {
+            checkForUpdates();
+          },
+          enabled: global.updateEnabled && global.MODE === 'prod'
+        },
         { type: 'separator' },
         { role: 'services', submenu: [] },
         { type: 'separator' },
@@ -433,37 +485,25 @@ const setAppMenu = () => {
       role: 'help',
       submenu: []
     });
+  } else if (process.platform === 'win32') {
+    menus.push({
+      label: 'Help',
+      role: 'help',
+      submenu: [
+        { role: 'about' },
+        {
+          label: 'Check for Updates',
+          click: () => {
+            checkForUpdates();
+          },
+          enabled: global.updateEnabled && global.MODE === 'prod'
+        },
+      ]
+    });
   }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
 };
-
-// Configure Auto-Updater
-autoUpdater.logger = l;
-autoUpdater.on('checking-for-update', () => {
-  l.notice('Checking for update...');
-});
-autoUpdater.on('update-available', () => {
-  l.notice('Update available.');
-});
-autoUpdater.on('update-not-available', () => {
-  l.notice('Update not available.');
-});
-autoUpdater.on('error', () => {
-  l.notice('Error in auto-updater. ');
-});
-autoUpdater.on('download-progress', (progressObj) => {
-  let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
-  logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
-  logMessage =
-    logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
-  l.notice(logMessage);
-});
-autoUpdater.on('update-downloaded', () => {
-  l.notice('Update downloaded; will install on quit');
-  updateAvailable = true;
-  updateReadyToInstall();
-});
 
 app.on('ready', () => {
   setAppMenu();
@@ -491,4 +531,3 @@ app.on('will-quit', () => {
   l.notice('Shutting down...');
   controllerProcess && controllerProcess.kill();
 });
-
