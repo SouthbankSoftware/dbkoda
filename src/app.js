@@ -354,7 +354,7 @@ autoUpdater.on('update-downloaded', () => {
   dialog.showMessageBox({
     type: 'info',
     title: 'Install Updates',
-    message: 'Updates downloaded, application will be quit for update...',
+    message: 'Updates downloaded, application will update on next restart, would you like to restart now?',
     buttons: ['Sure', 'Later']
   }, (buttonIndex) => {
     if (buttonIndex === 0) {
