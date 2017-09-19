@@ -40,6 +40,8 @@
     "dist:release": "yarn run dist -- --config electron-builder-release.json",
     "dist:win:release": "yarn run dist:win -- --config electron-builder-release.json",
     "dist:dev": "yarn run dist -- --config.compression=store",
+    "s3:publish": "yarn run dist:basic -- --config electron-builder-release.json --publish always",
+    "s3:publish:win": "yarn run dist:basic --  --config electron-builder-release.json --win --x64 --ia32 --publish always",
     "postinstall": "yarn run cbuild",
     "byo": "MODE=byo yarn run dev",
     "byo:win": "set MODE=byo&& yarn run dev",
