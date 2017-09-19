@@ -1,0 +1,19 @@
+[ignore]
+# ignore all node modules by default and we are using type definitions provided by flow-typed
+.*/node_modules/.*
+
+[include]
+# re-include any node modules to be used with flow
+
+[libs]
+
+[lints]
+
+[options]
+module.name_mapper='^\(.*\)\.s?css$' -> 'CSSModule'
+# with node, name_mapper doesn't work: https://github.com/facebook/flow/issues/1068
+module.system=haste
+suppress_comment= \\(.\\|\n\\)*\\$FlowFixMe
+suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
+suppress_type=$FlowFixMe
+munge_underscores=true
