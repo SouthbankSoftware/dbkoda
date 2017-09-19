@@ -9,6 +9,7 @@ In this hotfix release we fixed a few key bugs, as well as updating some error m
 + Fixed an issue causing connections to fail with "Not Authorized" even when Authorization has not been selected in the connection profile panel.
 + Fixed an issue causing the connect button to be disabled after checking and unchecking the SSL option in the connection profile panel.
 + Fixed an issue which showed the "Failed to Create Shell" erorr message even if shell creation succeeded, but the user does not have sufficient permissions on the connected database.
++ Added a new dialogue to confirm whether a user would like to download any avaliable updates.
 
 ## Version 0.7.0
 
