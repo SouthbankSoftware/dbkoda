@@ -1,5 +1,15 @@
 # dbKoda release notes
 
+## Version 0.7.2
+
+Thursday September 14th, 2017
+
+In this hotfix release we fixed a few key bugs, as well as updating some error messages to be more specific and helpful to the user.
+
++ Fixed an issue causing connections to fail with "Not Authorized" even when Authorization has not been selected in the connection profile panel.
++ Fixed an issue causing the connect button to be disabled after checking and unchecking the SSL option in the connection profile panel.
++ Fixed an issue which showed the "Failed to Create Shell" erorr message even if shell creation succeeded, but the user does not have sufficient permissions on the connected database.
+
 ## Version 0.7.0
 
 Friday September 1st, 2017
