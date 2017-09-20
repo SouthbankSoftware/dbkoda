@@ -351,7 +351,9 @@ autoUpdater.on('update-not-available', () => {
 });
 autoUpdater.on('error', (event, error) => {
   l.notice('Error in auto-updater. ', (error.stack || error).toString());
-  dialog.showErrorBox('Error: ', 'Unable to download update at the moment, Please try again later.');
+  if (global.updateEnabled == false) {
+    dialog.showErrorBox('Error: ', 'Unable to download update at the moment, Please try again later.');
+  }
 });
 autoUpdater.on('download-progress', (progressObj) => {
   let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
