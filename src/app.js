@@ -307,6 +307,14 @@ const createMainWindow = () => {
         autoUpdater.checkForUpdates();
       }
     });
+    ipcMain.once('appCrashed', () => {
+      dialog.showMessageBox({
+        title: 'Error',
+        message: 'Sorry! your previous configuration (stateStore) was incompatible with current version.',
+        detail: 'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.'
+      });
+      mainWindow.reload();
+    });
   });
 };
 
@@ -344,7 +352,9 @@ autoUpdater.on('update-not-available', () => {
 });
 autoUpdater.on('error', (event, error) => {
   l.notice('Error in auto-updater. ', (error.stack || error).toString());
-  dialog.showErrorBox('Error: ', 'Unable to download update at the moment, Please try again later.');
+  if (global.updateEnabled == false) {
+    dialog.showErrorBox('Error: ', 'Unable to download update at the moment, Please try again later.');
+  }
 });
 autoUpdater.on('download-progress', (progressObj) => {
   let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
