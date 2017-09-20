@@ -307,6 +307,13 @@ const createMainWindow = () => {
         autoUpdater.checkForUpdates();
       }
     });
+    ipcMain.once('appCrashed', () => {
+      dialog.showMessageBox({
+        title: 'Error',
+        message: 'Sorry! your previous configuration (stateStore) was incompatible with current version. We have made a backup of your old configuration, and created a new one.'
+      });
+      mainWindow.reload();
+    });
   });
 };
 
