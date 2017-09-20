@@ -311,6 +311,7 @@ const createMainWindow = () => {
       dialog.showMessageBox({
         title: 'Error',
         message: 'Sorry! your previous configuration (stateStore) was incompatible with current version.',
+        buttons: ['OK'],
         detail: 'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.'
       });
       mainWindow.reload();
