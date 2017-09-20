@@ -10,6 +10,8 @@ In this hotfix release we fixed a few key bugs, as well as updating some error m
 + Fixed an issue causing the connect button to be disabled after checking and unchecking the SSL option in the connection profile panel.
 + Fixed an issue which showed the "Failed to Create Shell" erorr message even if shell creation succeeded, but the user does not have sufficient permissions on the connected database.
 + Added a new dialogue to confirm whether a user would like to download any avaliable updates.
++ If a user modified the config.yml file to specify the location of their mongo binary, the application will not check this location whenever a connection is created, instead of just on application start.
++ New logic has been added to detect corruption of the applications state, now backing up the corrupt store and notifying the user of what has occured.
 
 ## Version 0.7.0
 
