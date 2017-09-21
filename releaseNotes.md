@@ -4,6 +4,12 @@
 
 Thursday September 21st, 2017
 
+For more information about dbKoda, visit out website [dbkoda.com](www.dbkoda.com). 
+
+To get help or to request features or simply to tell us what you think, visit our support system at https://dbkoda.useresponse.com. 
+
+To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
+
 In this hotfix release we fixed a few key bugs, as well as updating some error messages to be more specific and helpful to the user.
 
 + Fixed issues which caused Windows connections to fail, even if a correct binary location had been entered into the config.yml file
@@ -15,17 +21,6 @@ In this hotfix release we fixed a few key bugs, as well as updating some error m
 + If a user modified the config.yml file to specify the location of their mongo binary, the application will not check this location whenever a connection is created, instead of just on application start.
 + New logic has been added to detect corruption of the applications state, now backing up the corrupt store and notifying the user of what has occured.
 
-## Version 0.7.0
-
-Friday September 1st, 2017
-
-
-
-For more information about dbKoda, visit out website [dbkoda.com](www.dbkoda.com). 
-
-To get help or to request features or simply to tell us what you think, visit our support system at https://dbkoda.useresponse.com. 
-
-To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
 
 ## Release 0.7.0
 
