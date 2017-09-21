@@ -2,10 +2,12 @@
 
 ## Version 0.7.2
 
-Thursday September 14th, 2017
+Thursday September 21st, 2017
 
 In this hotfix release we fixed a few key bugs, as well as updating some error messages to be more specific and helpful to the user.
 
++ Fixed issues which caused Windows connections to fail, even if a correct binary location had been entered into the config.yml file
++ Fixed an issue in which the product might hang after upgrade. 
 + Fixed an issue causing connections to fail with "Not Authorized" even when Authorization has not been selected in the connection profile panel.
 + Fixed an issue causing the connect button to be disabled after checking and unchecking the SSL option in the connection profile panel.
 + Fixed an issue which showed the "Failed to Create Shell" erorr message even if shell creation succeeded, but the user does not have sufficient permissions on the connected database.
