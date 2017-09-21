@@ -76,9 +76,7 @@ global.PATHS = (() => {
     userData,
     userHome,
     logs: path.resolve(userData, 'logs'),
-    stateStore: global.UAT
-      ? '/tmp/stateStore.json'
-      : path.resolve(home, 'stateStore.json'),
+    stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json'),
   };
 })();
 
@@ -95,7 +93,7 @@ const configWinstonLogger = () => {
     colorize: 'all',
     timestamp() {
       return moment().format();
-    }
+    },
   };
 
   const transports = [new winston.transports.Console(commonOptions)];
@@ -109,9 +107,9 @@ const configWinstonLogger = () => {
           datePattern: 'yyyy-MM-dd.',
           localTime: true,
           prepend: true,
-          json: false
-        })
-      )
+          json: false,
+        }),
+      ),
     );
   }
 
@@ -124,16 +122,16 @@ const configWinstonLogger = () => {
       warn: 1,
       notice: 2,
       info: 3,
-      debug: 4
+      debug: 4,
     },
     colors: {
       error: 'red',
       warn: 'yellow',
       notice: 'green',
       info: 'black',
-      debug: 'blue'
+      debug: 'blue',
     },
-    transports
+    transports,
   });
 
   process.on('unhandledRejection', (reason) => {
@@ -151,9 +149,7 @@ l.notice(`Starting up with ${modeDescription} mode...`);
 // Launch dbKoda Controller
 let controllerProcess;
 const configController = () => {
-  const controllerPath = require.resolve(
-    '@southbanksoftware/dbkoda-controller'
-  );
+  const controllerPath = require.resolve('@southbanksoftware/dbkoda-controller');
 
   // NOTE: cwd option is not supported in asar, please avoid using it
   controllerProcess = childProcess.fork(controllerPath, [], {
@@ -162,11 +158,11 @@ const configController = () => {
       LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
       MONGO_SCRIPTS_PATH: path.resolve(
         app.getAppPath(),
-        '../app.asar.unpacked/node_modules/@southbanksoftware/dbkoda-controller/lib/'
+        '../app.asar.unpacked/node_modules/@southbanksoftware/dbkoda-controller/lib/',
       ),
       UAT: global.UAT,
       CONFIG_PATH: path.resolve(global.PATHS.home, 'config.yml'),
-    }
+    },
   });
 };
 if (global.MODE !== 'byo') {
@@ -207,9 +203,9 @@ const createWindow = (url, options) => {
     {
       width: 1280,
       height: 900,
-      backgroundColor: '#363951'
+      backgroundColor: '#363951',
     },
-    options
+    options,
   );
   const win = new BrowserWindow(options);
 
@@ -223,9 +219,10 @@ const createWindow = (url, options) => {
 };
 
 const createMainWindow = () => {
-  const url = global.MODE === 'byo' || global.MODE === 'super_dev'
-    ? 'http://localhost:3000/ui/'
-    : 'http://localhost:3030/ui/';
+  const url =
+    global.MODE === 'byo' || global.MODE === 'super_dev'
+      ? 'http://localhost:3000/ui/'
+      : 'http://localhost:3030/ui/';
 
   if (global.UAT) {
     invokeApi(
@@ -234,14 +231,14 @@ const createMainWindow = () => {
         shouldRetryOnError(e) {
           return _.includes(
             ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
-            e.error.code || _.includes([404, 502], e.statusCode)
+            e.error.code || _.includes([404, 502], e.statusCode),
           );
         },
         errorHandler(err) {
           l.error(err.stack);
           throw err;
-        }
-      }
+        },
+      },
     ).then(() => {
       createWindow(url);
     });
@@ -250,23 +247,20 @@ const createMainWindow = () => {
 
   // show a splash screen
   const splashWindow = createWindow(
-    `file://${path.resolve(__dirname, '../assets/splash/index.html')}`
+    `file://${path.resolve(__dirname, '../assets/splash/index.html')}`,
   );
 
   // wait for uiUrl to become reachable and then show real main window
   // const uiPath = require.resolve('@southbanksoftware/dbkoda-ui');
   invokeApi(
     {
-      url
+      url,
     },
     {
       shouldRetryOnError(e) {
         return (
           !splashWindow.isDestroyed() &&
-          (_.includes(
-            ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
-            e.error.code
-          ) ||
+          (_.includes(['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'], e.error.code) ||
             _.includes([404, 502], e.statusCode))
         );
       },
@@ -276,16 +270,30 @@ const createMainWindow = () => {
         }
         l.error(err.stack);
         throw err;
-      }
-    }
+      },
+    },
   ).then(() => {
     if (splashWindow.isDestroyed()) {
       return;
     }
+
     const mainWindow = createWindow(url, {
-      show: false
+      show: false,
     });
-    ipcMain.once('appReady', () => {
+
+    const handleAppCrashed = () => {
+      dialog.showMessageBox({
+        title: 'Error',
+        message:
+          'Sorry! your previous configuration (stateStore) was incompatible with current version.',
+        buttons: ['OK'],
+        detail:
+          'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.',
+      });
+      mainWindow.reload();
+    };
+
+    const handleAppReady = () => {
       if (splashWindow.isDestroyed()) {
         mainWindow.destroy();
         return;
@@ -303,17 +311,21 @@ const createMainWindow = () => {
       }
       splashWindow.destroy();
       mainWindow.setTouchBar(touchbar);
-      if (global.MODE === 'prod' && (process.platform === 'darwin' || process.platform === 'win32')) {
+      if (
+        global.MODE === 'prod' &&
+        (process.platform === 'darwin' || process.platform === 'win32')
+      ) {
         autoUpdater.checkForUpdates();
       }
-    });
-    ipcMain.once('appCrashed', () => {
-      dialog.showMessageBox({
-        title: 'Error',
-        message: 'Sorry! your previous configuration (stateStore) was incompatible with current version.',
-        detail: 'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.'
-      });
-      mainWindow.reload();
+    };
+
+    // TODO needs to assign each event a windows id if we are going to support multiple windows
+    ipcMain.once('appReady', handleAppReady);
+    ipcMain.once('appCrashed', handleAppCrashed);
+
+    mainWindow.on('closed', () => {
+      ipcMain.removeListener('appReady', handleAppReady);
+      ipcMain.removeListener('appCrashed', handleAppCrashed);
     });
   });
 };
@@ -327,25 +339,28 @@ autoUpdater.on('checking-for-update', () => {
 });
 autoUpdater.on('update-available', () => {
   l.notice('Update available.');
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Found Updates',
-    message: 'Found updates, do you want update now?',
-    buttons: ['Sure', 'No']
-  }, (buttonIndex) => {
-    if (buttonIndex === 0) {
-      autoUpdater.downloadUpdate();
-    } else {
-      global.updateEnabled = true;
-    }
-  });
+  dialog.showMessageBox(
+    {
+      type: 'info',
+      title: 'Found Updates',
+      message: 'Found updates, do you want update now?',
+      buttons: ['Sure', 'No'],
+    },
+    (buttonIndex) => {
+      if (buttonIndex === 0) {
+        autoUpdater.downloadUpdate();
+      } else {
+        global.updateEnabled = true;
+      }
+    },
+  );
 });
 autoUpdater.on('update-not-available', () => {
   l.notice('Update not available.');
   if (global.updateEnabled == false) {
     dialog.showMessageBox({
       title: 'No Updates',
-      message: 'Current version is up-to-date.'
+      message: 'Current version is up-to-date.',
     });
   }
   global.updateEnabled = true;
@@ -359,26 +374,29 @@ autoUpdater.on('error', (event, error) => {
 autoUpdater.on('download-progress', (progressObj) => {
   let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
   logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
-  logMessage =
-    logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
+  logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
   l.notice(logMessage);
 });
 autoUpdater.on('update-downloaded', () => {
   l.notice('Update downloaded; will install on quit');
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Install Updates',
-    message: 'Updates downloaded, application will update on next restart, would you like to restart now?',
-    buttons: ['Sure', 'Later']
-  }, (buttonIndex) => {
-    if (buttonIndex === 0) {
-      setImmediate(() => autoUpdater.quitAndInstall());
-    } else {
-      global.updateEnabled = true;
-    }
-  });
+  dialog.showMessageBox(
+    {
+      type: 'info',
+      title: 'Install Updates',
+      message:
+        'Updates downloaded, application will update on next restart, would you like to restart now?',
+      buttons: ['Sure', 'Later'],
+    },
+    (buttonIndex) => {
+      if (buttonIndex === 0) {
+        setImmediate(() => autoUpdater.quitAndInstall());
+      } else {
+        global.updateEnabled = true;
+      }
+    },
+  );
 });
-function checkForUpdates () {
+function checkForUpdates() {
   global.updateEnabled = false;
   autoUpdater.checkForUpdates();
 }
@@ -387,11 +405,13 @@ function aboutDBKoda() {
   strAbout += global.APP_VERSION;
   strAbout += '\n\n';
   strAbout += 'Copyright © 2017 Southbank Software';
-  dialog.showMessageBox({
-    title: 'About dbKoda',
-    message: strAbout
-  }, () => {
-  });
+  dialog.showMessageBox(
+    {
+      title: 'About dbKoda',
+      message: strAbout,
+    },
+    () => {},
+  );
 }
 // Set app menu
 const setAppMenu = () => {
@@ -411,34 +431,34 @@ const setAppMenu = () => {
           accelerator: 'CmdOrCtrl+N',
           click() {
             newEditor();
-          }
+          },
         },
         {
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
           click() {
             openFileInEditor();
-          }
+          },
         },
         {
           label: 'Save File',
           accelerator: 'CmdOrCtrl+S',
           click() {
             saveFileInEditor();
-          }
+          },
         },
         {
           label: 'Save File As...',
           accelerator: 'CmdOrCtrl+Shift+S',
           click() {
             saveFileAsInEditor();
-          }
+          },
         },
-        { role: 'close' }
-      ]
+        { role: 'close' },
+      ],
     },
     {
-      role: 'editMenu'
+      role: 'editMenu',
     },
     {
       label: 'View',
@@ -446,8 +466,8 @@ const setAppMenu = () => {
         { role: 'togglefullscreen' },
         { role: 'resetzoom' },
         { role: 'zoomin' },
-        { role: 'zoomout' }
-      ]
+        { role: 'zoomout' },
+      ],
     },
     {
       label: 'Development',
@@ -455,7 +475,7 @@ const setAppMenu = () => {
         {
           label: 'Reload UI',
           accelerator: 'Ctrl+Alt+Cmd+R',
-          role: 'forcereload'
+          role: 'forcereload',
         },
         {
           label: 'Reload Controller',
@@ -464,24 +484,19 @@ const setAppMenu = () => {
             controllerProcess && controllerProcess.kill();
             configController();
           },
-          enabled: global.MODE !== 'byo'
+          enabled: global.MODE !== 'byo',
         },
         {
           label: 'Toggle DevTools',
           accelerator: 'Alt+CmdOrCtrl+I',
-          role: 'toggledevtools'
-        }
-      ]
+          role: 'toggledevtools',
+        },
+      ],
     },
     {
       role: 'window',
-      submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
-        { type: 'separator' },
-        { role: 'front' }
-      ]
-    }
+      submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }],
+    },
   ];
 
   if (process.platform === 'darwin') {
@@ -493,7 +508,7 @@ const setAppMenu = () => {
           click: () => {
             checkForUpdates();
           },
-          enabled: global.updateEnabled && global.MODE === 'prod'
+          enabled: global.updateEnabled && global.MODE === 'prod',
         },
         { type: 'separator' },
         { role: 'services', submenu: [] },
@@ -502,31 +517,33 @@ const setAppMenu = () => {
         { role: 'hideothers' },
         { role: 'unhide' },
         { type: 'separator' },
-        { role: 'quit' }
-      ]
+        { role: 'quit' },
+      ],
     });
     menus.push({
       label: 'Help',
       role: 'help',
-      submenu: []
+      submenu: [],
     });
   } else if (process.platform === 'win32') {
     menus.push({
       label: 'Help',
       role: 'help',
       submenu: [
-        { label: 'About',
-        click: () => {
-          aboutDBKoda();
-        }, },
+        {
+          label: 'About',
+          click: () => {
+            aboutDBKoda();
+          },
+        },
         {
           label: 'Check for Updates',
           click: () => {
             checkForUpdates();
           },
-          enabled: global.updateEnabled && global.MODE === 'prod'
+          enabled: global.updateEnabled && global.MODE === 'prod',
         },
-      ]
+      ],
     });
   }
 
