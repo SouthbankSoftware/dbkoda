@@ -5,24 +5,18 @@
 
 import _ from 'lodash';
 
-import {
-  config,
-  getApp
-} from '#/helpers';
+import { config, getApp } from '#/helpers';
 import {
   getRandomPort,
   killMongoInstance,
-  launchSingleInstance
+  launchSingleInstance,
 } from 'test-utils';
 import TreeAction from '#/pageObjects/TreeAction';
 import Connection from '#/pageObjects/Connection';
 import Editor from '#/pageObjects/Editor';
 import Output from '#/pageObjects/Output';
 
-
-import {
-  mongoPortOutput
-} from './uiDefinitions/inputAndTest/common';
+import { mongoPortOutput } from './uiDefinitions/inputAndTest/common';
 
 const debug = false;
 
@@ -34,11 +28,11 @@ describe('TreeAction:SimpleQuery', () => {
   const r = {};
   const cleanupWorkflows = [];
 
-  const cleanup = async() => {
+  const cleanup = async () => {
     // cleanup in reverse order
     await _.reduceRight(
       cleanupWorkflows,
-      async(acc, wf) => {
+      async (acc, wf) => {
         await acc;
         try {
           await wf();
@@ -46,11 +40,11 @@ describe('TreeAction:SimpleQuery', () => {
           console.error(e.stack);
         }
       },
-      Promise.resolve()
+      Promise.resolve(),
     );
   };
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     try {
       const app = await getApp();
 
@@ -60,13 +54,13 @@ describe('TreeAction:SimpleQuery', () => {
       r.connection = new Connection(r.browser);
       r.output = new Output(r.browser);
       r.editor = new Editor(r.browser);
-      r.debug = async() => {
+      r.debug = async () => {
         console.log('\n\nWebdriverIO debugging REPL...');
         await r.browser.debug();
       };
       global.debug = r.debug;
 
-      cleanupWorkflows.push(async() => {
+      cleanupWorkflows.push(async () => {
         if (app && app.isRunning()) {
           await app.stop();
         }
@@ -76,73 +70,77 @@ describe('TreeAction:SimpleQuery', () => {
     }
   });
 
-  afterAll(async() => {
+  afterAll(async () => {
     await cleanup();
   });
 
-  test('Create testing database', async() => {
+  test('Create testing database', async () => {
     r.mongoDbPort = getRandomPort();
     launchSingleInstance(r.mongoDbPort);
     if (debug) {
       console.log('DB start');
     }
-    cleanupWorkflows.push(async() => {
+    cleanupWorkflows.push(async () => {
       killMongoInstance(r.mongoDbPort);
     });
     // initialize the test db just in case ....
-    const output = await mongoPortOutput(r.mongoDbPort, 'use test\nfor (var i=2000;i<2020;i+=1) { db.companies.insertOne({name:"company"+i,founded_year:i,}); };\n');
+    const output = await mongoPortOutput(
+      r.mongoDbPort,
+      'use test\nfor (var i=2000;i<2020;i+=1) { db.companies.insertOne({name:"company"+i,founded_year:i,}); };\n',
+    );
     if (debug) console.log(output);
   });
   /** Connect to database */
-  test('Create a connection', async() => {
-    const {
-      browser,
-      connection,
-      mongoDbPort: port,
-      treeAction
-    } = r;
+  test('Create a connection', async () => {
+    const { browser, connection, mongoDbPort: port, treeAction } = r;
 
     await connection.connectProfileByHostname({
       alias: 'Test',
       hostName: 'localhost',
       port,
-      database: 'admin'
+      database: 'admin',
     });
     expect(await browser.waitForExist(treeAction.treeNodeSelector)).toBeTruthy;
   });
   /** Setup database */
-  test('Setup globals', async() => {
+  test('Setup globals', async () => {
     r.template = require('./uiDefinitions/ddd/SimpleQuery.ddd.json');
     r.templateInput = {
       Database: 'test',
       CollectionName: 'companies',
       UseOr: true,
-      FilterKeys: [{
+      FilterKeys: [
+        {
           AttributeName: 'founded_year',
-          Value: 2000
+          Operator: '$eq',
+          Value: 2000,
         },
         {
           AttributeName: 'founded_year',
+          Operator: '$eq',
           Value: 2001,
-          last: 1
-        }
+          last: 1,
+        },
       ],
       IncludeProjection: true,
-      Projections: [{
-          AttributeName: 'name'
+      Projections: [
+        {
+          AttributeName: 'name',
+          AttributeProjectionValue: 1,
         },
         {
-          AttributeName: 'founded_year'
-        }
+          AttributeName: 'founded_year',
+          AttributeProjectionValue: 1,
+        },
       ],
-      Sort: false,
+      SortKeys: false,
       Limit: 10,
-      Count: false
+      Count: false,
     };
   });
 
   /** Select tree node and bring up action dialogue */
-  test('allows user to select its corresponding tree node and bring up an action dialogue', async() => {
+  test('allows user to select its corresponding tree node and bring up an action dialogue', async () => {
     await r.treeAction
       .getTreeNodeByPath(['Databases', 'test', 'companies'])
       .rightClick()
@@ -151,15 +149,21 @@ describe('TreeAction:SimpleQuery', () => {
   });
 
   /** Fill in action dialogue */
-  test('allows user to fill in action dialogue', async() => {
+  test('allows user to fill in action dialogue', async () => {
     await r.browser.waitForExist('.dynamic-form').pause(1000);
     let clicks = []; //eslint-disable-line
-    await r.browser.element('.dynamic-form > .form-scrollable > form > fieldset[label="Filter conditions"] > div > div.right > span > span > a').click();
-    await r.browser.element('.dynamic-form > .form-scrollable > form > fieldset[label="Projections"] > div > div.right > span > span > a').click();
-    await r.browser.element('.dynamic-form > .form-scrollable > form > fieldset[label="SortKeys"] > div > div.right > span > span > a').click();
+    await r.browser
+      .element(
+        '.dynamic-form > .form-scrollable > form > fieldset[label="Filter conditions"] > div > div.right > span > span > a',
+      )
+      .click();
+    await r.browser
+      .element(
+        '.dynamic-form > .form-scrollable > form > fieldset[label="Project Fields"] > div > div.right > span > span > a',
+      )
+      .click();
 
-    await r.browser.pause(5000);
-
+    await r.browser.pause(1000);
 
     await r.treeAction.fillInDialogue(r.template, r.templateInput);
 
@@ -179,14 +183,14 @@ describe('TreeAction:SimpleQuery', () => {
   });
 
   /** Press execute */
-  test('allows user to press `execute` button', async() => {
+  test('allows user to press `execute` button', async () => {
     await r.output.clearOutput.leftClick();
     await r.treeAction.execute();
     await r.browser.pause(1000);
   });
 
   /** Get output and compare */
-  test('returns the correct output', async() => {
+  test('returns the correct output', async () => {
     const outputLines = await r.output.getAllOutputLines();
     console.log(outputLines);
     const expectedOutput = expect.stringMatching('company2001');
