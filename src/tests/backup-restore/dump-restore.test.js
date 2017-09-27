@@ -65,6 +65,7 @@ describe('backup restore test suite', () => {
           database: 'admin',
           port: mongoPort,
         });
+      await browser.pause(3000);
     });
   });
 
@@ -134,7 +135,7 @@ describe('backup restore test suite', () => {
     const nodes = await treeAction.getTreeNodeByPath(['Databases', dumpDbName, 'testcol1']);
     assert.notEqual(nodes, null);
   });
-
+/*
   test('dump and restore multiple collections', async () => {
     const dumpDbName = 'testdump-' + getRandomPort();
     const restoreDbName = 'restore-' + getRandomPort();
@@ -167,4 +168,5 @@ describe('backup restore test suite', () => {
     nodes = await treeAction.getTreeNodeByPath(['Databases', restoreDbName, 'testcol3']);
     assert.notEqual(nodes, null);
   });
+*/
 });
