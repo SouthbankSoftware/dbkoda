@@ -68,7 +68,7 @@ describe('test explain', () => {
       await editor._clickExplainQueryPlanner();
       await browser.pause(2000);
       let tabName = await browser.getText(output.selectedTabSelector);
-      assert.equal(tabName.indexOf('Explain-' + alias) >= 0, true);
+      assert.equal(tabName.indexOf('Explain') >= 0, true);
       const namespace = await explain.getCommandNamespace();
       assert.equal(namespace, 'test.users');
 
@@ -76,7 +76,7 @@ describe('test explain', () => {
       // after execute all, normal output panel should be shown
       await browser.pause(2000);
       tabName = await browser.getText(output.selectedTabSelector);
-      assert.equal(tabName.indexOf('Explain-' + alias) < 0, true);
+      assert.equal(tabName.indexOf('Explain') < 0, true);
     } catch (err) {
       console.error(err);
       assert.fail(true, false, err);
