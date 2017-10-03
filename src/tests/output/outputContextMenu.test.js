@@ -13,7 +13,7 @@
  import Editor from '../pageObjects/Editor';
  import {config, getApp} from '../helpers';
 
-describe('output-panel-test-suite', () => {
+describe('output-panel-context-menu', () => {
   let mongoPort;
   let app;
   let browser;
@@ -62,11 +62,11 @@ describe('output-panel-test-suite', () => {
   });
 
   test('open json view', async () => {
-    await output.openJsonView(35);
+    await output.openJsonView(30);
     await browser.pause(200);
     const tabName = await output.activeTabName();
     viewContents = await jsonView.getJsonViewText();
-    expect(tabName).toContain('EnhancedJson-');
+    expect(tabName).toContain('Enhanced JSON');
   });
 
   test('browse next document', async () => {
