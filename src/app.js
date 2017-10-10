@@ -318,7 +318,7 @@ const createMainWindow = () => {
         global.MODE === 'prod' &&
         (process.platform === 'darwin' || process.platform === 'win32')
       ) {
-        checkForUpdates();
+        checkForUpdates(false);
       }
     };
 
@@ -370,10 +370,12 @@ autoUpdater.on('update-not-available', () => {
 });
 autoUpdater.on('error', (event, error) => {
   l.notice('Error in auto-updater. ', (error.stack || error).toString());
-  dialog.showErrorBox(
-    'Error: ',
-    'Unable to download update at the moment, Please try again later.',
-  );
+  if (global.updateEnabled == false) {
+    dialog.showErrorBox(
+      'Error: ',
+      'Unable to download update at the moment, Please try again later.',
+    );
+  }
 });
 autoUpdater.on('download-progress', (progressObj) => {
   let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
@@ -404,8 +406,8 @@ autoUpdater.on('update-downloaded', () => {
     },
   );
 });
-function checkForUpdates() {
-  global.updateEnabled = false;
+function checkForUpdates(bShowDialog = true) {
+  global.updateEnabled = !bShowDialog;
   if (process.platform === 'win32' && os.arch() === 'ia32') {
     const s3Options = {
       provider: 's3',
