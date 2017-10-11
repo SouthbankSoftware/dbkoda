@@ -42,6 +42,8 @@
     "dist:release": "yarn run dist -- --config electron-builder-release.json",
     "dist:win:release":
       "yarn run dist:win -- --config electron-builder-release.json",
+    "dist:win:dev":
+      "yarn run dist:win -- --config electron-builder-dev.json",
     "dist:dev": "yarn run dist -- --config.compression=store",
     "s3:publish":
       "yarn run dist:basic -- --config electron-builder-release.json --publish always",
