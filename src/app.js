@@ -1,11 +1,3 @@
-/**
- * @Author: Wahaj Shamim <wahaj>
- * @Date:   2017-07-21T09:26:47+10:00
- * @Email:  wahaj@southbanksoftware.com
- * @Last modified by:   wahaj
- * @Last modified time: 2017-07-24T10:00:19+10:00
- */
-
 /*
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -24,6 +16,12 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @Author: Wahaj Shamim <wahaj>
+ * @Date:   2017-07-21T09:26:47+10:00
+ * @Email:  wahaj@southbanksoftware.com
+ * @Last modified by:   wahaj
+ * @Last modified time: 2017-07-24T10:00:19+10:00
  */
 
 import _ from 'lodash';
@@ -70,11 +68,13 @@ global.PATHS = (() => {
   const userHome = app.getPath('home');
   const home = path.resolve(userHome, `.${global.NAME}`);
   const userData = app.getPath('userData');
+  const configPath = process.env.CONFIG_PATH ? process.env.CONFIG_PATH : path.resolve(home, `config.yml`);
 
   return {
     home,
     userData,
     userHome,
+    configPath,
     logs: path.resolve(userData, 'logs'),
     stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json'),
   };
