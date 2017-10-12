@@ -2,7 +2,7 @@
  * @Author: guiguan
  * @Date:   2017-10-12T20:10:14+11:00
  * @Last modified by:   guiguan
- * @Last modified time: 2017-10-12T22:36:17+11:00
+ * @Last modified time: 2017-10-13T10:41:41+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -169,14 +169,14 @@ describe('ChartPanel', () => {
     expect(await r.chart.maxXValue).toEqual('`other');
   });
 
-  test('Hide `other in X Axis and Center', async () => {
+  test('Hide `other in X axis and center', async () => {
     await r.chart.barChart.rightClick().pause(500);
 
-    await r.chart.clickContextMenu('Hide `other in X Axis').pause(200);
+    await r.chart.clickContextMenu('Hide `other in X axis').pause(200);
 
     await r.chart.barChart.rightClick().pause(500);
 
-    await r.chart.clickContextMenu('Hide `other in Center').pause(200);
+    await r.chart.clickContextMenu('Hide `other in center').pause(200);
 
     expect(await r.chart.isLegendExisting('`other')).toBeFalsy();
     expect(await r.chart.minYValue).toEqual('0');
