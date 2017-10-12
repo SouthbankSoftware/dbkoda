@@ -1,5 +1,18 @@
 # dbKoda release notes
 
+
+## Version 0.7.3
+
+Friday October 13st, 2017
+
+For more information about dbKoda, visit out website [dbkoda.com](www.dbkoda.com). 
+
+To get help or to request features or simply to tell us what you think, visit our support system at https://dbkoda.useresponse.com. 
+
+To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
+
+In this minor patch we updated our telemtry dialog and added some minor changes to the auto-updater to support differences in our next major release. 
+
 ## Version 0.7.2
 
 Thursday September 21st, 2017
