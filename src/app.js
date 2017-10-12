@@ -68,7 +68,7 @@ global.PATHS = (() => {
   const userHome = app.getPath('home');
   const home = path.resolve(userHome, `.${global.NAME}`);
   const userData = app.getPath('userData');
-  const configPath = process.env.CONFIG_PATH ? process.env.CONFIG_PATH : path.resolve(home, `config.yml`);
+  const configPath = process.env.CONFIG_PATH ? process.env.CONFIG_PATH : path.resolve(home, 'config.yml');
 
   return {
     home,
