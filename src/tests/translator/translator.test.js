@@ -82,7 +82,6 @@ describe('test translator', () => {
       await editor._appendToEditor('db.users.find()\n');
       await translator.translate();
       await translator.execution();
-      await browser.pause(10000);
       await translator.close();
     } catch (err) {
       console.error(err);

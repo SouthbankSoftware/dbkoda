@@ -45,6 +45,7 @@ export default class Translator extends Page {
   async execution() {
     await this.browser.waitForExist(this.translatorCodeMirrorSelector);
     await this.browser.rightClick(this.translatorCodeMirrorSelector);
+    await this.browser.rightClick(this.translatorCodeMirrorSelector);
     await this.browser.waitForExist(this.translateAllMenuItemSelector);
     await this.browser.click(this.translateAllMenuItemSelector);
   }
