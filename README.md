@@ -36,21 +36,6 @@ You can config dbKoda by putting a `config.yml` in your dbKoda home folder as fo
 # shell
 mongoCmd: /usr/local/bin/mongo
 
-###############################
-# Remote mongo binary via SSH #
-###############################
-# mongoCmd: /usr/bin/ssh -t -i ~/.ssh/id_rsa -p 9022 admin@hoth.southbanksoftware.com mongo
-# mongoVersionCmd: /usr/bin/ssh -p -i ~/.ssh/id_rsa 9022 admin@hoth.southbanksoftware.com mongo --version
-
-##############################
-# Containerised mongo binary #
-##############################
-# Prerequisite: a running mongo container, for example, start with `docker run --name mongo mongo`.
-# Note: you should not use `docker run mongo mongo` directly as mongoCmd, as dbKoda won't cleanup
-# used containers for you
-
-# mongoCmd: /usr/local/bin/docker exec -it mongo mongo
-# mongoVersionCmd: /usr/local/bin/docker exec -i mongo mongo --version
 ```
 
 ### dbKoda Home Folder
