@@ -38,6 +38,7 @@ import touchbar from './touchbar';
 
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config/');
 const config = require('config');
+const os = require('os');
 
 identifyWorkingMode();
 
@@ -76,7 +77,9 @@ global.PATHS = (() => {
     userHome,
     configPath,
     logs: path.resolve(userData, 'logs'),
-    stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json'),
+    stateStore: global.UAT
+      ? '/tmp/stateStore.json'
+      : path.resolve(home, 'stateStore.json'),
   };
 })();
 
@@ -149,7 +152,9 @@ l.notice(`Starting up with ${modeDescription} mode...`);
 // Launch dbKoda Controller
 let controllerProcess;
 const configController = () => {
-  const controllerPath = require.resolve('@southbanksoftware/dbkoda-controller');
+  const controllerPath = require.resolve(
+    '@southbanksoftware/dbkoda-controller',
+  );
 
   // NOTE: cwd option is not supported in asar, please avoid using it
   controllerProcess = childProcess.fork(controllerPath, [], {
@@ -219,10 +224,9 @@ const createWindow = (url, options) => {
 };
 
 const createMainWindow = () => {
-  const url =
-    global.MODE === 'byo' || global.MODE === 'super_dev'
-      ? 'http://localhost:3000/ui/'
-      : 'http://localhost:3030/ui/';
+  const url = global.MODE === 'byo' || global.MODE === 'super_dev'
+    ? 'http://localhost:3000/ui/'
+    : 'http://localhost:3030/ui/';
 
   if (global.UAT) {
     invokeApi(
@@ -258,11 +262,12 @@ const createMainWindow = () => {
     },
     {
       shouldRetryOnError(e) {
-        return (
-          !splashWindow.isDestroyed() &&
-          (_.includes(['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'], e.error.code) ||
-            _.includes([404, 502], e.statusCode))
-        );
+        return !splashWindow.isDestroyed() &&
+          (_.includes(
+            ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
+            e.error.code,
+          ) ||
+            _.includes([404, 502], e.statusCode));
       },
       errorHandler(err) {
         if (splashWindow.isDestroyed()) {
@@ -284,11 +289,9 @@ const createMainWindow = () => {
     const handleAppCrashed = () => {
       dialog.showMessageBox({
         title: 'Error',
-        message:
-          'Sorry! your previous configuration (stateStore) was incompatible with current version.',
+        message: 'Sorry! your previous configuration (stateStore) was incompatible with current version.',
         buttons: ['OK'],
-        detail:
-          'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.',
+        detail: 'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.',
       });
       mainWindow.reload();
     };
@@ -315,7 +318,7 @@ const createMainWindow = () => {
         global.MODE === 'prod' &&
         (process.platform === 'darwin' || process.platform === 'win32')
       ) {
-        autoUpdater.checkForUpdates();
+        checkForUpdates(false);
       }
     };
 
@@ -368,13 +371,21 @@ autoUpdater.on('update-not-available', () => {
 autoUpdater.on('error', (event, error) => {
   l.notice('Error in auto-updater. ', (error.stack || error).toString());
   if (global.updateEnabled == false) {
-    dialog.showErrorBox('Error: ', 'Unable to download update at the moment, Please try again later.');
+    dialog.showErrorBox(
+      'Error: ',
+      'Unable to download update at the moment, Please try again later.',
+    );
   }
 });
 autoUpdater.on('download-progress', (progressObj) => {
   let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
   logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
-  logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
+  logMessage = logMessage +
+    ' (' +
+    progressObj.transferred +
+    '/' +
+    progressObj.total +
+    ')';
   l.notice(logMessage);
 });
 autoUpdater.on('update-downloaded', () => {
@@ -383,8 +394,7 @@ autoUpdater.on('update-downloaded', () => {
     {
       type: 'info',
       title: 'Install Updates',
-      message:
-        'Updates downloaded, application will update on next restart, would you like to restart now?',
+      message: 'Updates downloaded, application will update on next restart, would you like to restart now?',
       buttons: ['Sure', 'Later'],
     },
     (buttonIndex) => {
@@ -396,8 +406,16 @@ autoUpdater.on('update-downloaded', () => {
     },
   );
 });
-function checkForUpdates() {
-  global.updateEnabled = false;
+function checkForUpdates(bShowDialog = true) {
+  global.updateEnabled = !bShowDialog;
+  if (process.platform === 'win32' && os.arch() === 'ia32') {
+    const s3Options = {
+      provider: 's3',
+      bucket: 'updates.dbkoda.32bit',
+      region: 'ap-southeast-2'
+    };
+    autoUpdater.setFeedURL(s3Options);
+  }
   autoUpdater.checkForUpdates();
 }
 function aboutDBKoda() {
@@ -495,7 +513,12 @@ const setAppMenu = () => {
     },
     {
       role: 'window',
-      submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }],
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { type: 'separator' },
+        { role: 'front' },
+      ],
     },
   ];
 

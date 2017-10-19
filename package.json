@@ -44,47 +44,65 @@
     "dist:win64:release": "yarn run dist:win64 -- --config electron-builder-release.json",
     "dist:win:release": "yarn run dist:win64:release && yarn run dist:win32:release",
     "dist:dev": "yarn run dist -- --config.compression=store",
-    "s3:publish": "yarn run dist:basic -- --config electron-builder-release.json --publish always",
-    "s3:publish:win": "yarn run dist:basic --  --config electron-builder-release.json --win --x64 --ia32 --publish always",
+    "s3:publish":
+      "yarn run dist:basic -- --config electron-builder-release.json --publish always",
+    "s3:publish:win":
+      "yarn run dist:basic --  --config electron-builder-release.json --win --x64 --ia32 --publish always",
     "postinstall": "yarn run cbuild",
     "byo": "MODE=byo yarn run dev",
     "byo:win": "set MODE=byo&& yarn run dev",
-    "super": "concurrently --kill-others \"(cd ../dbkoda-ui/; yarn dev)\" \"MODE=super_dev yarn run dev\"",
-    "mac:gainKeychainAccess": "security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PWD ~/Library/Keychains/login.keychain-db > /dev/null",
+    "super":
+      "concurrently --kill-others \"(cd ../dbkoda-ui/; yarn dev)\" \"MODE=super_dev yarn run dev\"",
+    "mac:gainKeychainAccess":
+      "security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PWD ~/Library/Keychains/login.keychain-db > /dev/null",
     "dev": "yarn run cbuild:dev && yarn start --",
     "dev:install": "yarn install --ignore-scripts",
     "dev:rebuild:electron": "electron-builder install-app-deps",
     "dev:rebuild:current": "npm rebuild",
     "dev:prod": "yarn run cbuild && MODE=prod yarn start --",
-    "dev:chrome": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --user-data-dir=/tmp/chrome-dev-profile",
+    "dev:chrome":
+      "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --user-data-dir=/tmp/chrome-dev-profile",
     "dev:build": "yarn run build -- --source-maps",
-    "dev:link": "yarn run dev:link:controller && yarn run dev:link:controller:ui && yarn run dev:link:uiDefinitions",
-    "dev:link:controller": "rimraf build/controller && ln -s \"$(cd ../dbkoda-controller && pwd)\" build/controller && (cd build/controller && (yarn unlink > /dev/null 2>&1; exit 0) && yarn link) && yarn link \"@southbanksoftware/dbkoda-controller\"",
-    "dev:link:controller:ui": "cd ../dbkoda-controller && rimraf public/ui && ln -s \"$(cd ../dbkoda-ui/dist/ui && pwd)\" public/ui",
-    "dev:link:uiDefinitions": "rimraf src/tests/tree/actions/uiDefinitions && mkdir -p src/tests/tree/actions/uiDefinitions && ln -s ../../../../../../dbkoda-ui/src/components/TreeActionPanel/DialogDefinitions src/tests/tree/actions/uiDefinitions/ddd && ln -s ../../../../../../dbkoda-ui/src/components/TreeActionPanel/tests src/tests/tree/actions/uiDefinitions/inputAndTest",
+    "dev:link":
+      "yarn run dev:link:controller && yarn run dev:link:controller:ui && yarn run dev:link:uiDefinitions",
+    "dev:link:controller":
+      "rimraf build/controller && ln -s \"$(cd ../dbkoda-controller && pwd)\" build/controller && (cd build/controller && (yarn unlink > /dev/null 2>&1; exit 0) && yarn link) && yarn link \"@southbanksoftware/dbkoda-controller\"",
+    "dev:link:controller:ui":
+      "cd ../dbkoda-controller && rimraf public/ui && ln -s \"$(cd ../dbkoda-ui/dist/ui && pwd)\" public/ui",
+    "dev:link:uiDefinitions":
+      "rimraf src/tests/tree/actions/uiDefinitions && mkdir -p src/tests/tree/actions/uiDefinitions && ln -s ../../../../../../dbkoda-ui/src/components/TreeActionPanel/DialogDefinitions src/tests/tree/actions/uiDefinitions/ddd && ln -s ../../../../../../dbkoda-ui/src/components/TreeActionPanel/tests src/tests/tree/actions/uiDefinitions/inputAndTest",
     "dev:link:win": "call links.cmd",
     "start": "electron .",
     "clean": "rimraf lib",
     "build": "babel --ignore tests -d lib/ src/",
     "cbuild": "yarn run clean && yarn run build",
     "cbuild:dev": "yarn run clean && yarn run dev:build",
-    "build:icon": "electron-icon-maker -i misc/dbkoda-logo-favicon.png -o build",
-    "build:dmgbackground": "tiffutil -cathidpicheck misc/dmgbackground.png misc/dmgbackground@2x.png -out misc/dmgbackground.tiff",
+    "build:icon":
+      "electron-icon-maker -i misc/dbkoda-logo-favicon.png -o build",
+    "build:dmgbackground":
+      "tiffutil -cathidpicheck misc/dmgbackground.png misc/dmgbackground@2x.png -out misc/dmgbackground.tiff",
     "test": "yarn test:dev",
     "test:dev": "yarn run eslint && yarn run jest:dev",
     "test:prod": "yarn run eslint && yarn run jest:prod",
     "eslint": "eslint src/. tests/.",
-    "jest:dev": "bash -c 'yarn run cbuild:dev && rimraf uat-report.html && yarn jest -- $@; open -b com.google.chrome uat-report.html' --",
+    "jest:dev":
+      "bash -c 'yarn run cbuild:dev && rimraf uat-report.html && yarn jest -- $@; open -b com.google.chrome uat-report.html' --",
     "jest:ci": "yarn run cbuild:dev && rimraf uat-report.html && yarn jest --",
     "jest:dev:debug": "DEBUG=true CI=true yarn jest:dev --",
-    "jest:dev:debug:inspect": "yarn run cbuild:dev && bash -c 'concurrently --kill-others \"yarn run dev:chrome\" \"node-inspector --preload=false\" \"export DBUS_SESSION_BUS_ADDRESS=/dev/null; node --debug-brk ./node_modules/.bin/jest --runInBand  --forceExit --config jest.json $@\"' --",
-    "jest:prod": "bash -c 'yarn run cbuild && yarn run pack && rimraf uat-report.html && NODE_ENV=production yarn jest -- $@; open -b com.google.chrome uat-report.html' --",
-    "jest:prod:runonly": "bash -c 'rimraf uat-report.html && NODE_ENV=production yarn jest -- $@; open -b com.google.chrome uat-report.html' --",
+    "jest:dev:debug:inspect":
+      "yarn run cbuild:dev && bash -c 'concurrently --kill-others \"yarn run dev:chrome\" \"node-inspector --preload=false\" \"export DBUS_SESSION_BUS_ADDRESS=/dev/null; node --debug-brk ./node_modules/.bin/jest --runInBand  --forceExit --config jest.json $@\"' --",
+    "jest:prod":
+      "bash -c 'yarn run cbuild && yarn run pack && rimraf uat-report.html && NODE_ENV=production yarn jest -- $@; open -b com.google.chrome uat-report.html' --",
+    "jest:prod:runonly":
+      "bash -c 'rimraf uat-report.html && NODE_ENV=production yarn jest -- $@; open -b com.google.chrome uat-report.html' --",
     "jest:prod:runonly:debug": "DEBUG=true CI=true yarn jest:prod:runonly --",
     "jest:prod:win": "set NODE_ENV=production&& yarn jest:win -- ",
-    "jest:prod:runonly:win": "rimraf uat-report.html && set NODE_ENV=production&& yarn jest:win && start uat-report.html",
-    "jest": "export DBUS_SESSION_BUS_ADDRESS=/dev/null; jest --runInBand --forceExit --config jest.json",
-    "jest:win": "set DBUS_SESSION_BUS_ADDRESS=/dev/null; && jest --runInBand --forceExit --config jest.win.json --",
+    "jest:prod:runonly:win":
+      "rimraf uat-report.html && set NODE_ENV=production&& yarn jest:win && start uat-report.html",
+    "jest":
+      "export DBUS_SESSION_BUS_ADDRESS=/dev/null; jest --runInBand --forceExit --config jest.json",
+    "jest:win":
+      "set DBUS_SESSION_BUS_ADDRESS=/dev/null; && jest --runInBand --forceExit --config jest.win.json --",
     "jest:win:debug": "set DEBUG=true&& set CI=true&& yarn jest:win --",
     "docs": "yarn run esdoc && open -b com.google.chrome ./docs/index.html",
     "esdoc": "rimraf docs && esdoc -c .esdoc.json",
