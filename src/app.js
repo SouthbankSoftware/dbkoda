@@ -20,8 +20,8 @@
  * @Author: Wahaj Shamim <wahaj>
  * @Date:   2017-07-21T09:26:47+10:00
  * @Email:  wahaj@southbanksoftware.com
- * @Last modified by:   wahaj
- * @Last modified time: 2017-07-24T10:00:19+10:00
+ * @Last modified by:   guiguan
+ * @Last modified time: 2017-10-19T12:37:12+11:00
  */
 
 import _ from 'lodash';
@@ -85,8 +85,8 @@ global.getRandomPort = (startPortRange, endPortRange, host) => {
 };
 
 // TODO create an uninstaller
-// ensure paths exist
-sh.mkdir('-p', _.values(_.omit(global.PATHS, ['stateStore'])));
+// ensure paths exist. Remember to add exceptions here
+sh.mkdir('-p', _.values(_.omit(global.PATHS, ['stateStore', 'configPath'])));
 
 const configWinstonLogger = () => {
   const commonOptions = {
