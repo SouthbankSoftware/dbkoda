@@ -171,26 +171,31 @@ export default class ConnectionProfile extends Page {
     if (profile.ssh) {
       await bro
         .leftClick(this.sshCheckboxSelector)
-        .pause(1000)
+        .waitForExist(this.remoteHostInputSelector)
+        .waitForExist(this.remoteUserInputSelector)
         .setValue(this.remoteHostInputSelector, profile.remoteHost)
         .waitForValue(this.remoteHostInputSelector, profile.remoteHost)
         .setValue(this.remoteUserInputSelector, profile.remoteUser)
         .waitForValue(this.remoteUserInputSelector, profile.remoteUser);
       if (profile.passRadio) {
         await bro
+          .waitForExist(this.passRadioSelector)
           .leftClick(this.passRadioSelector)
           .waitForEnabled(this.remotePassInputSelector)
           .setValue(this.remotePassInputSelector, profile.remotePass)
           .waitForValue(this.remotePassInputSelector, profile.remotePass);
       } else if (profile.keyRadio) {
         await bro
+          .waitForExist(this.keyRadioSelector)
           .leftClick(this.keyRadioSelector)
           .waitForEnabled(this.sshKeyFileInputSelector)
           .setValue(this.sshKeyFileInputSelector, profile.sshKeyFile)
-          .waitForValue(this.sshKeyFileInputSelector, profile.sshKeyFile)
-          .waitForEnabled(this.passPhraseInputSelector);
+          .waitForValue(this.sshKeyFileInputSelector, profile.sshKeyFile);
           if (profile.passPhrase) {
-            await bro.setValue(this.passPhraseInputSelector, profile.passPhrase)
+            await bro
+            .waitForExist(this.passPhraseInputSelector)
+            .waitForEnabled(this.passPhraseInputSelector)
+            .setValue(this.passPhraseInputSelector, profile.passPhrase)
             .waitForValue(this.passPhraseInputSelector, profile.passPhrase);
           }
       }
