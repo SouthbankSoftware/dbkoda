@@ -50,6 +50,10 @@ export default class AggregateBuilder extends Page {
   // Graphical Builder //
   graphicalBuilderWrapper = '.graphicalBuilderBlockList';
 
+  // Toolbars //
+  showButtonSelector = '.aggregateGraphicalBuilderWrapper > .topButtons > .pt-popover-target > .showLeftPanelButton';
+  hideButtonSelector = '.aggregateDetailsToolbar > .pt-align-right > .pt-popover-target > .hideLeftPanelButton';
+
   async addBlockFromPalette(blockName) {
     const blockSelector =
       '.aggregateBlock.' + blockName + '.selected_undefined > div > svg';
@@ -117,6 +121,18 @@ export default class AggregateBuilder extends Page {
       ') > div > svg.closeBlockIcon';
     await this.browser.waitForExist(indexSelector);
     await this.browser.element(indexSelector).click().pause(500);
+  }
+
+  async openLeftPanel() {
+    await this.browser.waitForExist(this.showButtonSelector);
+    await this.browser.element(this.showButtonSelector).click().pause(500);
+    await this.browser.waitForExist(this.hideButtonSelector);
+  }
+
+  async closeLeftPanel() {
+    await this.browser.waitForExist(this.hideButtonSelector);
+    await this.browser.element(this.hideButtonSelector).click().pause(500);
+    await this.browser.waitForExist(this.showButtonSelector);
   }
 
   /** @type {WebDriverIoPromise} */
