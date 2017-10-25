@@ -207,7 +207,7 @@ const openPreferences = () => {
   if (activeWindow) {
     activeWindow.webContents.send('command', 'openPreferences');
   }
-}
+};
 
 // Create main window with React UI
 const createWindow = (url, options) => {
