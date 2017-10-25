@@ -171,6 +171,7 @@ export default class ConnectionProfile extends Page {
     if (profile.ssh) {
       await bro
         .leftClick(this.sshCheckboxSelector)
+        .pause(4000)
         .waitForExist(this.remoteHostInputSelector)
         .waitForExist(this.remoteUserInputSelector)
         .setValue(this.remoteHostInputSelector, profile.remoteHost)
