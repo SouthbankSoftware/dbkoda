@@ -69,7 +69,9 @@ global.PATHS = (() => {
   const userHome = app.getPath('home');
   const home = path.resolve(userHome, `.${global.NAME}`);
   const userData = app.getPath('userData');
-  const configPath = process.env.CONFIG_PATH ? process.env.CONFIG_PATH : path.resolve(home, 'config.yml');
+  const configPath = process.env.CONFIG_PATH
+    ? process.env.CONFIG_PATH
+    : path.resolve(home, 'config.yml');
 
   return {
     home,
@@ -77,9 +79,7 @@ global.PATHS = (() => {
     userHome,
     configPath,
     logs: path.resolve(userData, 'logs'),
-    stateStore: global.UAT
-      ? '/tmp/stateStore.json'
-      : path.resolve(home, 'stateStore.json'),
+    stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json'),
   };
 })();
 
@@ -152,9 +152,7 @@ l.notice(`Starting up with ${modeDescription} mode...`);
 // Launch dbKoda Controller
 let controllerProcess;
 const configController = () => {
-  const controllerPath = require.resolve(
-    '@southbanksoftware/dbkoda-controller',
-  );
+  const controllerPath = require.resolve('@southbanksoftware/dbkoda-controller');
 
   // NOTE: cwd option is not supported in asar, please avoid using it
   controllerProcess = childProcess.fork(controllerPath, [], {
@@ -169,6 +167,41 @@ const configController = () => {
       CONFIG_PATH: path.resolve(global.PATHS.home, 'config.yml'),
     },
   });
+
+  if (!global.UAT) {
+    // only handle once all together
+    const errorHandled = false;
+    const handleControllerError = (err, signal) => {
+      if (errorHandled || err === 0 || signal === 'SIGINT') return;
+
+      let msg;
+
+      if (err === null) {
+        msg = 'got killed unexpectedly';
+      } else if (typeof err === 'number') {
+        msg = 'exited with error';
+      } else {
+        msg = `failed: ${err.message || String(err)}`;
+      }
+
+      dialog.showErrorBox(
+        'Error:',
+        `controller ${msg}, please check logs at https://goo.gl/fGcFmv and report this issue`,
+      );
+    };
+
+    controllerProcess.on('error', handleControllerError);
+    controllerProcess.on('exit', handleControllerError);
+  }
+
+  l.info(`Controller process PID: ${controllerProcess.pid}`);
+};
+const quitController = () => {
+  if (!controllerProcess) return;
+
+  controllerProcess.removeAllListeners();
+  controllerProcess.kill();
+  controllerProcess = null;
 };
 if (global.MODE !== 'byo') {
   configController();
@@ -224,9 +257,10 @@ const createWindow = (url, options) => {
 };
 
 const createMainWindow = () => {
-  const url = global.MODE === 'byo' || global.MODE === 'super_dev'
-    ? 'http://localhost:3000/ui/'
-    : 'http://localhost:3030/ui/';
+  const url =
+    global.MODE === 'byo' || global.MODE === 'super_dev'
+      ? 'http://localhost:3000/ui/'
+      : 'http://localhost:3030/ui/';
 
   if (global.UAT) {
     invokeApi(
@@ -262,12 +296,11 @@ const createMainWindow = () => {
     },
     {
       shouldRetryOnError(e) {
-        return !splashWindow.isDestroyed() &&
-          (_.includes(
-            ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
-            e.error.code,
-          ) ||
-            _.includes([404, 502], e.statusCode));
+        return (
+          !splashWindow.isDestroyed() &&
+          (_.includes(['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'], e.error.code) ||
+            _.includes([404, 502], e.statusCode))
+        );
       },
       errorHandler(err) {
         if (splashWindow.isDestroyed()) {
@@ -289,9 +322,11 @@ const createMainWindow = () => {
     const handleAppCrashed = () => {
       dialog.showMessageBox({
         title: 'Error',
-        message: 'Sorry! your previous configuration (stateStore) was incompatible with current version.',
+        message:
+          'Sorry! your previous configuration (stateStore) was incompatible with current version.',
         buttons: ['OK'],
-        detail: 'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.',
+        detail:
+          'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.',
       });
       mainWindow.reload();
     };
@@ -380,12 +415,7 @@ autoUpdater.on('error', (event, error) => {
 autoUpdater.on('download-progress', (progressObj) => {
   let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
   logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
-  logMessage = logMessage +
-    ' (' +
-    progressObj.transferred +
-    '/' +
-    progressObj.total +
-    ')';
+  logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
   l.notice(logMessage);
 });
 autoUpdater.on('update-downloaded', () => {
@@ -394,7 +424,8 @@ autoUpdater.on('update-downloaded', () => {
     {
       type: 'info',
       title: 'Install Updates',
-      message: 'Updates downloaded, application will update on next restart, would you like to restart now?',
+      message:
+        'Updates downloaded, application will update on next restart, would you like to restart now?',
       buttons: ['Sure', 'Later'],
     },
     (buttonIndex) => {
@@ -412,7 +443,7 @@ function checkForUpdates(bShowDialog = true) {
     const s3Options = {
       provider: 's3',
       bucket: 'updates.dbkoda.32bit',
-      region: 'ap-southeast-2'
+      region: 'ap-southeast-2',
     };
     autoUpdater.setFeedURL(s3Options);
   }
@@ -499,7 +530,7 @@ const setAppMenu = () => {
           label: 'Reload Controller',
           accelerator: 'Shift+CmdOrCtrl+R',
           click: () => {
-            controllerProcess && controllerProcess.kill();
+            quitController();
             configController();
           },
           enabled: global.MODE !== 'byo',
@@ -513,12 +544,7 @@ const setAppMenu = () => {
     },
     {
       role: 'window',
-      submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
-        { type: 'separator' },
-        { role: 'front' },
-      ],
+      submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }],
     },
   ];
 
@@ -597,5 +623,5 @@ app.on('activate', () => {
 
 app.on('will-quit', () => {
   l.notice('Shutting down...');
-  controllerProcess && controllerProcess.kill();
+  quitController();
 });
