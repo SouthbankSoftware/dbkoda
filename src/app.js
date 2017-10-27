@@ -20,8 +20,8 @@
  * @Author: Wahaj Shamim <wahaj>
  * @Date:   2017-07-21T09:26:47+10:00
  * @Email:  wahaj@southbanksoftware.com
- * @Last modified by:   guiguan
- * @Last modified time: 2017-10-19T12:37:12+11:00
+ * @Last modified by:   chris
+ * @Last modified time: 2017-10-23T15:44:46+11:00
  */
 
 import _ from 'lodash';
@@ -232,6 +232,13 @@ const saveFileAsInEditor = () => {
   const activeWindow = BrowserWindow.getFocusedWindow();
   if (activeWindow) {
     activeWindow.webContents.send('command', 'saveFileAs');
+  }
+};
+
+const openPreferences = () => {
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('command', 'openPreferences');
   }
 };
 
@@ -501,6 +508,12 @@ const setAppMenu = () => {
           accelerator: 'CmdOrCtrl+Shift+S',
           click() {
             saveFileAsInEditor();
+          },
+        },
+        {
+          label: 'Preferences',
+          click() {
+            openPreferences();
           },
         },
         { role: 'close' },
