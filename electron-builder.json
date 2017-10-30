@@ -37,7 +37,6 @@
     },
     "nsis": {
         "deleteAppDataOnUninstall": true,
-        "perMachine": true,
-        "artifactName": "${productName}-${version}-${env.ARCH}.${ext}"
+        "perMachine": true
     }
 }
