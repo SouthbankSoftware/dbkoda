@@ -13,7 +13,7 @@ export default class TableView extends Page {
   expandAllButtonSelector = '.outputToolbar > .pt-align-right > .expandWrapper > a';
   collapseAllButtonSelector = '.outputToolbar > .pt-align-right > .collapseWrapper > a';
   refreshButtonSelector = '.outputToolbar > .pt-align-right > div > span > a';
-  documentLimitSelector = '.outputToolbar > .pt-align-right > div > div > span';
+  documentLimitSelector = '.outputToolbar > .pt-align-left > div > div > span';
   tableWrapperSelector = '.tableViewWrapper > .table-json-panel';
 
   /** @type {WebDriverIoPromise} */
