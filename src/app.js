@@ -547,53 +547,6 @@ function aboutDBKoda() {
 const setAppMenu = () => {
   const menus = [
     {
-      label: 'File',
-      submenu: [
-        // {
-        //   label: 'New Window',
-        //   accelerator: 'CmdOrCtrl+N',
-        //   click() {
-        //     createMainWindow();
-        //   }
-        // },
-        {
-          label: 'New Editor',
-          accelerator: 'CmdOrCtrl+N',
-          click() {
-            newEditor();
-          },
-        },
-        {
-          label: 'Open File',
-          accelerator: 'CmdOrCtrl+O',
-          click() {
-            openFileInEditor();
-          },
-        },
-        {
-          label: 'Save File',
-          accelerator: 'CmdOrCtrl+S',
-          click() {
-            saveFileInEditor();
-          },
-        },
-        {
-          label: 'Save File As...',
-          accelerator: 'CmdOrCtrl+Shift+S',
-          click() {
-            saveFileAsInEditor();
-          },
-        },
-        {
-          label: 'Preferences',
-          click() {
-            openPreferences();
-          },
-        },
-        { role: 'close' },
-      ],
-    },
-    {
       role: 'editMenu',
     },
     {
@@ -637,6 +590,40 @@ const setAppMenu = () => {
 
   if (process.platform === 'darwin') {
     menus.unshift({
+      label: 'File',
+      submenu: [
+        {
+          label: 'New Editor',
+          accelerator: 'CmdOrCtrl+N',
+          click() {
+            newEditor();
+          },
+        },
+        {
+          label: 'Open File',
+          accelerator: 'CmdOrCtrl+O',
+          click() {
+            openFileInEditor();
+          },
+        },
+        {
+          label: 'Save File',
+          accelerator: 'CmdOrCtrl+S',
+          click() {
+            saveFileInEditor();
+          },
+        },
+        {
+          label: 'Save File As...',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click() {
+            saveFileAsInEditor();
+          },
+        },
+        { role: 'close' },
+      ],
+    });
+    menus.unshift({
       submenu: [
         { role: 'about' },
         {
@@ -645,6 +632,14 @@ const setAppMenu = () => {
             checkForUpdates();
           },
           enabled: global.checkUpdateEnabled && (global.MODE === 'prod' || global.mode === 'byo'),
+        },
+        { type: 'separator' },
+        {
+          label: 'Preferences',
+          click: () => {
+            openPreferences();
+          },
+          accelerator: 'CmdOrCtrl+,',
         },
         { type: 'separator' },
         { role: 'services', submenu: [] },
@@ -662,6 +657,47 @@ const setAppMenu = () => {
       submenu: [],
     });
   } else if (process.platform === 'win32') {
+    menus.unshift({
+      label: 'File',
+      submenu: [
+        {
+          label: 'New Editor',
+          accelerator: 'CmdOrCtrl+N',
+          click() {
+            newEditor();
+          },
+        },
+        {
+          label: 'Open File',
+          accelerator: 'CmdOrCtrl+O',
+          click() {
+            openFileInEditor();
+          },
+        },
+        {
+          label: 'Save File',
+          accelerator: 'CmdOrCtrl+S',
+          click() {
+            saveFileInEditor();
+          },
+        },
+        {
+          label: 'Save File As...',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click() {
+            saveFileAsInEditor();
+          },
+        },
+        {
+          label: 'Preferences',
+          click() {
+            openPreferences();
+          },
+          accelerator: 'CmdOrCtrl+,',
+        },
+        { role: 'close' },
+      ],
+    });
     menus.push({
       label: 'Help',
       role: 'help',
