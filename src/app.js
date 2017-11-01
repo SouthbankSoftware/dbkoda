@@ -38,7 +38,6 @@ import touchbar from './touchbar';
 
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config/');
 const config = require('config');
-const os = require('os');
 
 identifyWorkingMode();
 
