@@ -2,9 +2,6 @@
     "appId": "com.southbanksoftware.dbkoda",
     "compression": "normal",
     "npmRebuild": true,
-    "directories": {
-      "output": "dist/dev"
-    },
     "publish": [{
         "provider": "s3",
         "bucket": "updates.dbkoda.dev"

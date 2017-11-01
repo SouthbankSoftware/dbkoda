@@ -378,82 +378,156 @@ const createMainWindow = () => {
 // Configure Auto-Updater
 autoUpdater.logger = l;
 autoUpdater.autoDownload = false;
-global.updateEnabled = true;
+global.checkUpdateEnabled = true;
+global.userCheckForUpdate = false;
+
+global.DownloadUpdate = () => {
+  return new Promise((resolve, reject) => {
+    dialog.showMessageBox(
+      {
+        type: 'info',
+        title: 'Found Updates',
+        message: 'Found updates, do you want update now?',
+        buttons: ['Sure', 'No'],
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 0) {
+          autoUpdater.downloadUpdate();
+          resolve(true);
+        } else {
+          reject(false);
+        }
+      },
+    );
+  });
+};
+global.InstallUpdate = () => {
+  return new Promise((resolve, reject) => {
+    dialog.showMessageBox(
+      {
+        type: 'info',
+        title: 'Install Updates',
+        message:
+          'Updates downloaded, application will update on next restart, would you like to restart now?',
+        buttons: ['Sure', 'Later'],
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 0) {
+          setImmediate(() => autoUpdater.quitAndInstall());
+          resolve(true);
+        } else {
+          reject(false);
+        }
+      },
+    );
+  });
+};
 autoUpdater.on('checking-for-update', () => {
   l.notice('Checking for update...');
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'CHECKING');
+  }
 });
 autoUpdater.on('update-available', () => {
   l.notice('Update available.');
-  dialog.showMessageBox(
-    {
-      type: 'info',
-      title: 'Found Updates',
-      message: 'Found updates, do you want update now?',
-      buttons: ['Sure', 'No'],
-    },
-    (buttonIndex) => {
-      if (buttonIndex === 0) {
-        autoUpdater.downloadUpdate();
-      } else {
-        global.updateEnabled = true;
-      }
-    },
-  );
+
+  if (global.userCheckForUpdate) {
+    dialog.showMessageBox(
+      {
+        type: 'info',
+        title: 'Found Updates',
+        message: 'Found updates, do you want update now?',
+        buttons: ['Sure', 'No'],
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 0) {
+          autoUpdater.downloadUpdate();
+        } else {
+          global.checkUpdateEnabled = true;
+        }
+      },
+    );
+  }
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'AVAILABLE');
+  }
 });
 autoUpdater.on('update-not-available', () => {
   l.notice('Update not available.');
-  if (global.updateEnabled == false) {
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'NOT_AVAILABLE');
+  }
+  if (global.userCheckForUpdate) {
     dialog.showMessageBox({
       title: 'No Updates',
       message: 'Current version is up-to-date.',
     });
   }
-  global.updateEnabled = true;
+  global.checkUpdateEnabled = true;
 });
 autoUpdater.on('error', (event, error) => {
   l.notice('Error in auto-updater. ', (error.stack || error).toString());
-  if (global.updateEnabled == false) {
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'ERROR');
+  }
+  if (global.userCheckForUpdate) {
     dialog.showErrorBox(
       'Error: ',
       'Unable to download update at the moment, Please try again later.',
     );
   }
+  global.checkUpdateEnabled = true;
 });
 autoUpdater.on('download-progress', (progressObj) => {
   let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
   logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
   logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
   l.notice(logMessage);
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'DOWNLOADING ' + Math.round(progressObj.percent) + '%');
+  }
 });
 autoUpdater.on('update-downloaded', () => {
   l.notice('Update downloaded; will install on quit');
-  dialog.showMessageBox(
-    {
-      type: 'info',
-      title: 'Install Updates',
-      message:
-        'Updates downloaded, application will update on next restart, would you like to restart now?',
-      buttons: ['Sure', 'Later'],
-    },
-    (buttonIndex) => {
-      if (buttonIndex === 0) {
-        setImmediate(() => autoUpdater.quitAndInstall());
-      } else {
-        global.updateEnabled = true;
-      }
-    },
-  );
+  if (global.userCheckForUpdate) {
+    dialog.showMessageBox(
+      {
+        type: 'info',
+        title: 'Install Updates',
+        message:
+          'Updates downloaded, application will update on next restart, would you like to restart now?',
+        buttons: ['Sure', 'Later'],
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 0) {
+          setImmediate(() => autoUpdater.quitAndInstall());
+        } else {
+          global.checkUpdateEnabled = true;
+        }
+      },
+    );
+  }
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'DOWNLOADED');
+  }
 });
 function checkForUpdates(bShowDialog = true) {
-  global.updateEnabled = !bShowDialog;
-  if (process.platform === 'win32' && os.arch() === 'ia32') {
+  global.checkUpdateEnabled = false;
+  global.userCheckForUpdate = bShowDialog;
+  /* if (process.platform === 'win32' && os.arch() === 'ia32') {
     const s3Options = {
       provider: 's3',
       bucket: 'updates.dbkoda.32bit',
       region: 'ap-southeast-2',
     };
     autoUpdater.setFeedURL(s3Options);
-  }
+  } */
   autoUpdater.checkForUpdates();
 }
 function aboutDBKoda() {
@@ -570,7 +644,7 @@ const setAppMenu = () => {
           click: () => {
             checkForUpdates();
           },
-          enabled: global.updateEnabled && global.MODE === 'prod',
+          enabled: global.checkUpdateEnabled && (global.MODE === 'prod' || global.mode === 'byo'),
         },
         { type: 'separator' },
         { role: 'services', submenu: [] },
@@ -603,7 +677,7 @@ const setAppMenu = () => {
           click: () => {
             checkForUpdates();
           },
-          enabled: global.updateEnabled && global.MODE === 'prod',
+          enabled: global.checkUpdateEnabled && global.MODE === 'prod',
         },
       ],
     });
