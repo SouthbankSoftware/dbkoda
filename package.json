@@ -40,7 +40,8 @@
     "dist:win:nightly": "yarn run dist:win -- --em.version=%NIGHTLY_VERSION%",
     "dist:release": "yarn run dist -- --config electron-builder-release.json",
     "dist:win:release": "yarn run dist:win -- --config electron-builder-release.json",
-    "dist:dev": "yarn run dist -- --config.compression=store",
+    "dist:dev": "yarn run dist -- --config electron-builder-dev.json --em.version=%DEV_VERSION%",
+    "dist:win:dev": "yarn run dist:win -- --config electron-builder-dev.json --em.version=%DEV_VERSION%",
     "s3:publish":
       "yarn run dist:basic -- --config electron-builder-release.json --publish always",
     "s3:publish:win":

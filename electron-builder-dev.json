@@ -3,11 +3,11 @@
     "compression": "normal",
     "npmRebuild": true,
     "directories": {
-      "output": "dist/32bit"
+      "output": "dist/dev"
     },
     "publish": [{
         "provider": "s3",
-        "bucket": "updates.dbkoda.32bit"
+        "bucket": "updates.dbkoda.dev"
     }],
     "files": [
         "assets",
@@ -51,6 +51,6 @@
     "nsis": {
         "deleteAppDataOnUninstall": true,
         "perMachine": true,
-        "artifactName": "${productName}-${version}-${env.ARCH}.${ext}"
+        "artifactName": "${productName}-${version}.${ext}"
     }
 }
