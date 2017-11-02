@@ -115,7 +115,7 @@ describe('table-output-test-suite', () => {
     expect(await browser.waitForExist('.deepObjectWrapper', 500, true)).toBeTruthy;
   });
 
-  test('Change Document Limit to 1 and refresh.', async () => {
+  test.skip('Change Document Limit to 1 and refresh.', async () => {
     await tableView.setDocumentLimit('1');
     await browser.pause(500);
     await tableView.refresh();

@@ -1,5 +1,29 @@
 # dbKoda release notes
 
+## Version 0.8.0
+
+Monday November 6th, 2017
+
+For more information about dbKoda, visit out website [dbkoda.com](www.dbkoda.com). 
+
+To get help or to request features or simply to tell us what you think, visit our support system at https://dbkoda.useresponse.com. 
+
+To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
+
+In this major patch we added a few key features, made quality of life improvements to a number of existing parts of the application and tweaked various UI elements to keep dbKoda feeling fresh. Of course we also (tried) to fix as many bugs as possible.
+
+### Chart View
+The Chart View allows a simple graphical representation of your query result that can be manipulated to visualize the size and shape of your data. The Chart View can be triggered directly by right clicking a result in the output or from the Generate Chart button in the Aggregation Builder.
+
+### Table View
+Sometimes you may want to view your data in a more traditional tabular format, to view your data in this way you may either right click on your result in the output, or right click on a collection in the Tree View and select View as Table.
+
+### Preferences Panel
+We have added a preferences panel for configuring some options like mongo path in the product, at the moment this menu is a little sparse, but we will fill it with more configuration items as the product develops.
+
+### Driver Translation
+To translate your MonogDB shell query into executable NodeJS Driver code, simply right click your query in the editor window, and choose the "Translate to Native Code" option, a new window will appear with scripts you can use in your NodeJS application.
+
 
 ## Version 0.7.3
 
