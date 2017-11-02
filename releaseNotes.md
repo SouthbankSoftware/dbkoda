@@ -10,7 +10,7 @@ To get help or to request features or simply to tell us what you think, visit ou
 
 To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
 
-In this major patch we added a few key features, made quality of life improvements to a number of existing parts of the application and tweaked various UI elements to keep dbKoda feeling fresh. Of course we also (tried) to fix as many bugs as possible.
+In this major patch we added a few key features, made quality of life improvements to a number of existing parts of the application and tweaked various UI elements to keep dbKoda feeling fresh. Of course we also tried to fix as many bugs as possible.
 
 ### Chart View
 The Chart View allows a simple graphical representation of your query result that can be manipulated to visualize the size and shape of your data. The Chart View can be triggered directly by right clicking a result in the output or from the Generate Chart button in the Aggregation Builder.
