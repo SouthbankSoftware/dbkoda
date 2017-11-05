@@ -1,8 +1,6 @@
 # dbKoda
 *State of the art MongoDB IDE*
 
-[![Build Status](https://drone.southbanksoftware.com/api/badges/SouthbankSoftware/dbkoda/status.svg)](https://drone.southbanksoftware.com/SouthbankSoftware/dbkoda)
-
 This repository defines dbKoda's building, user acceptance testing (UAT), launching and packaging workflows.
 
 ## Requirement
