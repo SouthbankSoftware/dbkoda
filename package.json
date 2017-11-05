@@ -4,7 +4,7 @@
   "fullName": "dbKoda",
   "productName": "dbKoda",
   "description": "Next generation MongoDB IDE",
-  "version": "0.8.0-beta.1",
+  "version": "0.8.0",
   "author": {
     "name": "Southbank Software",
     "email": "developer@southbanksoftware.com",
@@ -31,17 +31,22 @@
   },
   "scripts": {
     "pack": "yarn run cbuild && build --dir --em.mode=prod",
-    "pack:win32": "rimraf dist/win-ia32-unpacked && yarn run pack -- --win --ia32",
+    "pack:win32":
+      "rimraf dist/win-ia32-unpacked && yarn run pack -- --win --ia32",
     "pack:win64": "rimraf dist/win-unpacked && yarn run pack -- --win --x64",
     "pack:no:sign": "CSC_IDENTITY_AUTO_DISCOVERY=false yarn run pack",
     "dist:basic": "yarn run cbuild && build --em.mode=prod",
     "dist": "yarn run dist:basic -- --publish never",
-    "dist:win": "rimraf dist/win-ia32-unpacked && rimraf dist/win-unpacked && yarn run dist -- --win --x64 --ia32",
+    "dist:win":
+      "rimraf dist/win-ia32-unpacked && rimraf dist/win-unpacked && yarn run dist -- --win --x64 --ia32",
     "dist:win:nightly": "yarn run dist:win -- --em.version=%NIGHTLY_VERSION%",
     "dist:release": "yarn run dist -- --config electron-builder-release.json",
-    "dist:win:release": "yarn run dist:win -- --config electron-builder-release.json",
-    "dist:dev": "yarn run dist -- --config electron-builder-dev.json --em.version=$DEV_VERSION",
-    "dist:win:dev": "yarn run dist:win -- --config electron-builder-dev.json --em.version=%DEV_VERSION%",
+    "dist:win:release":
+      "yarn run dist:win -- --config electron-builder-release.json",
+    "dist:dev":
+      "yarn run dist -- --config electron-builder-dev.json --em.version=$DEV_VERSION",
+    "dist:win:dev":
+      "yarn run dist:win -- --config electron-builder-dev.json --em.version=%DEV_VERSION%",
     "s3:publish":
       "yarn run dist:basic -- --config electron-builder-release.json --publish always",
     "s3:publish:win":
@@ -85,7 +90,8 @@
     "eslint": "eslint src/. tests/.",
     "jest:dev":
       "bash -c 'yarn run cbuild:dev && rimraf uat-report.html && yarn jest -- $@; open -b com.google.chrome uat-report.html' --",
-    "jest:ci": "yarn run cbuild:dev && rimraf uat-report.html && CONFIG_PATH=~/.dbKoda/config.yml yarn jest --",
+    "jest:ci":
+      "yarn run cbuild:dev && rimraf uat-report.html && CONFIG_PATH=~/.dbKoda/config.yml yarn jest --",
     "jest:dev:debug": "DEBUG=true CI=true yarn jest:dev --",
     "jest:dev:debug:inspect":
       "yarn run cbuild:dev && bash -c 'concurrently --kill-others \"yarn run dev:chrome\" \"node-inspector --preload=false\" \"export DBUS_SESSION_BUS_ADDRESS=/dev/null; node --debug-brk ./node_modules/.bin/jest --runInBand  --forceExit --config jest.json $@\"' --",
@@ -106,7 +112,8 @@
     "esdoc": "rimraf docs && esdoc -c .esdoc.json",
     "flow": "flow",
     "flow:install": "flow-typed install --overwrite --skip",
-    "cienvy:dev:watch": "nodemon --watch .cienvy/src --exec \"yarn cienvy:dev\"",
+    "cienvy:dev:watch":
+      "nodemon --watch .cienvy/src --exec \"yarn cienvy:dev\"",
     "cienvy:dev": "yarn run cienvy:clean && yarn run cienvy:dev:build",
     "cienvy:dev:build": "yarn run cienvy:build -- --source-maps",
     "cienvy:clean": "rimraf .cienvy/lib",
