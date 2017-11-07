@@ -20,8 +20,8 @@
  * @Author: Wahaj Shamim <wahaj>
  * @Date:   2017-07-21T09:26:47+10:00
  * @Email:  wahaj@southbanksoftware.com
- * @Last modified by:   chris
- * @Last modified time: 2017-10-23T15:44:46+11:00
+ * @Last modified by:   guiguan
+ * @Last modified time: 2017-11-06T14:50:18+11:00
  */
 
 import _ from 'lodash';
@@ -655,7 +655,7 @@ const setAppMenu = () => {
       role: 'help',
       submenu: [],
     });
-  } else if (process.platform === 'win32') {
+  } else {
     menus.unshift({
       label: 'File',
       submenu: [
