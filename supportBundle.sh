@@ -6,7 +6,7 @@ if [ -f ${GBUNDLE} ]; then
     rm ${GBUNDLE}
 fi
 OS=`uname -a|cut -f 1 -d ' '`
-if [ ${OS} = 'Darwin' ];then 
+if [ ${OS} = 'Darwin' ];then
     OSX=1
 else
     OSX=0
@@ -14,23 +14,28 @@ fi
     mongo --version >>/tmp/$$.tmp
     uname -a >>/tmp/$$.tmp
 
-if [ ${OSX} -eq 1 ]; then 
+if [ ${OSX} -eq 1 ]; then
     echo "Running on a mac"
     #system_profiler -detaillevel mini -timeout 2 >/tmp/$$.tmp
     sw_vers >>/tmp/$$.tmp
-    cd ~/Library/Application\ Support/dbKoda/logs
-    tar cvf ${BUNDLE} `ls -t |head -6`
-    
-else    
-    echo "Running on Linux"
-    cd ~/.config/dbKoda/logs
-    tar cvf ${BUNDLE} `ls -t |head -6`
-fi
+    if [ -d ~/Library/Application\ Support/dbKoda/logs ];then
+      cd ~/Library/Application\ Support/dbKoda/logs
+      tar cvf ${BUNDLE} `ls -t |head -6`
+    fi
 
-cd  ~/.dbKoda 
-tar rvf ${BUNDLE} * 
+else
+    echo "Running on Linux"
+    if [ -d ~/.config/dbKoda/logs ];then
+       cd ~/.config/dbKoda/logs
+       tar cvf ${BUNDLE} `ls -t |head -6`
+    fi
+fi
+if [ -d ~/.dbKoda ];then
+  cd  ~/.dbKoda
+  tar rvf ${BUNDLE} state* config*
+fi
 cd /tmp
 tar rvf ${BUNDLE} $$.tmp
 gzip ${BUNDLE}
-echo 
+echo
 echo "Please forward ${GBUNDLE}  to support@southbanksoftware.com"
