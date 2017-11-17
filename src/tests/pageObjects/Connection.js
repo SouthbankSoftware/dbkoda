@@ -52,6 +52,8 @@ export default class ConnectionProfile extends Page {
 
   passPhraseInputSelector = '.passPhrase-input-content .passPhrase-input';
 
+  sshTunnelCheckboxSelector = '.sshTunnel-input-content label input';
+
   connectButtonSelector = '.connectButton';
   closeButtonSelector = '.close-button';
   resetButtonSelector = '.profile-button-panel .reset-button';
@@ -200,6 +202,12 @@ export default class ConnectionProfile extends Page {
             .waitForValue(this.passPhraseInputSelector, profile.passPhrase);
           }
       }
+
+      if (profile.sshTunnel) {
+        await bro
+          .waitForExist(this.sshTunnelCheckboxSelector)
+          .leftClick(this.sshTunnelCheckboxSelector);
+      }
     }
     await this._selectSSL(profile, bro);
     await this._fillInAuthentication(profile, bro);
@@ -331,6 +339,10 @@ export default class ConnectionProfile extends Page {
 
   get sshCheckbox() {
     return this._getProfileElement(this.sshCheckboxSelector);
+  }
+
+  get sshTunnelCheckbox() {
+    return this._getProfileElement(this.sshTunnelCheckboxSelector);
   }
 
   get remoteHost() {

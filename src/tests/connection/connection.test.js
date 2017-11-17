@@ -198,7 +198,8 @@ describe('connection-profile-test-suite', () => {
         sshKeyFile: r.ec2SshKey2,
         authentication: true,
         userName: r.ec2User,
-        password: r.ec2Pass
+        password: r.ec2Pass,
+        sshTunnel: true
       })
       .catch(err => assert.fail(false, true, err));
   });
@@ -218,7 +219,8 @@ describe('connection-profile-test-suite', () => {
         passPhrase: r.ec2SshKeyPass,
         authentication: true,
         userName: r.ec2User,
-        password: r.ec2Pass
+        password: r.ec2Pass,
+        sshTunnel: true
       })
       .catch(err => assert.fail(false, true, err));
   });
