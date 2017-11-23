@@ -1,4 +1,10 @@
-/*
+/**
+ * @Author: Wahaj Shamim <wahaj>
+ * @Date:   2017-07-21T09:26:47+10:00
+ * @Email:  wahaj@southbanksoftware.com
+ * @Last modified by:   guiguan
+ * @Last modified time: 2017-11-23T11:14:39+11:00
+ *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
  *
@@ -16,12 +22,6 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @Author: Wahaj Shamim <wahaj>
- * @Date:   2017-07-21T09:26:47+10:00
- * @Email:  wahaj@southbanksoftware.com
- * @Last modified by:   guiguan
- * @Last modified time: 2017-11-06T14:50:18+11:00
  */
 
 import _ from 'lodash';
@@ -401,7 +401,17 @@ const createMainWindow = () => {
         },
       },
     ).then(() => {
-      createWindow(url);
+      const mainWindow = createWindow(url);
+
+      const handleAppCrashed = () => {
+        mainWindow.reload();
+      };
+
+      ipcMain.once('appCrashed', handleAppCrashed);
+
+      mainWindow.on('closed', () => {
+        ipcMain.removeListener('appCrashed', handleAppCrashed);
+      });
     });
     return;
   }

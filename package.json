@@ -140,7 +140,7 @@
     "electron": "^1.7.3",
     "electron-builder": "^19.10.0",
     "electron-publisher-s3": "^19.16.0",
-    "electron-react-devtools": "^0.4.0",
+    "electron-react-devtools": "^0.5.2",
     "esdoc": "^0.5.2",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.0.1",

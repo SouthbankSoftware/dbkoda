@@ -2016,9 +2016,9 @@ electron-publisher-s3@^19.16.0:
     fs-extra-p "^4.3.0"
     mime "^1.3.6"
 
-electron-react-devtools@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/electron-react-devtools/-/electron-react-devtools-0.4.0.tgz#06bd04d8e232b20703d059f5560a6f2a838bc163"
+electron-react-devtools@^0.5.2:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/electron-react-devtools/-/electron-react-devtools-0.5.2.tgz#97619cdb7a8fc2a444b323245889a3f4bf54a647"
 
 electron-updater@^2.7.1:
   version "2.7.1"
