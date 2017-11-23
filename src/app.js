@@ -286,7 +286,7 @@ const downloadAndInstallDrill = () => {
             global.bEnableDrillDownload = true;
             const activeWindow = BrowserWindow.getFocusedWindow();
             if (activeWindow) {
-              activeWindow.webContents.send('updateDrillStatus', 'COMPLETE', 'drillCmd:' + extractedPath);
+              activeWindow.webContents.send('updateDrillStatus', 'COMPLETE', 'drillCmd|' + extractedPath);
             }
             resolve(extractedPath);
           });
@@ -337,7 +337,7 @@ const downloadDrillController = () => {
         console.log('WGET drillJavaController:', message);
         const activeWindow = BrowserWindow.getFocusedWindow();
         if (activeWindow) {
-          activeWindow.webContents.send('updateDrillStatus', 'COMPLETE', 'drillControllerCmd:' + drillJavaController);
+          activeWindow.webContents.send('updateDrillStatus', 'COMPLETE', 'drillControllerCmd|' + drillJavaController);
         }
         global.bEnableDrillDownload = true;
         resolve(drillJavaController);
