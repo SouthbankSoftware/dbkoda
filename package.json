@@ -35,7 +35,7 @@
     "pack:win64": "rimraf dist/win-unpacked && yarn run pack -- --win --x64",
     "pack:no:sign": "CSC_IDENTITY_AUTO_DISCOVERY=false yarn run pack",
     "dist:basic": "yarn run cbuild && build --em.mode=prod",
-    "dist": "yarn run dist:basic -- --publish never",
+    "dist": "ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true yarn run dist:basic -- --publish never",
     "dist:win": "rimraf dist/win-ia32-unpacked && rimraf dist/win-unpacked && yarn run dist -- --win --x64 --ia32",
     "dist:win:nightly": "yarn run dist:win -- --em.version=%NIGHTLY_VERSION%",
     "dist:release": "yarn run dist -- --config electron-builder-release.json",
