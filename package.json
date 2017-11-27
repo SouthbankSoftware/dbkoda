@@ -21,7 +21,7 @@
     "react"
   ],
   "engines": {
-    "node": ">= 7.2.1"
+    "node": ">= 8.9.1"
   },
   "mode": "dev",
   "jest-html-reporter": {
@@ -87,12 +87,7 @@
     "docs": "yarn run esdoc && open -b com.google.chrome ./docs/index.html",
     "esdoc": "rimraf docs && esdoc -c .esdoc.json",
     "flow": "flow",
-    "flow:install": "flow-typed install --overwrite --skip",
-    "cienvy:dev:watch": "nodemon --watch .cienvy/src --exec \"yarn cienvy:dev\"",
-    "cienvy:dev": "yarn run cienvy:clean && yarn run cienvy:dev:build",
-    "cienvy:dev:build": "yarn run cienvy:build -- --source-maps",
-    "cienvy:clean": "rimraf .cienvy/lib",
-    "cienvy:build": "BABEL_ENV=cienvy babel -d .cienvy/lib .cienvy/src"
+    "flow:install": "flow-typed install --overwrite --skip"
   },
   "repository": {
     "type": "git",
