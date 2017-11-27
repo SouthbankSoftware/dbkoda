@@ -1,4 +1,10 @@
-/*
+/**
+ * @Author: Wahaj Shamim <wahaj>
+ * @Date:   2017-07-21T09:26:47+10:00
+ * @Email:  wahaj@southbanksoftware.com
+ * @Last modified by:   guiguan
+ * @Last modified time: 2017-11-27T11:17:35+11:00
+ *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
  *
@@ -16,12 +22,6 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @Author: Wahaj Shamim <wahaj>
- * @Date:   2017-07-21T09:26:47+10:00
- * @Email:  wahaj@southbanksoftware.com
- * @Last modified by:   guiguan
- * @Last modified time: 2017-11-06T14:50:18+11:00
  */
 
 import _ from 'lodash';
@@ -160,8 +160,7 @@ const configController = () => {
 
   // NOTE: cwd option is not supported in asar, please avoid using it
   controllerProcess = childProcess.fork(controllerPath, [], {
-    env: {
-      NODE_ENV: process.env.NODE_ENV,
+    env: _.assign({}, process.env, {
       LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
       MONGO_SCRIPTS_PATH: path.resolve(
         app.getAppPath(),
@@ -169,7 +168,7 @@ const configController = () => {
       ),
       UAT: global.UAT,
       CONFIG_PATH: path.resolve(global.PATHS.home, 'config.yml'),
-    },
+    })
   });
 
   if (!global.UAT) {
@@ -401,7 +400,17 @@ const createMainWindow = () => {
         },
       },
     ).then(() => {
-      createWindow(url);
+      const mainWindow = createWindow(url);
+
+      const handleAppCrashed = () => {
+        mainWindow.reload();
+      };
+
+      ipcMain.once('appCrashed', handleAppCrashed);
+
+      mainWindow.on('closed', () => {
+        ipcMain.removeListener('appCrashed', handleAppCrashed);
+      });
     });
     return;
   }
