@@ -3,7 +3,7 @@
  * @Date:   2017-07-21T09:26:47+10:00
  * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   guiguan
- * @Last modified time: 2017-11-23T11:14:39+11:00
+ * @Last modified time: 2017-11-27T11:17:35+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -160,8 +160,7 @@ const configController = () => {
 
   // NOTE: cwd option is not supported in asar, please avoid using it
   controllerProcess = childProcess.fork(controllerPath, [], {
-    env: {
-      NODE_ENV: process.env.NODE_ENV,
+    env: _.assign({}, process.env, {
       LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
       MONGO_SCRIPTS_PATH: path.resolve(
         app.getAppPath(),
@@ -169,7 +168,7 @@ const configController = () => {
       ),
       UAT: global.UAT,
       CONFIG_PATH: path.resolve(global.PATHS.home, 'config.yml'),
-    },
+    })
   });
 
   if (!global.UAT) {

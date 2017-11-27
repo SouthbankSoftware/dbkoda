@@ -73,3 +73,5 @@ typings/
 *.iml
 # ignore persistent file
 .dbshell
+
+.DS_Store
