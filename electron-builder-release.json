@@ -10,7 +10,7 @@
     "config", "lib", "!node_modules/@southbanksoftware"
   ],
   "asarUnpack": [
-    "node_modules/@southbanksoftware/dbkoda-controller/lib/all-in-one.js"
+    "assets/controller/lib/all-in-one.js"
   ],
   "mac": {
     "category": "public.app-category.productivity",
