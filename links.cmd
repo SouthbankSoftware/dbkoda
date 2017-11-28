@@ -1,10 +1,10 @@
 SET odir=%cd%
-call rimraf .\build\controller
+call rimraf .\assets\controller
 cd ..
 SET dir=%cd%
 ECHO %dir%
-mklink /d %dir%\dbkoda\build\controller %dir%\dbkoda-controller
-cd %dir%\dbkoda\build\controller
+mklink /d %dir%\dbkoda\assets\controller %dir%\dbkoda-controller
+cd %dir%\dbkoda\assets\controller
 call yarn unlink
 call yarn link
 cd %odir%

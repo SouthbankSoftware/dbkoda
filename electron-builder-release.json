@@ -1,53 +1,50 @@
 {
-    "appId": "com.southbanksoftware.dbkoda",
-    "compression": "normal",
-    "npmRebuild": true,
-    "publish": [{
-        "provider": "s3",
-        "bucket": "updates.dbkoda"
-    }],
-    "files": [
-        "assets",
-        "config",
-        "lib",
-        "node_modules"
+  "appId": "com.southbanksoftware.dbkoda",
+  "compression": "normal",
+  "npmRebuild": true,
+  "publish": [{
+    "provider": "s3",
+    "bucket": "updates.dbkoda"
+  }],
+  "files": ["assets", "!assets/controller/{bin,client,coverage,data,flow-typed,src,tests,.*,LICENSE,mocha.opts,README.md,yarn*}",
+    "config", "lib", "!node_modules/@southbanksoftware"
+  ],
+  "asarUnpack": [
+    "node_modules/@southbanksoftware/dbkoda-controller/lib/all-in-one.js"
+  ],
+  "mac": {
+    "category": "public.app-category.productivity",
+    "icon": "build/icons/mac/icon.icns"
+  },
+  "dmg": {
+    "background": "misc/dmgbackground.tiff",
+    "icon": "build/icons/mac/icon.icns",
+    "iconSize": 120,
+    "contents": [{
+      "x": 162,
+      "y": 302
+    }, {
+      "x": 540,
+      "y": 302,
+      "type": "link",
+      "path": "/Applications"
+    }]
+  },
+  "linux": {
+    "category": "Development",
+    "target": [
+      "AppImage",
+      "deb"
     ],
-    "asarUnpack": [
-        "node_modules/@southbanksoftware/dbkoda-controller/lib/all-in-one.js"
-    ],
-    "mac": {
-        "category": "public.app-category.productivity",
-        "icon": "build/icons/mac/icon.icns"
-    },
-    "dmg": {
-        "background": "misc/dmgbackground.tiff",
-        "icon": "build/icons/mac/icon.icns",
-        "iconSize": 120,
-        "contents": [{
-            "x": 162,
-            "y": 302
-        }, {
-            "x": 540,
-            "y": 302,
-            "type": "link",
-            "path": "/Applications"
-        }]
-    },
-    "linux": {
-        "category": "Development",
-        "target": [
-            "AppImage",
-            "deb"
-        ],
-        "icon": "build/icons/png/"
-    },
-    "win": {
-        "target": "nsis",
-        "icon": "build/icons/win/icon.ico"
-    },
-    "nsis": {
-        "deleteAppDataOnUninstall": true,
-        "perMachine": true,
-        "artifactName": "${productName}-${version}.${ext}"
-    }
+    "icon": "build/icons/png/"
+  },
+  "win": {
+    "target": "nsis",
+    "icon": "build/icons/win/icon.ico"
+  },
+  "nsis": {
+    "deleteAppDataOnUninstall": true,
+    "perMachine": true,
+    "artifactName": "${productName}-${version}.${ext}"
+  }
 }

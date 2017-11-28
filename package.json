@@ -30,7 +30,7 @@
     "includeFailureMsg": true
   },
   "scripts": {
-    "pack": "yarn run cbuild && build --dir --em.mode=prod",
+    "pack": "yarn run cbuild && ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true build --dir --em.mode=prod",
     "pack:win32": "rimraf dist/win-ia32-unpacked && yarn run pack --win --ia32",
     "pack:win64": "rimraf dist/win-unpacked && yarn run pack --win --x64",
     "pack:no:sign": "CSC_IDENTITY_AUTO_DISCOVERY=false yarn run pack",
@@ -57,7 +57,7 @@
     "dev:chrome": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --user-data-dir=/tmp/chrome-dev-profile",
     "dev:build": "yarn run build --source-maps",
     "dev:link": "yarn run dev:link:controller && yarn run dev:link:controller:ui && yarn run dev:link:uiDefinitions",
-    "dev:link:controller": "rimraf build/controller && ln -s \"$(cd ../dbkoda-controller && pwd)\" build/controller && (cd build/controller && (yarn unlink > /dev/null 2>&1; exit 0) && yarn link) && yarn link \"@southbanksoftware/dbkoda-controller\"",
+    "dev:link:controller": "rimraf assets/controller && ln -s \"$(cd ../dbkoda-controller && pwd)\" assets/controller && (cd assets/controller && (yarn unlink > /dev/null 2>&1; exit 0) && yarn link) && yarn link \"@southbanksoftware/dbkoda-controller\"",
     "dev:link:controller:ui": "cd ../dbkoda-controller && rimraf public/ui && ln -s \"$(cd ../dbkoda-ui/dist/ui && pwd)\" public/ui",
     "dev:link:uiDefinitions": "rimraf src/tests/tree/actions/uiDefinitions && mkdir -p src/tests/tree/actions/uiDefinitions && ln -s ../../../../../../dbkoda-ui/src/components/TreeActionPanel/DialogDefinitions src/tests/tree/actions/uiDefinitions/ddd && ln -s ../../../../../../dbkoda-ui/src/components/TreeActionPanel/tests src/tests/tree/actions/uiDefinitions/inputAndTest",
     "dev:link:win": "call links.cmd",
