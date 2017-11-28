@@ -246,6 +246,13 @@ const openPreferences = () => {
   }
 };
 
+const getMainWindow = () => {
+  if (global.mainWindowId) {
+    return BrowserWindow.fromId(global.mainWindowId);
+  }
+  return null;
+}
+
 const downloadAndInstallDrill = () => {
   return new Promise((resolve, reject) => {
     const drillVersion = 'drill-1.11.0';
@@ -263,7 +270,7 @@ const downloadAndInstallDrill = () => {
       const download = wget.download(src, drillTarFile, options);
       download.on('error', (err) => {
           console.log('WGET drill error:', err);
-          const activeWindow = BrowserWindow.getFocusedWindow();
+          const activeWindow = getMainWindow();
           if (activeWindow) {
             activeWindow.webContents.send('updateDrillStatus', 'ERROR', err + '');
           }
@@ -283,7 +290,7 @@ const downloadAndInstallDrill = () => {
             sh.rm(drillTarFile);
             const extractedPath = path.resolve(drillPath, `apache-${drillVersion}`);
             global.bEnableDrillDownload = true;
-            const activeWindow = BrowserWindow.getFocusedWindow();
+            const activeWindow = getMainWindow();
             if (activeWindow) {
               activeWindow.webContents.send('updateDrillStatus', 'COMPLETE', 'drillCmd|' + extractedPath);
             }
@@ -292,7 +299,7 @@ const downloadAndInstallDrill = () => {
       });
       const progressUpdateFunc = _.throttle((progress) => {
         console.log('WGET drill progress:', progress);
-        const activeWindow = BrowserWindow.getFocusedWindow();
+        const activeWindow = getMainWindow();
         if (activeWindow) {
           activeWindow.webContents.send('updateDrillStatus', 'DOWNLOADING', 'Downloading Apache Drill ' + Math.round(100 * progress) + '%');
         }
@@ -322,7 +329,7 @@ const downloadDrillController = () => {
 
     download.on('error', (err) => {
         console.log('WGET drill controller error:', err);
-        const activeWindow = BrowserWindow.getFocusedWindow();
+        const activeWindow = getMainWindow();
         if (activeWindow) {
           activeWindow.webContents.send('updateDrillStatus', 'ERROR', err + '');
         }
@@ -334,7 +341,7 @@ const downloadDrillController = () => {
     });
     download.on('end', (message) => {
         console.log('WGET drillJavaController:', message);
-        const activeWindow = BrowserWindow.getFocusedWindow();
+        const activeWindow = getMainWindow();
         if (activeWindow) {
           activeWindow.webContents.send('updateDrillStatus', 'COMPLETE', 'drillControllerCmd|' + drillJavaController);
         }
@@ -343,7 +350,7 @@ const downloadDrillController = () => {
     });
     const ctrlProgressUpdateFunc = _.throttle((progress) => {
       console.log('WGET drill controller progress:', progress);
-      const activeWindow = BrowserWindow.getFocusedWindow();
+      const activeWindow = getMainWindow();
       if (activeWindow) {
         activeWindow.webContents.send('updateDrillStatus', 'DOWNLOADING', 'Downloading Apache Drill Controller ' + Math.round(100 * progress) + '%');
       }
@@ -450,6 +457,8 @@ const createMainWindow = () => {
     const mainWindow = createWindow(url, {
       show: false,
     });
+
+    global.mainWindowId = mainWindow.id;
 
     const handleAppCrashed = () => {
       dialog.showMessageBox({
