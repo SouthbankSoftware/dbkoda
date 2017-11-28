@@ -3,7 +3,7 @@
  * @Date:   2017-07-21T09:26:47+10:00
  * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   guiguan
- * @Last modified time: 2017-11-27T13:03:26+11:00
+ * @Last modified time: 2017-11-28T11:37:07+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -64,6 +64,7 @@ if (global.MODE == 'byo') {
 }
 
 global.UAT = process.env.UAT === 'true';
+global.LOADER = process.env.LOADER !== 'false';
 
 global.NAME = app.getName();
 global.APP_VERSION = app.getVersion();
@@ -383,7 +384,7 @@ const createMainWindow = () => {
       ? 'http://localhost:3000/ui/'
       : 'http://localhost:3030/ui/';
 
-  if (global.UAT) {
+  if (global.UAT || !global.LOADER) {
     invokeApi(
       { url },
       {
