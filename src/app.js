@@ -1,9 +1,6 @@
 /**
- * @Author: Wahaj Shamim <wahaj>
- * @Date:   2017-07-21T09:26:47+10:00
- * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   guiguan
- * @Last modified time: 2017-11-28T18:34:41+11:00
+ * @Last modified time: 2017-11-29T17:18:29+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -550,7 +547,7 @@ global.DownloadUpdate = () => {
           autoUpdater.downloadUpdate();
           resolve(true);
         } else {
-          reject(false);
+          reject(false); // eslint-disable-line prefer-promise-reject-errors
         }
       },
     );
@@ -571,7 +568,7 @@ global.InstallUpdate = () => {
           setImmediate(() => autoUpdater.quitAndInstall());
           resolve(true);
         } else {
-          reject(false);
+          reject(false); // eslint-disable-line prefer-promise-reject-errors
         }
       },
     );
@@ -893,8 +890,48 @@ const setAppMenu = () => {
   Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
 };
 
+// Install/upgrade devtools extensions
+// TODO installed extensions should be remembered but this is not the case with electron
+// 1.8.2-beta.2, so we install them explicitly here as a workaround
+const installDevToolsExtensions = () => {
+  const {
+    default: installExtension,
+    REACT_DEVELOPER_TOOLS,
+    REACT_PERF,
+  } = require('electron-devtools-installer');
+
+  installExtension(REACT_DEVELOPER_TOOLS)
+    .then(name => l.info(`Added DevTools Extension: ${name}`))
+    .catch(l.error);
+
+  installExtension({
+    id: 'pfgnfdagidkfgccljigdamigbcnndkod',
+    electron: '^1.2.1',
+  })
+    .then(name => l.info(`Added DevTools Extension: ${name}`))
+    .catch(l.error);
+
+  installExtension(REACT_PERF)
+    .then(name => l.info(`Added DevTools Extension: ${name}`))
+    .catch(l.error);
+
+  if (!BrowserWindow.getDevToolsExtensions().devtron) {
+    try {
+      BrowserWindow.addDevToolsExtension(path.resolve(__dirname, '../node_modules/devtron'));
+      l.info('Added DevTools Extension: Devtron');
+    } catch (err) {
+      l.error(err);
+    }
+  }
+};
+
 app.on('ready', () => {
   setAppMenu();
+
+  if (!global.UAT && global.MODE !== 'prod') {
+    installDevToolsExtensions();
+  }
+
   createMainWindow();
 });
 
