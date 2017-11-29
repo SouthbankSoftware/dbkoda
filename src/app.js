@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2017-11-29T17:18:29+11:00
+ * @Last modified time: 2017-11-29T17:31:04+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -897,7 +897,6 @@ const installDevToolsExtensions = () => {
   const {
     default: installExtension,
     REACT_DEVELOPER_TOOLS,
-    REACT_PERF,
   } = require('electron-devtools-installer');
 
   installExtension(REACT_DEVELOPER_TOOLS)
@@ -908,10 +907,6 @@ const installDevToolsExtensions = () => {
     id: 'pfgnfdagidkfgccljigdamigbcnndkod',
     electron: '^1.2.1',
   })
-    .then(name => l.info(`Added DevTools Extension: ${name}`))
-    .catch(l.error);
-
-  installExtension(REACT_PERF)
     .then(name => l.info(`Added DevTools Extension: ${name}`))
     .catch(l.error);
 
