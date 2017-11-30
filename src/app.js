@@ -23,7 +23,6 @@
 
 import _ from 'lodash';
 import path from 'path';
-import fs from 'fs';
 import sh from 'shelljs';
 import childProcess from 'child_process';
 import { app, BrowserWindow, Menu, dialog } from 'electron';
@@ -31,8 +30,9 @@ import { autoUpdater } from 'electron-updater';
 import moment from 'moment';
 import winston from 'winston';
 import { ipcMain } from 'electron';
-import wget from 'wget-improved';
-import tar from 'tar';
+
+import { downloadDrill, downloadDrillController } from './drill';
+
 import { identifyWorkingMode, invokeApi, getAvailablePort } from './helpers';
 import touchbar from './touchbar';
 
@@ -86,8 +86,6 @@ global.PATHS = (() => {
 global.getRandomPort = (startPortRange, endPortRange, host) => {
   return getAvailablePort(startPortRange, endPortRange, host);
 };
-
-global.bEnableDrillDownload = true;
 
 // TODO create an uninstaller
 // ensure paths exist. Remember to add exceptions here
@@ -243,143 +241,22 @@ const openPreferences = () => {
   }
 };
 
-const getMainWindow = () => {
-  if (global.mainWindowId) {
-    return BrowserWindow.fromId(global.mainWindowId);
+const handleDrillRequest = (event, arg) => {
+  if (arg == 'downloadDrill') {
+    downloadDrill().then(() => {
+      event.sender.send('drillResult', 'downloadDrillComplete');
+    })
+    .catch((reason) => {
+      console.log('Error: ', reason);
+    });
+  } else if (arg == 'downloadController') {
+    downloadDrillController().then(() => {
+      event.sender.send('drillResult', 'downloadDrillControllerComplete');
+    })
+    .catch((reason) => {
+      console.log('Error: ', reason);
+    });
   }
-  return null;
-};
-
-const downloadAndInstallDrill = () => {
-  return new Promise((resolve, reject) => {
-    const drillVersion = 'drill-1.11.0';
-    const drillPath = path.resolve(global.PATHS.home, 'drill');
-    console.log(drillPath);
-    const src = `http://apache.mirrors.hoobly.com/drill/${drillVersion}/apache-${
-      drillVersion
-    }.tar.gz`;
-    const drillTarFile = path.resolve(drillPath, `apache-${drillVersion}.tar.gz`);
-    console.log(drillTarFile);
-    const options = {};
-
-    console.log('fs.existsSync(drillPath):', fs.existsSync(drillPath));
-    if (!fs.existsSync(drillPath)) {
-      sh.mkdir('-p', [drillPath]);
-      global.bEnableDrillDownload = false;
-      const download = wget.download(src, drillTarFile, options);
-      download.on('error', (err) => {
-        console.log('WGET drill error:', err);
-        const activeWindow = getMainWindow();
-        if (activeWindow) {
-          activeWindow.webContents.send('updateDrillStatus', 'ERROR', err + '');
-        }
-        global.bEnableDrillDownload = true;
-        reject(err);
-      });
-      download.on('start', (fileSize) => {
-        console.log('WGET drill fileSize:', fileSize);
-      });
-      download.on('end', (message) => {
-        console.log('WGET drillTarFile:', message);
-        tar
-          .x({
-            file: drillTarFile,
-            cwd: drillPath,
-          })
-          .then(() => {
-            console.log('extraction complete');
-            sh.rm(drillTarFile);
-            const extractedPath = path.resolve(drillPath, `apache-${drillVersion}`);
-            global.bEnableDrillDownload = true;
-            const activeWindow = getMainWindow();
-            if (activeWindow) {
-              activeWindow.webContents.send(
-                'updateDrillStatus',
-                'COMPLETE',
-                'drillCmd|' + extractedPath,
-              );
-            }
-            resolve(extractedPath);
-          });
-      });
-      const progressUpdateFunc = _.throttle((progress) => {
-        console.log('WGET drill progress:', progress);
-        const activeWindow = getMainWindow();
-        if (activeWindow) {
-          activeWindow.webContents.send(
-            'updateDrillStatus',
-            'DOWNLOADING',
-            'Downloading Apache Drill ' + Math.round(100 * progress) + '%',
-          );
-        }
-      }, 2000);
-      download.on('progress', (progress) => {
-        progressUpdateFunc(progress);
-        if (progress === 1) {
-          progressUpdateFunc.flush();
-        }
-      });
-    } else {
-      resolve(drillPath);
-    }
-  });
-};
-
-const downloadDrillController = () => {
-  return new Promise((resolve, reject) => {
-    const drillPath = path.resolve(global.PATHS.home, 'drill');
-    const src =
-      'https://s3-ap-southeast-2.amazonaws.com/southbanksoftware.com/javacontroller/3/dbkoda-java-controller-0.1.0.jar';
-    const drillJavaController = path.resolve(drillPath, 'dbkoda-java-controller-0.1.0.jar');
-    console.log(drillJavaController);
-    const options = {};
-
-    global.bEnableDrillDownload = false;
-    const download = wget.download(src, drillJavaController, options);
-
-    download.on('error', (err) => {
-      console.log('WGET drill controller error:', err);
-      const activeWindow = getMainWindow();
-      if (activeWindow) {
-        activeWindow.webContents.send('updateDrillStatus', 'ERROR', err + '');
-      }
-      global.bEnableDrillDownload = true;
-      reject(err);
-    });
-    download.on('start', (fileSize) => {
-      console.log('WGET drill controller fileSize:', fileSize);
-    });
-    download.on('end', (message) => {
-      console.log('WGET drillJavaController:', message);
-      const activeWindow = getMainWindow();
-      if (activeWindow) {
-        activeWindow.webContents.send(
-          'updateDrillStatus',
-          'COMPLETE',
-          'drillControllerCmd|' + drillJavaController,
-        );
-      }
-      global.bEnableDrillDownload = true;
-      resolve(drillJavaController);
-    });
-    const ctrlProgressUpdateFunc = _.throttle((progress) => {
-      console.log('WGET drill controller progress:', progress);
-      const activeWindow = getMainWindow();
-      if (activeWindow) {
-        activeWindow.webContents.send(
-          'updateDrillStatus',
-          'DOWNLOADING',
-          'Downloading Apache Drill Controller ' + Math.round(100 * progress) + '%',
-        );
-      }
-    }, 1000);
-    download.on('progress', (progress) => {
-      ctrlProgressUpdateFunc(progress);
-      if (progress === 1) {
-        ctrlProgressUpdateFunc.flush();
-      }
-    });
-  });
 };
 
 // Create main window with React UI
@@ -520,9 +397,12 @@ const createMainWindow = () => {
     ipcMain.once('appReady', handleAppReady);
     ipcMain.once('appCrashed', handleAppCrashed);
 
+    ipcMain.on('drill', handleDrillRequest);
+
     mainWindow.on('closed', () => {
       ipcMain.removeListener('appReady', handleAppReady);
       ipcMain.removeListener('appCrashed', handleAppCrashed);
+      ipcMain.removeListener('drill', handleDrillRequest);
     });
   });
 };
@@ -734,19 +614,6 @@ const setAppMenu = () => {
           label: 'Toggle DevTools',
           accelerator: 'Alt+CmdOrCtrl+I',
           role: 'toggledevtools',
-        },
-        {
-          label: 'Configure Drill',
-          click: () => {
-            downloadAndInstallDrill()
-              .then(() => {
-                downloadDrillController();
-              })
-              .catch((reason) => {
-                console.log('Error: ', reason);
-              });
-          },
-          enabled: global.bEnableDrillDownload,
         },
       ],
     },
