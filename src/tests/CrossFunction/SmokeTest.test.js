@@ -14,7 +14,6 @@ import ProfileList from '#/pageObjects/ProfileList';
 import Terminal from '#/pageObjects/Terminal';
 import { config, getApp } from '#/helpers';
 
-const debug = false;
 const PROMPT_LENGTH = 10;
 
 describe('Smoke Test', () => {
