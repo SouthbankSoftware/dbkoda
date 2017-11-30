@@ -185,20 +185,4 @@ describe('Smoke Test', () => {
       expect(false).toBe(true);
     }
   });
-
-  const editorCommand = async (inputCommands) => {
-    if (debug) console.log(inputCommands);
-    await r.output.clearOutput.click();
-    await r.editor._clearEditor();
-    await r.browser.pause(500);
-    await r.editor._appendToEditor(inputCommands);
-    await r.browser.pause(500);
-    // if (debug) await r.debug();
-    await r.editor._clickExecuteAll();
-    await r.browser.pause(r.delay);
-    const outputLines = await r.output.getAllOutputLines();
-    if (debug) console.log(outputLines);
-    // if (debug) await r.debug();
-    return outputLines;
-  };
 });
