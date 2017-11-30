@@ -201,31 +201,4 @@ describe('Smoke Test', () => {
     // if (debug) await r.debug();
     return outputLines;
   };
-
-  const repeatEditorCommand = async () => {
-    if (debug) console.log('Repeating last output');
-    await r.output.setNewOutputCursor();
-    await r.output.clearOutput.click();
-    await r.browser.pause(r.delay);
-    await r.editor._clickExecuteAll();
-    await r.browser.pause(r.delay);
-    const outputLines = await r.output.getAllOutputLines();
-    if (debug) console.log(outputLines);
-    return outputLines;
-  };
-
-  const addNewEditor = async () => {
-    await r.editor._clickAddNewEditor();
-    r.browser.pause(r.delay);
-    await r.editor._editorElementsExist();
-    await r.output.initOutputCursor();
-  };
-
-  const newEditorCommand = async (inputCommands) => {
-    await addNewEditor();
-    await r.browser.pause(r.delay);
-    await r.editor._editorElementsExist();
-    const output = await editorCommand(inputCommands);
-    return output;
-  };
 });
