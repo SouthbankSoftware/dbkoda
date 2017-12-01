@@ -72,12 +72,16 @@ global.PATHS = (() => {
   const configPath = process.env.CONFIG_PATH
     ? process.env.CONFIG_PATH
     : path.resolve(home, 'config.yml');
+  const profilesPath = process.env.PROFILES_PATH
+    ? process.env.CONFIG_PATH
+    : path.resolve(home, 'profiles.yml');
 
   return {
     home,
     userData,
     userHome,
-    configPath,
+    configPath: global.UAT ? '/tmp/config.yml' : configPath,
+    profilesPath: global.UAT ? '/tmp/profiles.yml' : profilesPath,
     logs: path.resolve(userData, 'logs'),
     stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json'),
   };
