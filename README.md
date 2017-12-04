@@ -1,6 +1,15 @@
 # dbKoda
 *State of the art MongoDB IDE*
 
+<p align="left">
+  <a href="https://david-dm.org/SouthbankSoftware/dbkoda">
+    <img src="https://img.shields.io/david/SouthbankSoftware/dbkoda.svg?style=flat-square">
+  </a>
+  <a href="https://david-dm.org/SouthbankSoftware/dbkoda?type=dev">
+    <img src="https://img.shields.io/david/dev/SouthbankSoftware/dbkoda.svg?style=flat-square">
+  </a>
+</p>
+
 This repository defines dbKoda's building, user acceptance testing (UAT), launching and packaging workflows.
 
 ## Requirement

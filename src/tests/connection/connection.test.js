@@ -1,19 +1,38 @@
 /**
  * Test connection profile
  *
- * @Last modified by:   wahaj
- * @Last modified time: 2017-08-25T09:48:46+10:00
+ * @Last modified by:   guiguan
+ * @Last modified time: 2017-11-27T13:30:58+11:00
+ *
+ * dbKoda - a modern, open source code editor, for MongoDB.
+ * Copyright (C) 2017-2018 Southbank Software
+ *
+ * This file is part of dbKoda.
+ *
+ * dbKoda is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * dbKoda is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 import assert from 'assert';
 import os from 'os';
-import {getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
+import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
 import ConnectionProfile from '../pageObjects/Connection';
-import {config, getApp} from '../helpers';
+import { config, getApp } from '../helpers';
 
 describe('connection-profile-test-suite', () => {
   // always config test suite
-  config({setupFailFastTest: false});
-  const closeApp = true;  // Set to false if you want to play with app after connections are created
+  config({ setupFailFastTest: false });
+  const closeApp = true; // Set to false if you want to play with app after connections are created
   /** Global (to current test suite) vars */
   const r = {};
   let app;
@@ -50,11 +69,11 @@ describe('connection-profile-test-suite', () => {
     if (os.platform() !== 'win32') {
       launchSingleInstance(
         authMongoPort,
-        '--auth --username admin --password 123456 --auth-db admin'
+        '--auth --username admin --password 123456 --auth-db admin',
       );
     }
     process.on('SIGINT', cleanup);
-    return getApp().then(async(res) => {
+    return getApp().then(async (res) => {
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
@@ -71,13 +90,10 @@ describe('connection-profile-test-suite', () => {
         .fillConnectionProfileData({
           alias: 'invalid connection ',
           url: 'localhost',
-          database: 'admin'
+          database: 'admin',
         })
         .then(() => {
-          return browser.getAttribute(
-            connectProfile.connectButtonSelector,
-            'disabled'
-          );
+          return browser.getAttribute(connectProfile.connectButtonSelector, 'disabled');
         })
         .then((v) => {
           assert.equal('true', v);
@@ -92,9 +108,7 @@ describe('connection-profile-test-suite', () => {
     return connectProfile
       .openConnectionProfilePanel()
       .then(() => connectProfile.closeConnectionProfile())
-      .then(() =>
-        browser.waitForExist(connectProfile.newProfileButtonSelector)
-      );
+      .then(() => browser.waitForExist(connectProfile.newProfileButtonSelector));
   });
 
   test('open connection profile through hostname', () => {
@@ -103,7 +117,7 @@ describe('connection-profile-test-suite', () => {
         alias: 'Test ' + mongoPort + '(' + getRandomPort() + ')',
         hostName: 'localhost',
         port: mongoPort,
-        database: 'test'
+        database: 'test',
       })
       .catch(err => assert.fail(false, true, err));
   });
@@ -112,23 +126,24 @@ describe('connection-profile-test-suite', () => {
     return connectProfile.connectProfileByURL({
       alias: 'TestUrl' + mongoPort + '(' + getRandomPort() + ')',
       url: 'mongodb://localhost:' + mongoPort,
-      database: 'test'
+      database: 'test',
     });
   });
 
-
   test('open atlas connection with SSL', () => {
-    return connectProfile.connectProfileByURL({
-      alias: 'Atlas' + getRandomPort(),
-      url: `mongodb://${process.env.ATLAS_SERVER_HOSTNAME}`,
-      database: 'admin',
-      authentication: true,
-      ssl: true,
-      userName: process.env.ATLAS_SERVER_USERNAME,
-      password: process.env.ATLAS_SERVER_PASSWORD
-    }).then(() => {
-      browser.waitForExist(connectProfile.newProfileButtonSelector);
-    })
+    return connectProfile
+      .connectProfileByURL({
+        alias: 'Atlas' + getRandomPort(),
+        url: `mongodb://${process.env.ATLAS_SERVER_HOSTNAME}`,
+        database: 'admin',
+        authentication: true,
+        ssl: true,
+        userName: process.env.ATLAS_SERVER_USERNAME,
+        password: process.env.ATLAS_SERVER_PASSWORD,
+      })
+      .then(() => {
+        browser.waitForExist(connectProfile.newProfileButtonSelector);
+      })
       .catch(err => assert.fail(false, true, err));
   });
 
@@ -142,7 +157,7 @@ describe('connection-profile-test-suite', () => {
       database: 'admin',
       authentication: true,
       userName: 'admin',
-      password: '123456'
+      password: '123456',
     });
   });
 
@@ -150,17 +165,18 @@ describe('connection-profile-test-suite', () => {
     if (os.platform() === 'win32') {
       return;
     }
-    return connectProfile.connectProfileByHostname({
-      alias: 'TestAuth' + mongoPort + '(' + getRandomPort() + ')',
-      hostName: 'localhost',
-      port: authMongoPort,
-      database: 'admin',
-      authentication: true,
-      userName: 'admin',
-      password: '123456'
-    }).catch(err => console.error(err));
+    return connectProfile
+      .connectProfileByHostname({
+        alias: 'TestAuth' + mongoPort + '(' + getRandomPort() + ')',
+        hostName: 'localhost',
+        port: authMongoPort,
+        database: 'admin',
+        authentication: true,
+        userName: 'admin',
+        password: '123456',
+      })
+      .catch(err => console.error(err));
   });
-
 
   test('Connect Mongo 3.0', () => {
     return connectProfile
@@ -168,7 +184,7 @@ describe('connection-profile-test-suite', () => {
         alias: 'Test30' + mongoPort + '(' + getRandomPort() + ')',
         hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
         port: 27030,
-        database: 'test'
+        database: 'test',
       })
       .catch(err => assert.fail(false, true, err));
   });
@@ -179,7 +195,7 @@ describe('connection-profile-test-suite', () => {
         alias: 'Test32' + mongoPort + '(' + getRandomPort() + ')',
         hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
         port: 27032,
-        database: 'test'
+        database: 'test',
       })
       .catch(err => assert.fail(false, true, err));
   });
@@ -199,7 +215,7 @@ describe('connection-profile-test-suite', () => {
         authentication: true,
         userName: r.ec2User,
         password: r.ec2Pass,
-        sshTunnel: true
+        sshTunnel: true,
       })
       .catch(err => assert.fail(false, true, err));
   });
@@ -220,7 +236,7 @@ describe('connection-profile-test-suite', () => {
         authentication: true,
         userName: r.ec2User,
         password: r.ec2Pass,
-        sshTunnel: true
+        sshTunnel: true,
       })
       .catch(err => assert.fail(false, true, err));
   });

@@ -10,7 +10,7 @@
 [lints]
 
 [options]
-module.name_mapper='^\(.*\)\.s?css$' -> 'CSSModule'
+module.name_mapper='^~/\(.*\)$' -> '<PROJECT_ROOT>/src/\1'
 # with node, name_mapper doesn't work: https://github.com/facebook/flow/issues/1068
 module.system=haste
 suppress_comment= \\(.\\|\n\\)*\\$FlowFixMe
