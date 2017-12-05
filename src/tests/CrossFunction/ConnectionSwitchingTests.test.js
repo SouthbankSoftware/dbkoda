@@ -260,7 +260,7 @@ describe('CrossFunction:connection Switching', () => {
         await r.browser.waitForExist(r.treeAction.treeNodeSelector);
         await r.editor._editorElementsExist();
         const output = await newEditorCommand('print ("version="+dbe.majorVersion());\ndb.serverStatus().host;\n');
-        let expectedOutput = expect.stringMatching('version=3.4');
+        let expectedOutput = expect.stringMatching('version=3.6');
         expect(output.toString()).toEqual(expectedOutput);
         expectedOutput = expect.stringMatching('ap-southeast-2.compute.internal');
         expect(output.toString()).toEqual(expectedOutput);
@@ -354,7 +354,7 @@ describe('CrossFunction:connection Switching', () => {
         await r.editor._editorElementsExist();
         r.browser.pause(r.delay);
         const output = await repeatEditorCommand();
-        const expectedOutput = expect.stringMatching('version=3.4');
+        const expectedOutput = expect.stringMatching('version=3.6');
         // if (debug) await r.debug();
         expect(output.toString()).toEqual(expectedOutput);
     });

@@ -67,17 +67,17 @@ export default class Editor extends Page {
   }
 
   async _editorElementsExist() {
-    this.editorContextDropdown.waitForExist();
-    this.executeLineButton.waitForExist();
-    this.executeAllButton.waitForExist();
-    this.explainPlanButton.waitForExist();
-    this.stopExecutionButton.waitForExist();
+    await this.browser.waitForExist(this.editorContextDropdownSelector);
+    await this.browser.waitForExist(this.executeLineButtonSelector);
+    await this.browser.waitForExist(this.executeAllButtonSelector);
+    await this.browser.waitForExist(this.explainPlanButtonSelector);
+    await this.browser.waitForExist(this.stopExecutionButtonSelector);
 
-    this.addEditorButton.waitForExist();
-    this.openFileButton.waitForExist();
-    this.saveFileButton.waitForExist();
-    this.editorPanel.waitForExist();
-    this.welcomeTab.waitForExist();
+    await this.browser.waitForExist(this.addEditorButtonSelector);
+    await this.browser.waitForExist(this.openFileButtonSelector);
+    await this.browser.waitForExist(this.saveFileButtonSelector);
+    await this.browser.waitForExist(this.editorPanelSelector);
+    await this.browser.waitForExist(this.welcomeTabSelector);
   }
 
   async _selectConnectionContext(value) {
