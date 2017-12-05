@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2017-12-05T14:40:05+11:00
+ * @Last modified time: 2017-12-05T14:43:11+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -76,7 +76,7 @@ global.PATHS = (() => {
     ? process.env.CONFIG_PATH
     : path.resolve(home, 'profiles.yml');
 
-  // [IMPORTANT] Please read next the important tag comment
+  // [IMPORTANT] Please read the comment of next `IMPORTANT` tag
   return {
     home,
     userData,
