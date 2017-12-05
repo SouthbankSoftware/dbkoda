@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2017-11-29T17:31:04+11:00
+ * @Last modified time: 2017-12-05T14:40:05+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -76,6 +76,7 @@ global.PATHS = (() => {
     ? process.env.CONFIG_PATH
     : path.resolve(home, 'profiles.yml');
 
+  // [IMPORTANT] Please read next the important tag comment
   return {
     home,
     userData,
@@ -92,8 +93,9 @@ global.getRandomPort = (startPortRange, endPortRange, host) => {
 };
 
 // TODO create an uninstaller
-// ensure paths exist. Remember to add exceptions here
-sh.mkdir('-p', _.values(_.omit(global.PATHS, ['stateStore', 'configPath'])));
+// ensure paths exist.
+// [IMPORTANT] Remember to add exceptions here
+sh.mkdir('-p', _.values(_.omit(global.PATHS, ['stateStore', 'configPath', 'profilesPath'])));
 
 const configWinstonLogger = () => {
   const commonOptions = {
