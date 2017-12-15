@@ -1,6 +1,7 @@
 [ignore]
 # ignore all node modules by default and we are using type definitions provided by flow-typed
 .*/node_modules/.*
+.*/dbkoda-controller
 
 [include]
 # re-include any node modules to be used with flow
