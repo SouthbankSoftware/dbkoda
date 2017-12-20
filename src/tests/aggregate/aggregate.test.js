@@ -37,7 +37,7 @@ describe('aggregate-test-suite', () => {
 
   // Executes before the test suite begins.
   beforeAll(async () => {
-    return getApp().then(res => {
+    return getApp().then((res) => {
       // Get our app and browser for testing.
       app = res;
       browser = app.client;

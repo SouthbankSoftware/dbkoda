@@ -78,7 +78,7 @@ export default class Explain extends Page {
   async getExplainDetailTableData(shard = false) {
     const row = await this.getExplainTableRowNumber();
     // const data = [];
-    const data = await _.times(row, async i => {
+    const data = await _.times(row, async (i) => {
       //eslint-disable-line
       let index = i + 2;
       if (shard) {
@@ -141,7 +141,7 @@ export default class Explain extends Page {
   async getShardsStatisticTableData() {
     const elements = await this.browser.elements(this.shardStatisticsTableRow);
     const row = await elements.value.length;
-    const data = await _.times(row, async i => {
+    const data = await _.times(row, async (i) => {
       //eslint-disable-line
       const index = i + 2;
       const stage = {};

@@ -36,12 +36,12 @@ describe('test explain', () => {
     }
   };
 
-  beforeAll(async done => {
+  beforeAll(async (done) => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     generateMongoData(mongoPort, 'test', 'users', '--num 500');
     process.on('SIGINT', cleanup);
-    return getApp().then(async res => {
+    return getApp().then(async (res) => {
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
