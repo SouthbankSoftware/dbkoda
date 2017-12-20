@@ -83,7 +83,7 @@ export default class Editor extends Page {
   async _selectConnectionContext(value) {
     await this.browser.selectByVisibleText(
       this.editorContextDropdownSelector,
-      value,
+      value
     );
   }
   async _getConnectionContextText() {
@@ -109,17 +109,23 @@ export default class Editor extends Page {
   }
   async _clickExplainQueryPlanner() {
     await this._clickExplainPlan();
+    await this.browser.pause(100);
     await this.browser.waitForExist(this.queryPlannerButtonSelector);
+    await this.browser.pause(100);
     await this.queryPlannerButton.click();
   }
   async clickExplainExecutionStats() {
     await this._clickExplainPlan();
+    await this.browser.pause(100);
     await this.browser.waitForExist(this.executionStatsButtonSelector);
+    await this.browser.pause(100);
     await this.executionStatsButton.click();
   }
   async clickExplainAllPlansExecution() {
     await this._clickExplainPlan();
+    await this.browser.pause(100);
     await this.browser.waitForExist(this.allPlansExecutionButtonSelector);
+    await this.browser.pause(100);
     await this.allPlansExecutionButton.click();
   }
   async _clickStopExecution() {
@@ -148,7 +154,7 @@ export default class Editor extends Page {
 
   async _getEditorContentsAsArray() {
     let res = await this.browser.getText(
-      '.pt-tab-panel.editorTab.visible[aria-hidden="false"] .CodeMirror-code',
+      '.pt-tab-panel.editorTab.visible[aria-hidden="false"] .CodeMirror-code'
     );
     res = res.split(/\r?\n/);
     let tmp = []; //eslint-disable-line
@@ -164,7 +170,7 @@ export default class Editor extends Page {
 
   async _getEditorContentsAsString() {
     let res = await this.browser.getText(
-      '.pt-tab-panel.editorTab.visible[aria-hidden="false"] .CodeMirror-code',
+      '.pt-tab-panel.editorTab.visible[aria-hidden="false"] .CodeMirror-code'
     );
     res = res.split(/\r?\n/);
     let tmp = []; //eslint-disable-line
@@ -220,7 +226,7 @@ export default class Editor extends Page {
    */
   async getLineNumber() {
     return this.browser.elements(
-      '.editorView .CodeMirror-code > div[style="position: relative;"]',
+      '.editorView .CodeMirror-code > div[style="position: relative;"]'
     ).elements.value.length;
   }
 
@@ -234,7 +240,7 @@ export default class Editor extends Page {
     this.browser.click(
       '.editorView .CodeMirror-code > div[style="position: relative;"]:nth-child(' +
         index +
-        ')',
+        ')'
     );
   }
 }

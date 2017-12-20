@@ -3,18 +3,23 @@
  */
 import assert from 'assert';
 import uuidV1 from 'uuid/v1';
-import {generateMongoData, getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
+import {
+  generateMongoData,
+  getRandomPort,
+  killMongoInstance,
+  launchSingleInstance
+} from 'test-utils';
 
 import ConnectionProfile from '../pageObjects/Connection';
 import Editor from '../pageObjects/Editor';
 import Output from '../pageObjects/Output';
 import Explain from '../pageObjects/Explain';
 
-import {config, getApp} from '../helpers';
+import { config, getApp } from '../helpers';
 
 describe('test explain', () => {
   // always config test suite
-  config({setupFailFastTest: false});
+  config({ setupFailFastTest: false });
 
   let app;
   let browser;
@@ -31,12 +36,12 @@ describe('test explain', () => {
     }
   };
 
-  beforeAll(async (done) => {
+  beforeAll(async done => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     generateMongoData(mongoPort, 'test', 'users', '--num 500');
     process.on('SIGINT', cleanup);
-    return getApp().then(async (res) => {
+    return getApp().then(async res => {
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
@@ -59,9 +64,8 @@ describe('test explain', () => {
         url: 'mongodb://localhost:' + mongoPort,
         database: 'test'
       });
-      await browser.pause(10000);
-      await editor._appendToEditor('use test\n');
-      await editor._appendToEditor('db.users.find()\n');
+      await editor._appendToEditor('use test;\n');
+      await editor._appendToEditor('db.users.find();\n');
 
       await editor.moveToText('db');
 
@@ -87,7 +91,7 @@ describe('test explain', () => {
     try {
       await editor.moveToText('db');
       await editor.clickExplainAllPlansExecution();
-      await browser.pause(2000);
+      await browser.pause(4000);
       const stages = await explain.getNumberOfStages();
       assert.equal(stages, 1);
       const stage = await explain.getStageText(0);
@@ -102,13 +106,14 @@ describe('test explain', () => {
 
   test('check explain stage IXSCAN', async () => {
     try {
-      await editor._appendToEditor('\ndb.users.createIndex({"user.name":1})');
+      await editor._appendToEditor('\ndb.users.createIndex({"user.name":1});');
       await browser.pause(200);
       await editor._clickExecuteLine();
-      await editor._appendToEditor('\ndb.users.find({"user.name":"DBEnvy"})');
+      await editor._appendToEditor('\ndb.users.find({"user.name":"DBEnvy"});');
+      await editor.clickExplainAllPlansExecution();
       await browser.pause(200);
       await editor.clickExplainAllPlansExecution();
-      await browser.pause(2000);
+      await browser.pause(4000);
       const stages = await explain.getNumberOfStages();
       assert.equal(stages, 2);
       const stage1 = await explain.getStageText(0);
@@ -129,7 +134,7 @@ describe('test explain', () => {
 
   test('check explain stage SORT', async () => {
     try {
-      await editor._appendToEditor('\ndb.users.find().sort({"user.age":1})');
+      await editor._appendToEditor('\ndb.users.find().sort({"user.age":1});');
       await browser.pause(200);
       await editor.clickExplainExecutionStats();
       await browser.pause(2000);
@@ -154,7 +159,7 @@ describe('test explain', () => {
 
   test('check explain stage LIMIT', async () => {
     try {
-      await editor._appendToEditor('\ndb.users.find().limit(10)');
+      await editor._appendToEditor('\ndb.users.find().limit(10);');
       await browser.pause(200);
       await editor.clickExplainExecutionStats();
       await browser.pause(2000);
@@ -176,10 +181,9 @@ describe('test explain', () => {
     }
   });
 
-
   test('check explain stage SKIP', async () => {
     try {
-      await editor._appendToEditor('\ndb.users.find().skip(10)');
+      await editor._appendToEditor('\ndb.users.find().skip(10);');
       await browser.pause(200);
       await editor.clickExplainExecutionStats();
       await browser.pause(2000);
@@ -193,6 +197,32 @@ describe('test explain', () => {
       assert.equal(detailData.length, 2);
       assert.equal(detailData[0].name, 'COLLSCAN');
       assert.equal(detailData[1].name, 'SKIP');
+    } catch (err) {
+      console.error(err);
+      assert.equal(false, true, err);
+    }
+  });
+
+  test('check index advisor', async () => {
+    try {
+      await editor._appendToEditor('\ndb.users.find({"user.age":1});');
+      await browser.pause(200);
+      await editor.clickExplainExecutionStats();
+      await browser.pause(2000);
+      // Click suggest index button.
+      await explain.clickSuggestIndex();
+      await browser.waitForExist('.explain-view-copy-suggested-index-button');
+
+      // Add to editor.
+      await explain.clickAddIndex();
+      await browser.pause(200);
+
+      // Check editor.
+      const editorContents = await editor._getEditorContentsAsString();
+
+      expect(editorContents).toMatch(
+        'db.getSiblingDB("test").users.createIndex({"user.age":1});'
+      );
     } catch (err) {
       console.error(err);
       assert.equal(false, true, err);

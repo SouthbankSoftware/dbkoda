@@ -50,6 +50,9 @@ export default class Explain extends Page {
 
   shardStatisticsTableRow = '.explain-shards-statistic-view .row';
 
+  suggestIndexButton = '.explain-view-suggest-index-button';
+
+  addIndexButton = '.explain-view-copy-suggested-index-button';
   /**
    * get the stage number in the explain panel
    * @returns {Promise.<number>}
@@ -75,7 +78,7 @@ export default class Explain extends Page {
   async getExplainDetailTableData(shard = false) {
     const row = await this.getExplainTableRowNumber();
     // const data = [];
-    const data = await _.times(row, async (i) => {
+    const data = await _.times(row, async i => {
       //eslint-disable-line
       let index = i + 2;
       if (shard) {
@@ -83,19 +86,34 @@ export default class Explain extends Page {
       }
       const stage = {};
       stage.name = await this.browser.getText(
-        this.explainTableRow + ':nth-child(' + index + ') .stage-cell:nth-child(2)',
+        this.explainTableRow +
+          ':nth-child(' +
+          index +
+          ') .stage-cell:nth-child(2)'
       );
       stage.ms = await this.browser.getText(
-        this.explainTableRow + ':nth-child(' + index + ') .stage-cell:nth-child(3) .text',
+        this.explainTableRow +
+          ':nth-child(' +
+          index +
+          ') .stage-cell:nth-child(3) .text'
       );
       stage.examined = await this.browser.getText(
-        this.explainTableRow + ':nth-child(' + index + ') .stage-cell:nth-child(4) .text',
+        this.explainTableRow +
+          ':nth-child(' +
+          index +
+          ') .stage-cell:nth-child(4) .text'
       );
       stage.returned = await this.browser.getText(
-        this.explainTableRow + ':nth-child(' + index + ') .stage-cell:nth-child(5) .text',
+        this.explainTableRow +
+          ':nth-child(' +
+          index +
+          ') .stage-cell:nth-child(5) .text'
       );
       stage.comment = await this.browser.getText(
-        this.explainTableRow + ':nth-child(' + index + ') .stage-cell:nth-child(6)',
+        this.explainTableRow +
+          ':nth-child(' +
+          index +
+          ') .stage-cell:nth-child(6)'
       );
       return stage;
     });
@@ -109,13 +127,13 @@ export default class Explain extends Page {
   async getStatisticTableData() {
     const data = {};
     data.docReturned = await this.browser.getText(
-      this.explainStatisticTable + ' .row:nth-child(2) div:nth-child(2)',
+      this.explainStatisticTable + ' .row:nth-child(2) div:nth-child(2)'
     );
     data.keyExamined = await this.browser.getText(
-      this.explainStatisticTable + ' .row:nth-child(3) div:nth-child(2)',
+      this.explainStatisticTable + ' .row:nth-child(3) div:nth-child(2)'
     );
     data.docExamined = await this.browser.getText(
-      this.explainStatisticTable + ' .row:nth-child(4) div:nth-child(2)',
+      this.explainStatisticTable + ' .row:nth-child(4) div:nth-child(2)'
     );
     return data;
   }
@@ -123,21 +141,33 @@ export default class Explain extends Page {
   async getShardsStatisticTableData() {
     const elements = await this.browser.elements(this.shardStatisticsTableRow);
     const row = await elements.value.length;
-    const data = await _.times(row, async (i) => {
+    const data = await _.times(row, async i => {
       //eslint-disable-line
       const index = i + 2;
       const stage = {};
       stage.name = await this.browser.getText(
-        this.shardStatisticsTableRow + ':nth-child(' + index + ') .cell:nth-child(1)',
+        this.shardStatisticsTableRow +
+          ':nth-child(' +
+          index +
+          ') .cell:nth-child(1)'
       );
       stage.examined = await this.browser.getText(
-        this.shardStatisticsTableRow + ':nth-child(' + index + ') .cell:nth-child(2)',
+        this.shardStatisticsTableRow +
+          ':nth-child(' +
+          index +
+          ') .cell:nth-child(2)'
       );
       stage.returned = await this.browser.getText(
-        this.shardStatisticsTableRow + ':nth-child(' + index + ') .cell:nth-child(3)',
+        this.shardStatisticsTableRow +
+          ':nth-child(' +
+          index +
+          ') .cell:nth-child(3)'
       );
       stage.ms = await this.browser.getText(
-        this.shardStatisticsTableRow + ':nth-child(' + index + ') .cell:nth-child(4)',
+        this.shardStatisticsTableRow +
+          ':nth-child(' +
+          index +
+          ') .cell:nth-child(4)'
       );
       return stage;
     });
@@ -150,15 +180,23 @@ export default class Explain extends Page {
   async getStageText(index) {
     index += 1;
     const stage = await this.browser.getText(
-      `${this.explainStageProgress} ${this.explainStageWrapper}:nth-child(${index}) ${
-        this.explainStage
-      }`,
+      `${this.explainStageProgress} ${
+        this.explainStageWrapper
+      }:nth-child(${index}) ${this.explainStage}`
     );
     return stage;
   }
 
   getCommandNamespace() {
     return this.browser.getText(this.commandNamespace);
+  }
+
+  clickSuggestIndex() {
+    return this.browser.leftClick(this.suggestIndexButton);
+  }
+
+  clickAddIndex() {
+    return this.browser.leftClick(this.addIndexButton);
   }
 
   closeExplainPanel() {
