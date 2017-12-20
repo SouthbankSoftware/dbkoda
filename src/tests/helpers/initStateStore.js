@@ -12,4 +12,8 @@ export default () => {
     './src/tests/helpers/defaultStateStore.json',
     '/tmp/stateStore.json'
   );
+  fs.copySync(
+    './src/tests/helpers/profiles.yml',
+    '/tmp/profiles.yml'
+  );
 };
