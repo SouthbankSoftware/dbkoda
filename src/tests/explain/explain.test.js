@@ -90,8 +90,9 @@ describe('test explain', () => {
   test('check explain stage COLLSCAN', async () => {
     try {
       await editor.moveToText('db');
+      await browser.pause(200);
       await editor.clickExplainAllPlansExecution();
-      await browser.pause(4000);
+      await browser.pause(2000);
       const stages = await explain.getNumberOfStages();
       assert.equal(stages, 1);
       const stage = await explain.getStageText(0);
