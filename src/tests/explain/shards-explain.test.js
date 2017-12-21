@@ -50,10 +50,10 @@ describe('test explain', () => {
           database: 'test'
         });
       }).then(async() => {
-        await editor._appendToEditor('use admin\n');
-        await editor._appendToEditor('db.runCommand({enableSharding: "test"})\n');
-        await editor._appendToEditor('use test\n');
-        await editor._appendToEditor('db.users.createIndex({"user.age":1})\n');
+        await editor._appendToEditor('use admin;\n');
+        await editor._appendToEditor('db.runCommand({enableSharding: "test"});\n');
+        await editor._appendToEditor('use test;\n');
+        await editor._appendToEditor('db.users.createIndex({"user.age":1});\n');
         await editor._clickExecuteAll();
         console.log('finish before all');
         done();
@@ -68,17 +68,20 @@ describe('test explain', () => {
   test('run explain query on a shard cluster', async() => {
     try {
       await editor._clearEditor();
-      await editor._appendToEditor('\n use test\n');
+      await editor._appendToEditor('\n use test;\n');
       await editor._clickExecuteAll();
-      await editor._appendToEditor('db.users.find()');
-      await browser.pause(1000);
+      await editor._appendToEditor('db.users.find();');
+      await browser.pause(2500);
       await editor.clickExplainExecutionStats();
-      await browser.pause(2000);
+      await browser.pause(1000);
       const stages = await explain.getNumberOfStages();
+      console.log(`Stages: ${stages}`);
       assert.equal(stages, 2);
       const stage1 = await explain.getStageText(0);
+      console.log(`Stage 1: ${stage1}`);
       assert.equal(stage1, 'COLLSCAN');
       const stage2 = await explain.getStageText(1);
+      console.log(`Stage 2: ${stage2}`);
       assert.equal(stage2, 'SINGLE_SHARD');
       const detailData = await explain.getExplainDetailTableData(true);
       assert.equal(detailData.length, 2);
@@ -95,18 +98,18 @@ describe('test explain', () => {
   test('shard collection and execute explain', async() => {
     try {
       await editor._clearEditor();
-      await editor._appendToEditor('use admin\n');
-      await editor._appendToEditor('db.runCommand( { shardCollection: "test.users", key: { "user.age": 1 } } )\n');
+      await editor._appendToEditor('use admin;\n');
+      await editor._appendToEditor('db.runCommand( { shardCollection: "test.users", key: { "user.age": 1 } } );\n');
       await editor._clickExecuteAll();
       await browser.pause(1000);
-      await editor._appendToEditor('sh.splitAt("test.users", {"user.age":30})\n');
-      await editor._appendToEditor('sh.splitAt("test.users", {"user.age":60})\n');
-      await editor._appendToEditor('sh.moveChunk("test.users", {"user.age":20}, "shard02")\n');
-      await editor._appendToEditor('sh.moveChunk("test.users", {"user.age":60}, "shard03")\n');
-      await editor._appendToEditor('\n use test\n');
+      await editor._appendToEditor('sh.splitAt("test.users", {"user.age":30});\n');
+      await editor._appendToEditor('sh.splitAt("test.users", {"user.age":60});\n');
+      await editor._appendToEditor('sh.moveChunk("test.users", {"user.age":20}, "shard02");\n');
+      await editor._appendToEditor('sh.moveChunk("test.users", {"user.age":60}, "shard03");\n');
+      await editor._appendToEditor('\n use test;\n');
       await editor._clickExecuteAll();
       await browser.pause(15000);
-      await editor._appendToEditor('db.users.find({"user.age": {$gt: 10}})');
+      await editor._appendToEditor('db.users.find({"user.age": {$gt: 10}});');
       await browser.pause(1000);
       await editor.clickExplainExecutionStats();
       await browser.pause(5000);
