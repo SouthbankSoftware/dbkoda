@@ -107,9 +107,9 @@ describe('aggregate-test-suite', () => {
       await treeAction
         .getTreeNodeByPath(['Databases', 'test', 'companies'])
         .rightClick()
-        .pause(500);
+        .pause(1000);
 
-      await treeAction.clickContextMenu('Aggregate Builder').pause(500);
+      await treeAction.clickContextMenu('Aggregate Builder').pause(1000);
       expect(true).toBe(true);
     } catch (error) {
       console.log(error);
@@ -161,6 +161,7 @@ describe('aggregate-test-suite', () => {
     try {
       // Select Second Block (Group)
       await aggregate.selectBlock(2);
+      await browser.pause(1000);
 
       // Check Output - Results
       let res = await output.getAllOutputLines();
@@ -182,6 +183,7 @@ describe('aggregate-test-suite', () => {
     try {
       // Select First Block
       await aggregate.selectBlock(1);
+      await browser.pause(1000);
 
       // Check Output - All Rows.
       let res = await output.getAllOutputLines();
