@@ -109,8 +109,7 @@ describe('TreeAction:SimpleQuery', () => {
       Database: 'test',
       CollectionName: 'companies',
       UseOr: true,
-      FilterKeys: [
-        {
+      FilterKeys: [{
           AttributeName: 'founded_year',
           Operator: '$eq',
           Value: 2000,
@@ -120,19 +119,16 @@ describe('TreeAction:SimpleQuery', () => {
           Operator: '$eq',
           Value: 2001,
           last: 1,
-        },
-      ],
+        }],
       IncludeProjection: true,
-      Projections: [
-        {
+      Projections: [{
           AttributeName: 'name',
           AttributeProjectionValue: 1,
         },
         {
           AttributeName: 'founded_year',
           AttributeProjectionValue: 1,
-        },
-      ],
+        }],
       SortKeys: false,
       Limit: 10,
       Count: false,
@@ -151,34 +147,15 @@ describe('TreeAction:SimpleQuery', () => {
   /** Fill in action dialogue */
   test('allows user to fill in action dialogue', async () => {
     await r.browser.waitForExist('.dynamic-form').pause(1000);
-    let clicks = []; //eslint-disable-line
+    
+    // Workaround - click the remove button on the row with no fields
     await r.browser
       .element(
-        '.dynamic-form > .form-scrollable > form > fieldset[label="Filter conditions"] > div > div.right > span > span > a',
-      )
-      .click();
-    await r.browser
-      .element(
-        '.dynamic-form > .form-scrollable > form > fieldset[label="Project Fields"] > div > div.right > span > span > a',
-      )
-      .click();
+        '#root > div > div.SplitPane.RootSplitPane.vertical > div.Pane.vertical.Pane1 > div > div > div > div > form > fieldset:nth-child(5) > div.scrollableDiv.field-group.columns-2-max > div:nth-child(1) > span > span > a'
+      ).click();
 
     await r.browser.pause(1000);
-
     await r.treeAction.fillInDialogue(r.template, r.templateInput);
-
-    // // example of getting value options for Select field
-    // // FIXME remove this example
-    // await r.treeAction.setValueForComboField(
-    //   '123',
-    //   'Attribute',
-    //   r.treeAction.getTableField('Projections')
-    // );
-    // const valueOptions = await r.treeAction.getValueOptionsForComboField(
-    //   'Attribute',
-    //   r.treeAction.getTableField('Projections')
-    // );
-    // console.log(valueOptions);
     if (debug) await r.debug();
   });
 
@@ -191,6 +168,7 @@ describe('TreeAction:SimpleQuery', () => {
 
   /** Get output and compare */
   test('returns the correct output', async () => {
+    await r.browser.pause(10000);
     const outputLines = await r.output.getAllOutputLines();
     console.log(outputLines);
     const expectedOutput = expect.stringMatching('company2001');
