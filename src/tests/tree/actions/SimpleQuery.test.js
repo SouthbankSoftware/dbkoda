@@ -147,13 +147,11 @@ describe('TreeAction:SimpleQuery', () => {
   /** Fill in action dialogue */
   test('allows user to fill in action dialogue', async () => {
     await r.browser.waitForExist('.dynamic-form').pause(1000);
-    
     // Workaround - click the remove button on the row with no fields
     await r.browser
       .element(
         '#root > div > div.SplitPane.RootSplitPane.vertical > div.Pane.vertical.Pane1 > div > div > div > div > form > fieldset:nth-child(5) > div.scrollableDiv.field-group.columns-2-max > div:nth-child(1) > span > span > a'
       ).click();
-
     await r.browser.pause(1000);
     await r.treeAction.fillInDialogue(r.template, r.templateInput);
     if (debug) await r.debug();
