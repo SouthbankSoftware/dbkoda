@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2017-06-24T00:09:46+10:00
+ * @Last modified time: 2017-12-21T11:05:55+11:00
  */
 
 import _ from 'lodash';
@@ -10,7 +10,7 @@ import Connection from '#/pageObjects/Connection';
 import Editor from '#/pageObjects/Editor';
 import Output from '#/pageObjects/Output';
 import ProfileList from '#/pageObjects/ProfileList';
-import Terminal from '#/pageObjects/Terminal';
+import Terminal from '#/pageObjects/OutputTerminal';
 import {
     config,
     getApp

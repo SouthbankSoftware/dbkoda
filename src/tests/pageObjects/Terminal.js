@@ -1,97 +1,105 @@
 /**
- * @Author: chris
- * @Date:   2017-04-28T14:27:49+10:00
- * @Email:  chris@southbanksoftware.com
- * @Last modified by:   chris
- * @Last modified time: 2017-05-19T15:18:38+10:00
+ * @Author: Guan Gui <guiguan>
+ * @Date:   2017-12-21T11:07:32+11:00
+ * @Email:  root@guiguan.net
+ * @Last modified by:   guiguan
+ * @Last modified time: 2017-12-22T11:40:58+11:00
+ *
+ * dbKoda - a modern, open source code editor, for MongoDB.
+ * Copyright (C) 2017-2018 Southbank Software
+ *
+ * This file is part of dbKoda.
+ *
+ * dbKoda is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * dbKoda is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import waitUtil from '../helpers/waitUntil';
 import Page from './Page';
 
-export default class OutputTerminal extends Page {
-  terminalSelector = '.pt-tab-panel.visible[aria-hidden="false"] > .outputEditor > .outputTerminal ';
-  commandLineSelector = this.terminalSelector + '.outputCmdLine';
-  commandTextArea = this.terminalSelector + '.outputCmdLine > .CodeMirror .CodeMirror-line span'; // '.outputCmdLine > textarea';
-  executeCmdSelector = this.terminalSelector + '.executeCmdBtn > a';
-  sendToEditorItemSelector = '.pt-menu-item';
+const TERMINAL_ID_PREFIX = 'pt-tab-panel_outputPanelTabs_Terminal-';
 
-  /** @type {WebDriverIoPromise} */
-  get commandLine() {
-    return this
-      .browser
-      .element(this.commandLineSelector);
-  }
+export default class Terminal extends Page {
+  outputPanelSelector = '.outputPanel .pt-tab-panel.visible[aria-hidden="false"]';
+  contextMenuSelector = '.pt-overlay-open .pt-menu';
 
-  /** @type {WebDriverIoPromise} */
-  get executeCmd() {
-    return this
-      .browser
-      .element(this.executeCmdSelector);
-  }
+  async getCurrentTerminalId() {
+    const tabId = await this.browser
+      .waitForExist(this.outputPanelSelector)
+      .getAttribute(this.outputPanelSelector, 'id');
 
-  /** @type {WebDriverIoPromise} */
-  get text() {
-    return this
-      .browser
-      .getText(this.commandTextArea);
-  }
-
-  /** @type {WebDriverIoPromise} */
-  get menuItemSendToEditor() {
-    return this
-      .browser
-      .element(this.sendToEditorItemSelector);
-  }
-
-  /** @type {WebDriverIoPromise} */
-  async enterText(commandText) {
-    await this
-      .commandLine
-      .leftClick();
-    return this
-      .browser
-      .keys(commandText.split(''));
-  }
-
-  /** Enter text (if provided), then click the execute button
-   * @param {String} commandText - The single line command to be run (optional)
-   */
-  async executeCommand(commandText) {
-    if (commandText) {
-      await this.enterText(commandText);
+    if (!tabId.startsWith(TERMINAL_ID_PREFIX)) {
+      throw new Error('Current output tab is not a terminal');
     }
-    return this
-      .executeCmd
+
+    return tabId.substring(TERMINAL_ID_PREFIX.length);
+  }
+
+  async openCurrentTerminalContextMenu() {
+    return this.browser
+      .waitForExist(this.outputPanelSelector)
+      .rightClick(this.outputPanelSelector)
+      .waitForExist(this.contextMenuSelector);
+  }
+
+  async clickCurrentTerminalContextMenuItem(itemName: string) {
+    return this.browser
+      .$(this.contextMenuSelector)
+      .$(`li=${itemName}`)
       .leftClick();
   }
 
-  /** Updates the terminal with a more recent command from history */
-  nextCommand() {
-    return this
-      .commandLine
-      .leftClick()
-      .then(() => {
-        this
-          .browser
-          .keys('ArrowDown');
-      });
+  async getTerminalLastNLines(id: string, n: number = 1) {
+    /* eslint-disable */
+    return (await this.browser.execute(
+      (id, n) => {
+        const { xterm } = store.terminals.get(id).reactComponent;
+        const { buffer } = xterm;
+        const result = [];
+
+        for (let i = 0; i < n; i += 1) {
+          result.push(
+            buffer.translateBufferLineToString(buffer.ybase + buffer.y - n + 1 + i, true),
+          );
+        }
+
+        return n === 1 ? result[0] : result;
+      },
+      id,
+      n,
+    )).value;
+    /* eslint-enable */
   }
 
-  /** Updates the terminal with a less recent command from history */
-  previousCommand() {
-    return this
-      .commandLine
-      .leftClick()
-      .then(() => {
-        this
-          .browser
-          .keys('ArrowUp');
-      });
+  async waitTerminalReady(id: string, timeout: number = 5000) {
+    return waitUtil(
+      async () => (await this.getTerminalLastNLines(id)).length > 0,
+      timeout,
+      `expects terminal to be ready within ${timeout} ms`,
+    );
   }
 
-  /** Give the terminal the shortcut to send a command to the editor */
-  async sendToEditor() {
-    await this.commandLine.rightClick();
-    return this.menuItemSendToEditor.leftClick();
+  async executeInTerminal(id: string, command: string) {
+    /* eslint-disable */
+    await this.browser.execute(
+      (id, command) => {
+        const { reactComponent } = store.terminals.get(id);
+
+        reactComponent.props.send(command);
+      },
+      id,
+      command,
+    );
+    /* eslint-enable */
   }
 }

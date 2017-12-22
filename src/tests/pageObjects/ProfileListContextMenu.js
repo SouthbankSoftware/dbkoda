@@ -2,7 +2,7 @@
  * Connection profile context menu page object
  *
  * @Last modified by:   guiguan
- * @Last modified time: 2017-11-27T13:29:56+11:00
+ * @Last modified time: 2017-12-22T11:12:32+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -28,11 +28,18 @@ import Page from './Page';
 export default class ProfileListContextMenu extends Page {
   // Context Menu Selectors
   menuSelector = '.profileListContextMenu';
-  openConnectionSelector = '.profileListContextMenu.openProfile';
-  closeConnectionSelector = '.profileListContextMenu.closeProfile';
-  newWindowSelector = '.profileListContextMenu.newWindow';
-  deleteProfileSelector = '.profileListContextMenu.deleteProfile';
-  editorListingSelector = '.profileListContextMenu.editorListing';
+  openConnectionSelector = `${this.menuSelector}.openProfile`;
+  closeConnectionSelector = `${this.menuSelector}.closeProfile`;
+  newWindowSelector = `${this.menuSelector}.newWindow`;
+  deleteProfileSelector = `${this.menuSelector}.deleteProfile`;
+  editorListingSelector = `${this.menuSelector}.editorListing`;
+  newSshTerminalSelector = `${this.menuSelector}.newSshTerminal`;
+  newSshTerminalDialogSelector = '.open-profile-alert-dialog';
+  newSshTerminalDialogInputSelector = `${this.newSshTerminalDialogSelector} input.remotePassInput`;
+  newSshTerminalDialogOpenButtonSelector = `${
+    this.newSshTerminalDialogSelector
+  } .pt-button.openButton`;
+  newLocalTerminalSelector = `${this.menuSelector}.newLocalTerminal`;
   openProfileAlertSelector = '.close-profile-alert-dialog';
   confirmOpenButtonSelector = '.close-profile-alert-dialog .pt-alert-footer :nth-child(1)';
   cancelOpenButtonSelector = '.close-profile-alert-dialog .pt-alert-footer :nth-child(2)';
@@ -45,11 +52,17 @@ export default class ProfileListContextMenu extends Page {
   /**
    * open connection panel
    */
-  async openContextMenu(profileName) {
+  async openContextMenu(profileName?: string) {
+    if (profileName) {
+      return this.browser
+        .waitForExist('div.bp-table-truncated-text=' + profileName)
+        .rightClick('div.bp-table-truncated-text=' + profileName, 5, 5)
+        .waitForExist(this.menuSelector);
+    }
     return this.browser
-      .waitForExist('div.bp-table-truncated-text=' + profileName)
-      .rightClick('div.bp-table-truncated-text=' + profileName, 5, 5)
-      .waitForExist(this.menuSelector);
+      .waitForExist('.profileList')
+      .rightClick('.profileList')
+      .waitForExist('.profilePanelContextMenu');
   }
 
   async newEditor() {
@@ -85,5 +98,24 @@ export default class ProfileListContextMenu extends Page {
       .leftClick(this.deleteProfileSelector, 1, 1)
       .waitForExist(this.removeProfileAlertSelector)
       .leftClick(this.confirmRemoveButtonSelector);
+  }
+
+  async newSshTerminal(password?: string) {
+    await this.browser
+      .waitForExist(this.newSshTerminalSelector)
+      .leftClick(this.newSshTerminalSelector, 1, 1);
+
+    if (password) {
+      await this.browser
+        .waitForExist(this.newSshTerminalDialogSelector)
+        .setValue(this.newSshTerminalDialogInputSelector, password)
+        .leftClick(this.newSshTerminalDialogOpenButtonSelector);
+    }
+  }
+
+  async newLocalTerminal() {
+    return this.browser
+      .waitForExist(this.newLocalTerminalSelector)
+      .leftClick(this.newLocalTerminalSelector, 1, 1);
   }
 }

@@ -2,7 +2,7 @@
 # @Date:   2016-06-02T14:58:00+10:00
 # @Email:  root@guiguan.net
 # @Last modified by:   guiguan
-# @Last modified time: 2017-12-15T14:47:36+11:00
+# @Last modified time: 2017-12-15T20:23:58+11:00
 
 extends: [airbnb, plugin:flowtype/recommended]
 parser: babel-eslint
@@ -67,6 +67,7 @@ rules:
     ObjectPattern: { minProperties: 0, multiline: true }
   }]
   flowtype/no-types-missing-file-annotation: off
+  flowtype/generic-spacing: off
 plugins: [react, import, flowtype]
 settings:
   import/resolver:

@@ -3,7 +3,7 @@
  * @Date:   2017-05-02T14:40:47+10:00
  * @Email:  chris@southbanksoftware.com
  * @Last modified by:   guiguan
- * @Last modified time: 2017-05-29T13:51:37+10:00
+ * @Last modified time: 2017-12-21T11:06:44+11:00
  */
 
 import {
@@ -12,7 +12,7 @@ import {
   launchSingleInstance,
   generateMongoData
 } from 'test-utils';
-import Terminal from '../pageObjects/Terminal';
+import Terminal from '../pageObjects/OutputTerminal';
 import Output from '../pageObjects/Output';
 import ConnectionProfile from '../pageObjects/Connection.js';
 import { config, getApp } from '../helpers';
