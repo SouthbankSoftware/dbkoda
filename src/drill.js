@@ -128,10 +128,10 @@ const downloadDrill = () => {
 const downloadDrillController = () => {
   return new Promise((resolve, reject) => {
     const drillPath = path.resolve(global.PATHS.home, 'drill');
-    const src = 'https://s3-ap-southeast-2.amazonaws.com/southbanksoftware.com/javacontroller/3/dbkoda-java-controller-0.1.0.jar';
+    const src = 'https://s3-ap-southeast-2.amazonaws.com/asiapac-sydney.release.dbkoda/dbkoda-java-controller-latest.jar';
     const drillJavaController = path.resolve(
       drillPath,
-      'dbkoda-java-controller-0.1.0.jar',
+      'dbkoda-java-controller-latest.jar',
     );
     const drillPathExists = fs.existsSync(drillPath);
     const drillJavaControllerExists = fs.existsSync(drillJavaController);
