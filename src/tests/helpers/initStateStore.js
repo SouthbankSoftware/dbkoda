@@ -16,4 +16,5 @@ export default () => {
     './src/tests/helpers/profiles.yml',
     '/tmp/profiles.yml'
   );
+  fs.removeSync('/tmp/config.yml');
 };

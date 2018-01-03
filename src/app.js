@@ -169,7 +169,7 @@ const configController = () => {
         '../app.asar.unpacked/assets/controller/lib/',
       ),
       UAT: global.UAT,
-      CONFIG_PATH: path.resolve(global.PATHS.home, 'config.yml'),
+      CONFIG_PATH: global.UAT ? '/tmp/config.yml' : path.resolve(global.PATHS.home, 'config.yml'),
     }),
   });
 
@@ -313,11 +313,14 @@ const createMainWindow = () => {
       const handleAppCrashed = () => {
         mainWindow.reload();
       };
-
+      global.mainWindowId = mainWindow.id;
       ipcMain.once('appCrashed', handleAppCrashed);
+
+      ipcMain.on('drill', handleDrillRequest);
 
       mainWindow.on('closed', () => {
         ipcMain.removeListener('appCrashed', handleAppCrashed);
+        ipcMain.removeListener('drill', handleDrillRequest);
       });
     });
     return;
