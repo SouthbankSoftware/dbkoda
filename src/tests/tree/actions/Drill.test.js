@@ -12,7 +12,7 @@ import {
 } from 'test-utils';
 import TreeAction from '#/pageObjects/TreeAction';
 import Editor from '#/pageObjects/Editor';
-import Output from '#/pageObjects/Output';
+// import Output from '#/pageObjects/Output';
 import ConnectionProfile from '#/pageObjects/Connection';
 import { config, getApp } from '#/helpers';
 
@@ -26,7 +26,7 @@ describe('drill-test-suite', () => {
   let mongoPort1;
   let editor; // Editor Page Object.
   let profile; // Profile Connection Page Object.
-  let output; // Output Page Object.
+//   let output; // Output Page Object.
   let treeAction;
   const debug = false; // Set to true to stop app closing at end of test, etc
 
@@ -39,7 +39,7 @@ describe('drill-test-suite', () => {
       // Create our page objects.
       profile = new ConnectionProfile(browser);
       editor = new Editor(browser);
-      output = new Output(browser);
+    //   output = new Output(browser);
       treeAction = new TreeAction(browser);
 
       // Create our mongo instances.
