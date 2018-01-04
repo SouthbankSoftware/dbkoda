@@ -165,7 +165,8 @@ describe('aggregate-test-suite', () => {
 
       // Check Output - Results
       let res = await output.getAllOutputLines();
-      expect(res).toMatch('{"_id":{},"count":40}');
+      // Match {"_id":{},"count":40} or [{ "_id" : { }, "count" : 40 }]
+      expect(res).toMatch(/{\s*"_id":\s*{\s*}\s*,\s*"count"\s*:\s*40\s*}/i);
 
       // Check Editor for block.
       res = await editor._getEditorContentsAsString();
