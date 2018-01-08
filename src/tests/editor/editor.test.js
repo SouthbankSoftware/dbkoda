@@ -8,7 +8,7 @@
 import {
   getRandomPort,
   killMongoInstance,
-  launchSingleInstance,
+  launchSingleInstance
 } from 'test-utils';
 import Editor from '../pageObjects/Editor';
 import Output from '../pageObjects/Output';
@@ -78,7 +78,7 @@ describe('editor-test-suite', () => {
         alias: 'Test1',
         hostName: 'localhost',
         port: mongoPort1,
-        database: 'test',
+        database: 'test'
       });
       let res = await browser.waitForExist('.Test1');
       expect(res).toBe(true);
@@ -110,7 +110,7 @@ describe('editor-test-suite', () => {
         alias: 'Test2',
         hostName: 'localhost',
         port: mongoPort2,
-        database: 'test',
+        database: 'test'
       });
       let res = await browser.waitForExist('.Test2');
       expect(res).toBe(true);

@@ -1,6 +1,6 @@
 /**
- * @Last modified by:   guiguan
- * @Last modified time: 2017-12-21T11:06:15+11:00
+ * @Last modified by:   Mike
+ * @Last modified time: 2018-01-09T11:06:15+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -39,7 +39,7 @@ import { config, getApp } from '#/helpers';
 
 const PROMPT_LENGTH = 10;
 
-describe('Smoke Test', () => {
+describe('Drill Tests', () => {
   /** Global (to current test suite) setup */
   config({ setupFailFastTest: false });
 
@@ -155,55 +155,50 @@ describe('Smoke Test', () => {
     }
   });
 
-  test('Output and show more on large query.', async () => {
-    await r.output.setNewOutputCursor();
-    await r.editor._appendToEditor('use test;\n');
-    await r.editor._appendToEditor('db.companies.find();\n');
-    await r.editor._clickExecuteAll();
-    // TODO A better way of waiting for execution completion
-    await r.browser.pause(1000);
-    let outputLines = await r.output.getNewOutputLines();
-    const showMoreDisabled = await r.output._isShowMoreDisabled();
-    expect(showMoreDisabled).toBe(false);
-    await r.output.setNewOutputCursor();
-    await r.output.showMore.leftClick();
-    // TODO A better way of waiting for execution completion
-    await r.browser.pause(1000);
-    outputLines = await r.output.getNewOutputLines();
-    expect(outputLines.length).toBeGreaterThan(PROMPT_LENGTH);
-  });
-
-  test('Clear output button.', async () => {
-    await r.output.clearOutput.leftClick();
-    const outputLines = await r.output.getAllOutputLines();
-    expect(outputLines).toBe('');
-  });
-
-  test('Creating a second connection.', async () => {
+  test('Open Drill', async () => {
     try {
+      await r.editor._appendToEditor(
+        'use test\nfor (var i=2000;i<2020;i+=1) { db.companies.insertOne({name:"company"+i,founded_year:i,});\n db.companies.insertOne({name:"company2"+i,founded_year:i,}); };\n'
+      );
       await r.browser.pause(500);
-      await r.connection.connectProfileByHostname({
-        alias: 'Test2',
-        hostName: 'localhost',
-        port: r.mongoPort2,
-        database: 'test'
-      });
-    } catch (error) {
-      console.error(error);
-      expect(false).toBe(true);
-    }
-    expect(true).toBe(true);
-  });
-
-  test('Swapping Profiles', async () => {
-    try {
-      await r.profileList.clickProfile(0);
-      await r.browser.waitForExist(r.treeAction.treeNodeSelector);
-      const outputLines = await r.output.getAllOutputLines();
-      expect(outputLines).toBe('');
+      await r.editor._clickExecuteAll();
+      await r.browser.pause(500);
+      await r.browser.element('.refreshTreeButton').click();
+      await r.browser.pause(500);
+      await r.treeAction
+        .getTreeNodeByPath(['Databases', 'test'])
+        .rightClick()
+        .pause(500);
+      await r.treeAction
+        .clickContextMenu('Query Database with Drill')
+        .pause(5000);
+      await r.browser.waitForExist('.docCount', 15000);
       expect(true).toBe(true);
     } catch (error) {
-      console.error(error);
+      console.log(error);
+      expect(false).toBe(true);
+    }
+  });
+
+  test('Execute a command in Drill', async () => {
+    try {
+      await r.editor._clearEditor();
+      await r.editor._appendToEditor(
+        'ALTER SYSTEM SET `store.mongo.read_numbers_as_double` = true;\n'
+      );
+      await r.editor._clickExecuteAll();
+      await r.editor._clearEditor();
+      await r.browser.pause(500);
+      await r.editor._appendToEditor('SELECT * from test LIMIT 1;');
+      await r.editor._clickExecuteAll();
+      await r.browser.pause(1000);
+      await r.browser.waitForExist('th');
+      const numberOfHeaders = await r.browser.elements('th');
+      console.log(numberOfHeaders.value.length);
+      expect(numberOfHeaders.value.length).toEqual(3);
+      expect(true).toBe(true);
+    } catch (error) {
+      console.log(error);
       expect(false).toBe(true);
     }
   });

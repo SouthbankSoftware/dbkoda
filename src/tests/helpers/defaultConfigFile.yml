@@ -1,0 +1,12 @@
+mongoCmd: /usr/local/bin/mongo
+mongoVersionCmd: /usr/local/bin/mongo --version
+mongodumpCmd: /usr/local/bin/mongodump
+mongorestoreCmd: /usr/local/bin/mongorestore
+mongoimportCmd: /usr/local/bin/mongoimport
+mongoexportCmd: /usr/local/bin/mongoexport
+drillCmd: $DRILL_PATH
+drillControllerCmd: $DRILL_CONTROLLER_PATH
+showWelcomePageAtStart: true
+telemetryEnabled: true
+sshCounterInterval: 2
+sshCounterCmd: vmstat
