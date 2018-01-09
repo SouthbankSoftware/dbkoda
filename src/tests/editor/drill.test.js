@@ -172,7 +172,7 @@ describe('Drill Tests', () => {
       await r.treeAction
         .clickContextMenu('Query Database with Drill')
         .pause(5000);
-      await r.browser.waitForExist('.docCount', 15000);
+      await r.browser.waitForExist('.docCount', 30000);
       expect(true).toBe(true);
     } catch (error) {
       console.log(error);
