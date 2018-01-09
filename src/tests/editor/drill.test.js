@@ -37,8 +37,6 @@ import ProfileList from '#/pageObjects/ProfileList';
 import Terminal from '#/pageObjects/OutputTerminal';
 import { config, getApp } from '#/helpers';
 
-const PROMPT_LENGTH = 10;
-
 describe('Drill Tests', () => {
   /** Global (to current test suite) setup */
   config({ setupFailFastTest: false });
