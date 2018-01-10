@@ -67,6 +67,7 @@
     "cbuild": "yarn run clean && yarn run build",
     "cbuild:dev": "yarn run clean && yarn run dev:build",
     "build:icon": "electron-icon-maker -i misc/dbkoda-logo-favicon.png -o build",
+    "build:icon:win": "misc/win10iconTools.exe pngscale2ico build/icons/win/icon.ico misc/dbkoda-logo-favicon.png nearest none 16,32,64,128,256 -png && rimraf temp",
     "build:dmgbackground": "tiffutil -cathidpicheck misc/dmgbackground.png misc/dmgbackground@2x.png -out misc/dmgbackground.tiff",
     "test": "yarn test:dev",
     "test:dev": "yarn flow && yarn run eslint && yarn run jest:report",
