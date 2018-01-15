@@ -6,6 +6,52 @@ To get help or to request features or simply to tell us what you think, visit ou
 
 To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
 
+## Version 0.9.0
+
+Monday Jan 15th 2018
+
+This release contains some important bug fixes and new features.  It's the result of many hours of effort from the dedicated code monkeys working from our secret lair in Melbourne Australia.  
+
+See our [blogs page](https://www.dbkoda.com/#blog) for more detailed discussions about these new features.
+
+### Index advisor
+
+dbKoda can advise you on indexes that should be created to avoid `COLLSCAN` and `SORT` conditions. First, generate an execution plan for a query.  Then hit the "index advisor" button to get suggestions for new indexes.  Press the "Add code" button if you want to create the indexes.
+
+Note that the index advisor will sometimes suggest that you can drop old indexes when a new index is suggested.  For instance, if we suggest an index on {a:1,b:1} and there is already an index on {a:1}, then we will suggest dropping the index on {a:1}.
+
+### Remove unnecessary indexes
+
+From a collection node in the  database tree, you can select "remove unnecessary indexes".  We'll create a script that will drop any indexes that are redundant. For instance if there is an index in {a:1,b:1} and another on {a:1}, we will suggest dropping the index on {a:1}.
+
+### Update/Insert/Delete support
+
+You can create insert, update or delete statements from a fill-in the blanks form in the database tree.  This works in a similar way to the simple query builder.  
+
+### Remote SSH terminal
+
+If you provide SSH credentials, you can open an SSH terminal to your mongo server.  From there you can start or stop mongo instances, examine OS level configuration, play adventure, and so on.
+
+### Local terminal
+
+You can also open a terminal window to your local desktop.  This might be handy if you want to run mongo command line tools, invoke a local editor, etc.  
+
+### Support for Drill SQL (experimental)
+
+We now allow you to issue SQL commands against your MongoDB host using Apache Drill.  This feature is a bit "experimental" - it is dependent both on the Apache Drill binaries and requires Java be installed on your local host.  See [This blog post](https://dbkoda.useresponse.com/knowledge-base/article/how-to-use-drill-sql-in-dbkoda) for more details.
+
+### Known issues
+
+- After installing drill, you may need to right click and select "Query database with Drill" a second time to invoke the drill editor.
+- After sitting at a desk and using dbKoda for a long time, your back or butt may get sore or numb.  As a workaround for this problem, try standing up and moving around from time to time. 
+
+
+## Version 0.8.1
+
+December 5th 2017
+
+Minor bug fixes, particularly to the "phone home" telemetry.
+
 ## Version 0.8.0
 
 Monday November 6th, 2017
