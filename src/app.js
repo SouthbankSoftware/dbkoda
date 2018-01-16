@@ -84,7 +84,9 @@ global.PATHS = (() => {
     configPath: global.UAT ? '/tmp/config.yml' : configPath,
     profilesPath: global.UAT ? '/tmp/profiles.yml' : profilesPath,
     logs: path.resolve(userData, 'logs'),
-    stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json'),
+    stateStore: global.UAT
+      ? '/tmp/stateStore.json'
+      : path.resolve(home, 'stateStore.json')
   };
 })();
 
@@ -95,14 +97,17 @@ global.getRandomPort = (startPortRange, endPortRange, host) => {
 // TODO create an uninstaller
 // ensure paths exist.
 // [IMPORTANT] Remember to add exceptions here
-sh.mkdir('-p', _.values(_.omit(global.PATHS, ['stateStore', 'configPath', 'profilesPath'])));
+sh.mkdir(
+  '-p',
+  _.values(_.omit(global.PATHS, ['stateStore', 'configPath', 'profilesPath']))
+);
 
 const configWinstonLogger = () => {
   const commonOptions = {
     colorize: 'all',
     timestamp() {
       return moment().format();
-    },
+    }
   };
 
   const transports = [new winston.transports.Console(commonOptions)];
@@ -116,9 +121,9 @@ const configWinstonLogger = () => {
           datePattern: 'yyyy-MM-dd.',
           localTime: true,
           prepend: true,
-          json: false,
-        }),
-      ),
+          json: false
+        })
+      )
     );
   }
 
@@ -131,16 +136,16 @@ const configWinstonLogger = () => {
       warn: 1,
       notice: 2,
       info: 3,
-      debug: 4,
+      debug: 4
     },
     colors: {
       error: 'red',
       warn: 'yellow',
       notice: 'green',
       info: 'black',
-      debug: 'blue',
+      debug: 'blue'
     },
-    transports,
+    transports
   });
 
   process.on('unhandledRejection', (reason) => {
@@ -166,11 +171,13 @@ const configController = () => {
       LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
       MONGO_SCRIPTS_PATH: path.resolve(
         app.getAppPath(),
-        '../app.asar.unpacked/assets/controller/lib/',
+        '../app.asar.unpacked/assets/controller/lib/'
       ),
       UAT: global.UAT,
-      CONFIG_PATH: global.UAT ? '/tmp/config.yml' : path.resolve(global.PATHS.home, 'config.yml'),
-    }),
+      CONFIG_PATH: global.UAT
+        ? '/tmp/config.yml'
+        : path.resolve(global.PATHS.home, 'config.yml')
+    })
   });
 
   if (!global.UAT) {
@@ -191,7 +198,7 @@ const configController = () => {
 
       dialog.showErrorBox(
         'Error:',
-        `controller ${msg}, please check logs at https://goo.gl/fGcFmv and report this issue`,
+        `controller ${msg}, please check logs at https://goo.gl/fGcFmv and report this issue`
       );
     };
 
@@ -249,19 +256,21 @@ const openPreferences = () => {
 
 const handleDrillRequest = (event, arg) => {
   if (arg == 'downloadDrill') {
-    downloadDrill().then(() => {
-      event.sender.send('drillResult', 'downloadDrillComplete');
-    })
-    .catch((reason) => {
-      console.log('Error: ', reason);
-    });
+    downloadDrill()
+      .then(() => {
+        event.sender.send('drillResult', 'downloadDrillComplete');
+      })
+      .catch((reason) => {
+        console.log('Error: ', reason);
+      });
   } else if (arg == 'downloadController') {
-    downloadDrillController().then(() => {
-      event.sender.send('drillResult', 'downloadDrillControllerComplete');
-    })
-    .catch((reason) => {
-      console.log('Error: ', reason);
-    });
+    downloadDrillController()
+      .then(() => {
+        event.sender.send('drillResult', 'downloadDrillControllerComplete');
+      })
+      .catch((reason) => {
+        console.log('Error: ', reason);
+      });
   }
 };
 
@@ -271,9 +280,9 @@ const createWindow = (url, options) => {
     {
       width: 1280,
       height: 900,
-      backgroundColor: '#363951',
+      backgroundColor: '#363951'
     },
-    options,
+    options
   );
   const win = new BrowserWindow(options);
 
@@ -299,14 +308,14 @@ const createMainWindow = () => {
         shouldRetryOnError(e) {
           return _.includes(
             ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
-            e.error.code || _.includes([404, 502], e.statusCode),
+            e.error.code || _.includes([404, 502], e.statusCode)
           );
         },
         errorHandler(err) {
           l.error(err.stack);
           throw err;
-        },
-      },
+        }
+      }
     ).then(() => {
       const mainWindow = createWindow(url);
 
@@ -328,20 +337,23 @@ const createMainWindow = () => {
 
   // show a splash screen
   const splashWindow = createWindow(
-    `file://${path.resolve(__dirname, '../assets/splash/index.html')}`,
+    `file://${path.resolve(__dirname, '../assets/splash/index.html')}`
   );
 
   // wait for uiUrl to become reachable and then show real main window
   // const uiPath = require.resolve('@southbanksoftware/dbkoda-ui');
   invokeApi(
     {
-      url,
+      url
     },
     {
       shouldRetryOnError(e) {
         return (
           !splashWindow.isDestroyed() &&
-          (_.includes(['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'], e.error.code) ||
+          (_.includes(
+            ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
+            e.error.code
+          ) ||
             _.includes([404, 502], e.statusCode))
         );
       },
@@ -351,15 +363,15 @@ const createMainWindow = () => {
         }
         l.error(err.stack);
         throw err;
-      },
-    },
+      }
+    }
   ).then(() => {
     if (splashWindow.isDestroyed()) {
       return;
     }
 
     const mainWindow = createWindow(url, {
-      show: false,
+      show: false
     });
 
     global.mainWindowId = mainWindow.id;
@@ -371,7 +383,7 @@ const createMainWindow = () => {
           'Sorry! your previous configuration (stateStore) was incompatible with current version.',
         buttons: ['OK'],
         detail:
-          'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.',
+          'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.'
       });
       mainWindow.reload();
     };
@@ -429,7 +441,7 @@ global.DownloadUpdate = () => {
         type: 'info',
         title: 'Found Updates',
         message: 'Found updates, do you want update now?',
-        buttons: ['Sure', 'No'],
+        buttons: ['Sure', 'No']
       },
       (buttonIndex) => {
         if (buttonIndex === 0) {
@@ -438,7 +450,7 @@ global.DownloadUpdate = () => {
         } else {
           reject(false); // eslint-disable-line prefer-promise-reject-errors
         }
-      },
+      }
     );
   });
 };
@@ -450,7 +462,7 @@ global.InstallUpdate = () => {
         title: 'Install Updates',
         message:
           'Updates downloaded, application will update on next restart, would you like to restart now?',
-        buttons: ['Sure', 'Later'],
+        buttons: ['Sure', 'Later']
       },
       (buttonIndex) => {
         if (buttonIndex === 0) {
@@ -459,7 +471,7 @@ global.InstallUpdate = () => {
         } else {
           reject(false); // eslint-disable-line prefer-promise-reject-errors
         }
-      },
+      }
     );
   });
 };
@@ -479,7 +491,7 @@ autoUpdater.on('update-available', () => {
         type: 'info',
         title: 'Found Updates',
         message: 'Found updates, do you want update now?',
-        buttons: ['Sure', 'No'],
+        buttons: ['Sure', 'No']
       },
       (buttonIndex) => {
         if (buttonIndex === 0) {
@@ -487,7 +499,7 @@ autoUpdater.on('update-available', () => {
         } else {
           global.checkUpdateEnabled = true;
         }
-      },
+      }
     );
   }
   const activeWindow = BrowserWindow.getFocusedWindow();
@@ -504,7 +516,7 @@ autoUpdater.on('update-not-available', () => {
   if (global.userCheckForUpdate) {
     dialog.showMessageBox({
       title: 'No Updates',
-      message: 'Current version is up-to-date.',
+      message: 'Current version is up-to-date.'
     });
   }
   global.checkUpdateEnabled = true;
@@ -518,7 +530,7 @@ autoUpdater.on('error', (event, error) => {
   if (global.userCheckForUpdate) {
     dialog.showErrorBox(
       'Error: ',
-      'Unable to download update at the moment, Please try again later.',
+      'Unable to download update at the moment, Please try again later.'
     );
   }
   global.checkUpdateEnabled = true;
@@ -526,13 +538,14 @@ autoUpdater.on('error', (event, error) => {
 autoUpdater.on('download-progress', (progressObj) => {
   let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
   logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
-  logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
+  logMessage =
+    logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
   l.notice(logMessage);
   const activeWindow = BrowserWindow.getFocusedWindow();
   if (activeWindow) {
     activeWindow.webContents.send(
       'updateStatus',
-      'DOWNLOADING ' + Math.round(progressObj.percent) + '%',
+      'DOWNLOADING ' + Math.round(progressObj.percent) + '%'
     );
   }
 });
@@ -545,7 +558,7 @@ autoUpdater.on('update-downloaded', () => {
         title: 'Install Updates',
         message:
           'Updates downloaded, application will update on next restart, would you like to restart now?',
-        buttons: ['Sure', 'Later'],
+        buttons: ['Sure', 'Later']
       },
       (buttonIndex) => {
         if (buttonIndex === 0) {
@@ -553,7 +566,7 @@ autoUpdater.on('update-downloaded', () => {
         } else {
           global.checkUpdateEnabled = true;
         }
-      },
+      }
     );
   }
   const activeWindow = BrowserWindow.getFocusedWindow();
@@ -578,20 +591,20 @@ function aboutDBKoda() {
   let strAbout = 'Version ';
   strAbout += global.APP_VERSION;
   strAbout += '\n\n';
-  strAbout += 'Copyright © 2017 Southbank Software';
+  strAbout += 'Copyright © 2018 Southbank Software';
   dialog.showMessageBox(
     {
       title: 'About dbKoda',
-      message: strAbout,
+      message: strAbout
     },
-    () => {},
+    () => {}
   );
 }
 // Set app menu
 const setAppMenu = () => {
   const menus = [
     {
-      role: 'editMenu',
+      role: 'editMenu'
     },
     {
       label: 'View',
@@ -599,8 +612,8 @@ const setAppMenu = () => {
         { role: 'togglefullscreen' },
         { role: 'resetzoom' },
         { role: 'zoomin' },
-        { role: 'zoomout' },
-      ],
+        { role: 'zoomout' }
+      ]
     },
     {
       label: 'Development',
@@ -608,7 +621,7 @@ const setAppMenu = () => {
         {
           label: 'Reload UI',
           accelerator: 'Ctrl+Alt+Cmd+R',
-          role: 'forcereload',
+          role: 'forcereload'
         },
         {
           label: 'Reload Controller',
@@ -617,19 +630,24 @@ const setAppMenu = () => {
             quitController();
             configController();
           },
-          enabled: global.MODE !== 'byo',
+          enabled: global.MODE !== 'byo'
         },
         {
           label: 'Toggle DevTools',
           accelerator: 'Alt+CmdOrCtrl+I',
-          role: 'toggledevtools',
-        },
-      ],
+          role: 'toggledevtools'
+        }
+      ]
     },
     {
       role: 'window',
-      submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }],
-    },
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { type: 'separator' },
+        { role: 'front' }
+      ]
+    }
   ];
 
   if (process.platform === 'darwin') {
@@ -641,31 +659,31 @@ const setAppMenu = () => {
           accelerator: 'CmdOrCtrl+N',
           click() {
             newEditor();
-          },
+          }
         },
         {
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
           click() {
             openFileInEditor();
-          },
+          }
         },
         {
           label: 'Save File',
           accelerator: 'CmdOrCtrl+S',
           click() {
             saveFileInEditor();
-          },
+          }
         },
         {
           label: 'Save File As...',
           accelerator: 'CmdOrCtrl+Shift+S',
           click() {
             saveFileAsInEditor();
-          },
+          }
         },
-        { role: 'close' },
-      ],
+        { role: 'close' }
+      ]
     });
     menus.unshift({
       submenu: [
@@ -675,7 +693,9 @@ const setAppMenu = () => {
           click: () => {
             checkForUpdates();
           },
-          enabled: global.checkUpdateEnabled && (global.MODE === 'prod' || global.mode === 'byo'),
+          enabled:
+            global.checkUpdateEnabled &&
+            (global.MODE === 'prod' || global.mode === 'byo')
         },
         { type: 'separator' },
         {
@@ -683,7 +703,7 @@ const setAppMenu = () => {
           click: () => {
             openPreferences();
           },
-          accelerator: 'CmdOrCtrl+,',
+          accelerator: 'CmdOrCtrl+,'
         },
         { type: 'separator' },
         { role: 'services', submenu: [] },
@@ -692,13 +712,13 @@ const setAppMenu = () => {
         { role: 'hideothers' },
         { role: 'unhide' },
         { type: 'separator' },
-        { role: 'quit' },
-      ],
+        { role: 'quit' }
+      ]
     });
     menus.push({
       label: 'Help',
       role: 'help',
-      submenu: [],
+      submenu: []
     });
   } else {
     menus.unshift({
@@ -709,38 +729,38 @@ const setAppMenu = () => {
           accelerator: 'CmdOrCtrl+N',
           click() {
             newEditor();
-          },
+          }
         },
         {
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
           click() {
             openFileInEditor();
-          },
+          }
         },
         {
           label: 'Save File',
           accelerator: 'CmdOrCtrl+S',
           click() {
             saveFileInEditor();
-          },
+          }
         },
         {
           label: 'Save File As...',
           accelerator: 'CmdOrCtrl+Shift+S',
           click() {
             saveFileAsInEditor();
-          },
+          }
         },
         {
           label: 'Preferences',
           click() {
             openPreferences();
           },
-          accelerator: 'CmdOrCtrl+,',
+          accelerator: 'CmdOrCtrl+,'
         },
-        { role: 'close' },
-      ],
+        { role: 'close' }
+      ]
     });
     menus.push({
       label: 'Help',
@@ -750,16 +770,16 @@ const setAppMenu = () => {
           label: 'About',
           click: () => {
             aboutDBKoda();
-          },
+          }
         },
         {
           label: 'Check for Updates',
           click: () => {
             checkForUpdates();
           },
-          enabled: global.checkUpdateEnabled && global.MODE === 'prod',
-        },
-      ],
+          enabled: global.checkUpdateEnabled && global.MODE === 'prod'
+        }
+      ]
     });
   }
 
@@ -772,7 +792,7 @@ const setAppMenu = () => {
 const installDevToolsExtensions = () => {
   const {
     default: installExtension,
-    REACT_DEVELOPER_TOOLS,
+    REACT_DEVELOPER_TOOLS
   } = require('electron-devtools-installer');
 
   installExtension(REACT_DEVELOPER_TOOLS)
@@ -781,14 +801,16 @@ const installDevToolsExtensions = () => {
 
   installExtension({
     id: 'pfgnfdagidkfgccljigdamigbcnndkod',
-    electron: '^1.2.1',
+    electron: '^1.2.1'
   })
     .then(name => l.info(`Added DevTools Extension: ${name}`))
     .catch(l.error);
 
   if (!BrowserWindow.getDevToolsExtensions().devtron) {
     try {
-      BrowserWindow.addDevToolsExtension(path.resolve(__dirname, '../node_modules/devtron'));
+      BrowserWindow.addDevToolsExtension(
+        path.resolve(__dirname, '../node_modules/devtron')
+      );
       l.info('Added DevTools Extension: Devtron');
     } catch (err) {
       l.error(err);
