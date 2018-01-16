@@ -18,11 +18,11 @@ See our [blogs page](https://www.dbkoda.com/#blog) for more detailed discussions
 
 dbKoda can advise you on indexes that should be created to avoid `COLLSCAN` and `SORT` conditions. First, generate an execution plan for a query.  Then hit the "index advisor" button to get suggestions for new indexes.  Press the "Add code" button if you want to create the indexes.
 
-Note that the index advisor will sometimes suggest that you can drop old indexes when a new index is suggested.  For instance, if we suggest an index on {a:1,b:1} and there is already an index on {a:1}, then we will suggest dropping the index on {a:1}.
+Note that the index advisor will sometimes suggest that you can drop old indexes when a new index is suggested.  For instance, if we suggest an index on `{a:1,b:1}` and there is already an index on `{a:1}`, then we will suggest dropping the index on {a:1}.
 
 ### Remove unnecessary indexes
 
-From a collection node in the  database tree, you can select "remove unnecessary indexes".  We'll create a script that will drop any indexes that are redundant. For instance if there is an index in {a:1,b:1} and another on {a:1}, we will suggest dropping the index on {a:1}.
+From a collection node in the  database tree, you can select "remove unnecessary indexes".  We'll create a script that will drop any indexes that are redundant. For instance if there is an index in `{a:1,b:1}` and another on `{a:1}`, we will suggest dropping the index on {a:1}.
 
 ### Update/Insert/Delete support
 
@@ -30,7 +30,7 @@ You can create insert, update or delete statements from a fill-in the blanks for
 
 ### Remote SSH terminal
 
-If you provide SSH credentials, you can open an SSH terminal to your mongo server.  From there you can start or stop mongo instances, examine OS level configuration, play adventure, and so on.
+If you provide SSH credentials, you can open an SSH terminal to your mongo server.  From there you can start or stop mongo instances, examine OS level configuration, accidentally remove the operating system, and so on.
 
 ### Local terminal
 
@@ -43,7 +43,9 @@ We now allow you to issue SQL commands against your MongoDB host using Apache Dr
 ### Known issues
 
 - After installing drill, you may need to right click and select "Query database with Drill" a second time to invoke the drill editor.
-- After sitting at a desk and using dbKoda for a long time, your back or butt may get sore or numb.  As a workaround for this problem, try standing up and moving around from time to time. 
+
+- On Microsoft Windows when using an SSH tunnel, an export or import may crash dbKoda, requiring a restart of our product.  We'll be releasing a patch for this issue within a few weeks of the 0.9.0 release.
+- After sitting at a desk and using dbKoda for a long time, your back or butt may get sore or numb.  As a workaround for this problem, try standing up and moving around from time to time.
 
 
 ## Version 0.8.1
