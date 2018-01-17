@@ -475,9 +475,15 @@ global.InstallUpdate = () => {
     );
   });
 };
+const getMainWindow = () => {
+  if (global.mainWindowId) {
+    return BrowserWindow.fromId(global.mainWindowId);
+  }
+  return null;
+};
 autoUpdater.on('checking-for-update', () => {
   l.notice('Checking for update...');
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'CHECKING');
   }
@@ -502,14 +508,14 @@ autoUpdater.on('update-available', () => {
       }
     );
   }
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'AVAILABLE');
   }
 });
 autoUpdater.on('update-not-available', () => {
   l.notice('Update not available.');
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'NOT_AVAILABLE');
   }
@@ -523,7 +529,7 @@ autoUpdater.on('update-not-available', () => {
 });
 autoUpdater.on('error', (event, error) => {
   l.notice('Error in auto-updater. ', (error.stack || error).toString());
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'ERROR');
   }
@@ -541,7 +547,7 @@ autoUpdater.on('download-progress', (progressObj) => {
   logMessage =
     logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
   l.notice(logMessage);
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send(
       'updateStatus',
@@ -569,7 +575,7 @@ autoUpdater.on('update-downloaded', () => {
       }
     );
   }
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'DOWNLOADED');
   }
