@@ -3,7 +3,7 @@
  * @Date:   2017-07-10T12:54:02+10:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2017-12-04T15:18:49+11:00
+ * @Last modified time: 2018-01-22T23:51:51+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -58,6 +58,37 @@ class TreeAction extends Tree {
       .$('.pt-popover .pt-menu')
       .$(`.pt-menu-item=${label}`)
       .leftClick();
+  }
+
+  /** CodeMirror field */
+  getCodeMirrorField(label, contextElement = this.topLevelContextElement) {
+    return contextElement.$(`div[label="${label}"] .ReactCodeMirror`);
+  }
+
+  async setValueForCodeMirrorField(value, label, contextElement) {
+    const { value: el } = await this.getCodeMirrorField(label, contextElement);
+
+    // on Jest side, `el` is WebElement JSON
+    return this.browser.execute(
+      (el, value) => {
+        // on browser side, `el` is HTMLElement, which is converted by webdriverio automatically
+        const cm = window.findReactComponent(el).codeMirror;
+        // use replaceRange instead of setValue so that `change` event is triggered
+        cm.replaceRange(value, { line: 0, ch: 0 }, { line: cm.lineCount(), ch: 0 });
+      },
+      el,
+      value
+    );
+  }
+
+  async getValueForCodeMirrorField(label, contextElement) {
+    const { value: el } = await this.getCodeMirrorField(label, contextElement);
+
+    // on Jest side, `el` is WebElement JSON
+    return this.browser.execute(el => {
+      // on browser side, `el` is HTMLElement, which is converted by webdriverio automatically
+      return window.findReactComponent(el).codeMirror.getValue();
+    }, el);
   }
 
   /** Boolean field */
@@ -162,9 +193,7 @@ class TreeAction extends Tree {
   }
 
   getTableFieldNthRow(label, nth) {
-    return this.getTableField(label).$(
-      `.scrollableDiv > div:nth-child(${nth})`
-    );
+    return this.getTableField(label).$(`.scrollableDiv > div:nth-child(${nth})`);
   }
 
   getTableFieldNthRowDeleteButton(label, nth) {
@@ -183,11 +212,7 @@ class TreeAction extends Tree {
    * @param {WebDriverIoPromise} [contextElement=this.topLevelContextElement] - the context (container) to fill in this field
    * @return {Promise}
    */
-  async fillInDialogueField(
-    field,
-    templateInput,
-    contextElement = this.topLevelContextElement
-  ) {
+  async fillInDialogueField(field, templateInput, contextElement = this.topLevelContextElement) {
     if (field.readOnly) {
       // ignore read only field
       return;
@@ -232,13 +257,11 @@ class TreeAction extends Tree {
         );
       }
     } else if (
-      _.includes(['Boolean', 'Text', 'Numeric', 'Select', 'Combo'], field.type)
+      _.includes(['Boolean', 'Text', 'Numeric', 'Select', 'Combo', 'CodeMirror'], field.type)
     ) {
       if (_.has(templateInput, field.name)) {
         if (debug) {
-          console.log(
-            'Inputing field' + field.name + '=' + templateInput[field.name]
-          );
+          console.log('Inputing field' + field.name + '=' + templateInput[field.name]);
         }
         await this[`setValueFor${field.type}Field`](
           templateInput[field.name],
@@ -271,11 +294,11 @@ class TreeAction extends Tree {
 
   /* eslint-disable no-eval, class-methods-use-this */
   /**
-    * Get tree node element by label path
-    *
-    * @param {Array<string>} path - label path
-    * @return {WebDriverIoPromise}
-    */
+   * Get tree node element by label path
+   *
+   * @param {Array<string>} path - label path
+   * @return {WebDriverIoPromise}
+   */
   getTreeNodeByPath(path) {
     const _this = this; // eslint-disable-line no-unused-vars
     if (debug) console.log('getTreeNodeByPath ', path);
@@ -283,24 +306,20 @@ class TreeAction extends Tree {
       _.reduce(
         path,
         async (accPromise, nodeName, idx, path) => {
-          const currNodeEleStr =
-            (await accPromise) + `.$('.pt-tree-node-content=${nodeName}')`;
+          const currNodeEleStr = (await accPromise) + `.$('.pt-tree-node-content=${nodeName}')`;
 
           await this.browser.waitUntil(
             async () => {
               return (await eval(currNodeEleStr)).status === 0;
             },
             5000,
-            `tree node ${_.take(path, idx + 1).join(
-              ' -> '
-            )} still not exist after 5 sec`
+            `tree node ${_.take(path, idx + 1).join(' -> ')} still not exist after 5 sec`
           );
 
           try {
             const needToExpandCaret =
-              (await eval(currNodeEleStr)
-                .$('.pt-tree-node-caret.pt-tree-node-caret-closed')).status ===
-              0;
+              (await eval(currNodeEleStr).$('.pt-tree-node-caret.pt-tree-node-caret-closed'))
+                .status === 0;
             if (needToExpandCaret) {
               await eval(currNodeEleStr)
                 .$('.pt-tree-node-caret.pt-tree-node-caret-closed')
@@ -311,10 +330,9 @@ class TreeAction extends Tree {
           return currNodeEleStr + (idx < path.length - 1 ? ".$('..')" : '');
         },
         Promise.resolve('_this.browser')
-      )
-        .then((eleStr) => {
-          return eval(eleStr);
-        })
+      ).then(eleStr => {
+        return eval(eleStr);
+      })
     );
   }
   /* eslint-enable */
