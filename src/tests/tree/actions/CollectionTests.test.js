@@ -252,6 +252,8 @@ describe('TreeAction:Collections', () => {
             await r
                 .treeAction.fillInDialogue(r.insertDocsDDD, r.insertDocsData);
 
+                await r.debug();
+
             if (debug) console.log('execute');
             await r.browser.pause(100);
             await r
