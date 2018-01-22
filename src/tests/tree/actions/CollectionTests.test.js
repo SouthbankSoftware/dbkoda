@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2017-06-01T14:02:40+10:00
+ * @Last modified time: 2018-01-22T16:24:14+11:00
  */
 
 import _ from 'lodash';
@@ -248,8 +248,11 @@ describe('TreeAction:Collections', () => {
                 console.log(r.insertDocsData);
             }
             await r.browser.pause(100);
+
             await r
                 .treeAction.fillInDialogue(r.insertDocsDDD, r.insertDocsData);
+
+                await r.debug();
 
             if (debug) console.log('execute');
             await r.browser.pause(100);

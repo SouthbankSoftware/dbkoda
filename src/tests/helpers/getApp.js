@@ -2,7 +2,7 @@
  * @Author: guiguan
  * @Date:   2017-04-13T12:25:20+10:00
  * @Last modified by:   guiguan
- * @Last modified time: 2017-06-24T01:37:51+10:00
+ * @Last modified time: 2018-01-22T14:17:41+11:00
  */
 
 import _ from 'lodash';
@@ -10,6 +10,7 @@ import path from 'path';
 import os from 'os';
 import { Application } from 'spectron';
 import electron from 'electron';
+import browserSideTestingHelper from '~/tests/helpers/browserSideTestingHelper';
 
 let defaultAppOptions;
 
@@ -20,18 +21,15 @@ if (global.IS_PROD) {
     defaultAppOptions = {
       path: path.resolve(__dirname, '../../../dist/win-unpacked/dbKoda.exe'),
       env: {
-        UAT: 'true'
-      }
+        UAT: 'true',
+      },
     };
   } else {
     defaultAppOptions = {
-      path: path.resolve(
-        __dirname,
-        '../../../dist/mac/dbKoda.app/Contents/MacOS/dbKoda'
-      ),
+      path: path.resolve(__dirname, '../../../dist/mac/dbKoda.app/Contents/MacOS/dbKoda'),
       env: {
-        UAT: 'true'
-      }
+        UAT: 'true',
+      },
     };
   }
 } else {
@@ -40,8 +38,8 @@ if (global.IS_PROD) {
     args: [path.resolve(__dirname, '../../../lib/')],
     env: {
       MODE: 'byo',
-      UAT: 'true'
-    }
+      UAT: 'true',
+    },
   };
 }
 
@@ -77,7 +75,7 @@ export default (options = {}) => {
         }, self.quitTimeout);
       };
 
-      self.client.getWindowCount().then((count) => {
+      self.client.getWindowCount().then(count => {
         const winIdx = count - 1;
         if (self.api.nodeIntegration) {
           self.client
@@ -112,22 +110,19 @@ export default (options = {}) => {
         // }, 1000);
 
         return Promise.race([
-          new Promise((resolve) => {
+          new Promise(resolve => {
             const getTitle = () => {
-              app.client.getWindowCount().then((count) => {
+              app.client.getWindowCount().then(count => {
                 const winIdx = count - 1;
                 return app.client
                   .windowByIndex(winIdx)
                   .getTitle()
-                  .then((title) => {
+                  .then(title => {
                     if (title === 'dbKoda') {
                       return resolve(
                         app.client
                           .windowByIndex(winIdx)
-                          .waitUntilTextExists(
-                            '#pt-tab-title_EditorTabs_Default',
-                            'Welcome'
-                          )
+                          .waitUntilTextExists('#pt-tab-title_EditorTabs_Default', 'Welcome'),
                       );
                     }
                     _.delay(getTitle, 200);
@@ -140,14 +135,19 @@ export default (options = {}) => {
             _.delay(() => {
               reject(new Error('Timed out before app is ready'));
             }, 10000); // 10 sec timeout for app to be ready
-          })
+          }),
         ]);
       })
-      .then(() => app)
-      .catch((err) => {
+      .then(() => {
+        return app.client.execute(browserSideTestingHelper).then(() => app);
+      })
+      .catch(err => {
         const rethrow = () => Promise.reject(err);
         if (app.isRunning()) {
-          return app.stop().then(rethrow).catch(rethrow);
+          return app
+            .stop()
+            .then(rethrow)
+            .catch(rethrow);
         }
         return rethrow();
       });
