@@ -240,19 +240,4 @@ describe('connection-profile-test-suite', () => {
       })
       .catch(err => assert.fail(false, true, err));
   });
-
-  // test('open atlas connection without SSL', () => {
-  //     return connectProfile.connectProfileByURL({
-  //             alias: 'Atlas' + getRandomPort(),
-  //             url: process.env.ATLAS_SERVER_URL
-  //             database: 'admin',
-  //             authentication: true,
-  //             ssl: true,
-  //             userName: process.env.ATLAS_SERVER_USERNAME,
-  //             password: process.env.ATLAS_SERVER_PASSWORD
-  //         }).then(() => {
-  //             assert.fail(false, true, 'no SSL connection should have failed');
-  //         })
-  //         .catch(() => connectProfile.closeConnectionProfile());
-  // });
 });
