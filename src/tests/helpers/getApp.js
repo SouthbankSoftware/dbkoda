@@ -2,7 +2,7 @@
  * @Author: guiguan
  * @Date:   2017-04-13T12:25:20+10:00
  * @Last modified by:   guiguan
- * @Last modified time: 2018-01-22T14:17:41+11:00
+ * @Last modified time: 2018-01-23T11:24:22+11:00
  */
 
 import _ from 'lodash';
@@ -14,22 +14,22 @@ import browserSideTestingHelper from '~/tests/helpers/browserSideTestingHelper';
 
 let defaultAppOptions;
 
-global.IS_PROD = process.env.NODE_ENV === 'production';
+global.IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-if (global.IS_PROD) {
+if (IS_PRODUCTION) {
   if (os.platform() === 'win32') {
     defaultAppOptions = {
       path: path.resolve(__dirname, '../../../dist/win-unpacked/dbKoda.exe'),
       env: {
-        UAT: 'true',
-      },
+        UAT: 'true'
+      }
     };
   } else {
     defaultAppOptions = {
       path: path.resolve(__dirname, '../../../dist/mac/dbKoda.app/Contents/MacOS/dbKoda'),
       env: {
-        UAT: 'true',
-      },
+        UAT: 'true'
+      }
     };
   }
 } else {
@@ -38,8 +38,8 @@ if (global.IS_PROD) {
     args: [path.resolve(__dirname, '../../../lib/')],
     env: {
       MODE: 'byo',
-      UAT: 'true',
-    },
+      UAT: 'true'
+    }
   };
 }
 
@@ -100,15 +100,6 @@ export default (options = {}) => {
     return app
       .start()
       .then(() => {
-        // TODO need to cleanup controller side log, then enable this
-        // setInterval(() => {
-        //   app.client.getMainProcessLogs().then((logs) => {
-        //     logs.forEach((log) => {
-        //       console.log(log);
-        //     });
-        //   });
-        // }, 1000);
-
         return Promise.race([
           new Promise(resolve => {
             const getTitle = () => {
@@ -122,7 +113,7 @@ export default (options = {}) => {
                       return resolve(
                         app.client
                           .windowByIndex(winIdx)
-                          .waitUntilTextExists('#pt-tab-title_EditorTabs_Default', 'Welcome'),
+                          .waitUntilTextExists('#pt-tab-title_EditorTabs_Default', 'Welcome')
                       );
                     }
                     _.delay(getTitle, 200);
@@ -135,7 +126,7 @@ export default (options = {}) => {
             _.delay(() => {
               reject(new Error('Timed out before app is ready'));
             }, 10000); // 10 sec timeout for app to be ready
-          }),
+          })
         ]);
       })
       .then(() => {
