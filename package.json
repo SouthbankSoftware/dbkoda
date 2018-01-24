@@ -178,7 +178,7 @@
     "nodemon": "^1.12.1",
     "rimraf": "^2.6.2",
     "source-map-support": "^0.5.0",
-    "spectron": "^3.7.2",
+    "spectron": "https://github.com/guiguan/spectron.git",
     "sprintf-js": "^1.1.1",
     "test-utils": "^1.0.21",
     "uuid": "^3.1.0",
