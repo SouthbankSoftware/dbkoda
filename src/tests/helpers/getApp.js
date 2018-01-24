@@ -43,6 +43,10 @@ if (IS_PRODUCTION) {
   };
 }
 
+defaultAppOptions.webdriverOptions = {
+  deprecationWarnings: false
+};
+
 /**
  * Get a test instance of dbKoda app
  *
