@@ -2,7 +2,7 @@
 # @Date:   2018-01-25T18:14:56+11:00
 # @Email:  root@guiguan.net
 # @Last modified by:   guiguan
-# @Last modified time: 2018-01-25T18:40:53+11:00
+# @Last modified time: 2018-01-25T18:47:38+11:00
 
 os: linux
 dist: trusty
@@ -18,7 +18,7 @@ git:
 script:
   - set -e
   - yarn install --no-progress
-  - yarn flow && yarn run eslint --rule 'import/no-unresolved: off'
+  - yarn flow && yarn run eslint --rule 'import/no-unresolved:off'
 
 notifications:
   slack:
