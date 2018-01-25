@@ -1,0 +1,29 @@
+# @Author: Guan Gui <guiguan>
+# @Date:   2018-01-25T18:14:56+11:00
+# @Email:  root@guiguan.net
+# @Last modified by:   guiguan
+# @Last modified time: 2018-01-25T18:26:34+11:00
+
+os: linux
+dist: trusty
+sudo: false
+language: node_js
+# Node version specified in .nvmrc
+node_js: null
+
+git:
+  depth: 3
+  submodules: false
+
+script:
+  - set -e
+  - yarn install --no-progress
+  - yarn flow && yarn run eslint
+
+notifications:
+  slack:
+    rooms:
+      - secure: MOYK4vJyGTPhjCAqlIyAs9bTvOzKmf9bRa9c5yrCXJUpphNCWkMKbJFFElOzjHH89X8lUwpE2p1xG5P+FDzLUT3F7vrMaqVWAmpxskpjWq9zonVp0haidTQeqq4j7Rh09HB0G0NwO8EOxsnNsGyavgchOhFIWrj0E5ltqhULmnu4ZcwJRjyrR07grp7kYf0o5iHkDabegh8Q9t7GXXqqc7k7BNxxsY4Dxa4YhY8ElllI5kr4p20YpgxfEgrHbrb58BPM7o36p7al51r17XW54xmMiGlGav3qWcyn0s2RXk178E+KNvze0NXKgp/yilkigjxTDgO8BlOoxMEXiUzVK8wpkNyHcC4FHT4acUV523pgJ98iSIDskSFFe7L9PpHEfEs0EmnQhDgdwkix5uVNqZWAcWGo6YrGnJbtcmQr6kWJkrIy00pnnSoJbqC60jd8pGP72gBgPQk+TbYGiMBqrKbW9TDQrfd1UUdm12bXm3HnkEBz9JNuHKN/z8WSAKfZDOS1a4tuFIVREXgDWFLLZ6MHDjUpL6T5W1c/lCmJZtzwijuFbqYmllpSDyjYuX4GfSFSTUnJuyI5xQa7Ofl9pzS5IkuSPebaYdaNbhpsKxL+no45L+xAA6OdFmjDwrFXmfLqqfshOYezLOSlbSuQTzGlg/HEi9agOzQz6mB7AlU=
+    template:
+      - 'Code quality and unit testing for build <%{build_url}|#%{build_number}> (<%{compare_url}|%{commit}>) of <https://github.com/%{repository_slug}/tree/%{branch}|%{repository_slug}@%{branch}> by %{author} %{result} in %{duration}: %{commit_message}'
+  email: false
