@@ -14,15 +14,15 @@ export default class ConnectionProfile extends Page {
 
   connectionProfilePanel = '.ProfileManager';
 
-  basicConnectionSettings = '.ProfileManager > .connectionLeftPane .btn-basic';
+  basicConnectionSettings = '.ProfileManager .connectionLeftPane .btn-basic';
 
-  clusterConnectionSettings = '.ProfileManager > .connectionLeftPane .btn-cluster';
+  clusterConnectionSettings = '.ProfileManager .connectionLeftPane .btn-cluster';
 
-  advancedConnectionSettings = '.ProfileManager > .connectionLeftPane .btn-advanced';
+  advancedConnectionSettings = '.ProfileManager .connectionLeftPane .btn-advanced';
 
-  urlbuilderConnectionSettings = '.ProfileManager > .connectionLeftPane .btn-urlbuilder';
+  urlbuilderConnectionSettings = '.ProfileManager .connectionLeftPane .btn-url';
 
-  sshConnectionSettings = '.ProfileManager > .connectionLeftPane .btn-ssh';
+  sshConnectionSettings = '.ProfileManager .connectionLeftPane .btn-ssh';
 
   aliasInputSelector = 'input#alias';
 
