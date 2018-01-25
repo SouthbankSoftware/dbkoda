@@ -30,7 +30,7 @@
   },
   "linux": {
     "category": "Development",
-    "target": ["AppImage", "deb"],
+    "target": "AppImage",
     "icon": "build/icons/png/"
   },
   "win": {
