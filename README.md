@@ -1,20 +1,15 @@
 # dbKoda
 *State of the art MongoDB IDE*
 
-<p align="left">
-  <a href="https://david-dm.org/SouthbankSoftware/dbkoda">
-    <img src="https://img.shields.io/david/SouthbankSoftware/dbkoda.svg?style=flat-square">
-  </a>
-  <a href="https://david-dm.org/SouthbankSoftware/dbkoda?type=dev">
-    <img src="https://img.shields.io/david/dev/SouthbankSoftware/dbkoda.svg?style=flat-square">
-  </a>
-</p>
+[![CQUTesting](https://img.shields.io/travis/SouthbankSoftware/dbkoda.svg?style=flat-square&label=CQUTesting)](https://travis-ci.org/SouthbankSoftware/dbkoda)
+[![dependencies](https://img.shields.io/david/SouthbankSoftware/dbkoda.svg?style=flat-square)](https://david-dm.org/SouthbankSoftware/dbkoda)
+[![devDependencies](https://img.shields.io/david/dev/SouthbankSoftware/dbkoda.svg?style=flat-square)](https://david-dm.org/SouthbankSoftware/dbkoda?type=dev)
 
 This repository defines dbKoda's building, user acceptance testing (UAT), launching and packaging workflows.
 
 ## Requirement
-
-* Yarn 0.21.3+
+* Node 8.9.1+
+* Yarn 1.3.2+
 * To install and use this repository you will need to clone [dbkoda-ui](https://github.com/Southbanksoftware/dbkoda-ui) and [dbkoda-controller](https://github.com/Southbanksoftware/dbkoda-controller)
 
 ## Setup
@@ -24,7 +19,7 @@ This repository defines dbKoda's building, user acceptance testing (UAT), launch
 root_folder
 ├── dbkoda-ui
 ├── dbkoda-controller
-├── dbkoda
+└── dbkoda
 ```
 2. **[Important]** In `dbkoda`, run the following command `yarn dev:link`. This is only needed for the first setup. If you are installing on windows, use `yarn dev:link:win`.
 3. Run `yarn install` within all 3 repos.
