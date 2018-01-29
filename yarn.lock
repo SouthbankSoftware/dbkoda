@@ -5534,9 +5534,9 @@ test-exclude@^4.1.1:
     read-pkg-up "^1.0.1"
     require-main-filename "^1.0.1"
 
-test-utils@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/test-utils/-/test-utils-1.1.0.tgz#86d41872cc426b1c67e0f3678868dfcbcb97b47f"
+test-utils@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/test-utils/-/test-utils-1.1.1.tgz#16c08244c8119c7861f18c7a70f65ee9a9349927"
   dependencies:
     mgeneratejs "^0.4.0"
 
