@@ -180,7 +180,7 @@
     "source-map-support": "^0.5.0",
     "spectron": "https://github.com/guiguan/spectron.git",
     "sprintf-js": "^1.1.1",
-    "test-utils": "^1.0.21",
+    "test-utils": "^1.1.1",
     "uuid": "^3.1.0",
     "webdriverio": "^4.9.9"
   }
