@@ -3,7 +3,7 @@
  *
  * Created by joey on 21/8/17
  * @Last modified by:   guiguan
- * @Last modified time: 2018-01-23T12:41:06+11:00
+ * @Last modified time: 2018-01-30T13:58:07+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -62,7 +62,7 @@ describe('mongo import test suite', () => {
     process.on('SIGINT', cleanup);
     return getApp().then(async res => {
       dbName = 'testimport-' + getRandomPort();
-      generateMongoData(mongoPort, dbName, 'testcol', '--num 10');
+      generateMongoData(mongoPort, dbName, 'testcol', 10);
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);

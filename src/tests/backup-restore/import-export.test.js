@@ -1,7 +1,7 @@
 /**
  * Created by joey on 25/8/17.
  * @Last modified by:   guiguan
- * @Last modified time: 2018-01-23T14:53:52+11:00
+ * @Last modified time: 2018-01-30T13:57:09+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -78,7 +78,7 @@ describe('backup restore test suite', () => {
 
   test('import export a collection', async () => {
     const dbName = 'testdb-' + getRandomPort();
-    generateMongoData(mongoPort, dbName, 'testcol', '--num 500');
+    generateMongoData(mongoPort, dbName, 'testcol', 500);
     generateMongoData(mongoPort, dbName, 'exportcol');
     await tree._clickRefreshButton();
     await browser.pause(1000);
@@ -97,7 +97,7 @@ describe('backup restore test suite', () => {
   test('import export a database', async () => {
     const dumpDbName = 'testdump-' + getRandomPort();
     const restoreDbName = 'testrestore-' + getRandomPort();
-    generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 500');
+    generateMongoData(mongoPort, dumpDbName, 'testcol', 500);
     generateMongoData(mongoPort, restoreDbName, 'placeholder');
     await tree._clickRefreshButton();
     await browser.pause(1000);
@@ -116,9 +116,9 @@ describe('backup restore test suite', () => {
   test('import export multiple collections from a database', async () => {
     const dumpDbName = 'testdump-' + getRandomPort();
     const restoreDbName = 'testrestore-' + getRandomPort();
-    generateMongoData(mongoPort, dumpDbName, 'testcol1', '--num 500');
-    generateMongoData(mongoPort, dumpDbName, 'testcol2', '--num 500');
-    generateMongoData(mongoPort, dumpDbName, 'testcol3', '--num 500');
+    generateMongoData(mongoPort, dumpDbName, 'testcol1', 500);
+    generateMongoData(mongoPort, dumpDbName, 'testcol2', 500);
+    generateMongoData(mongoPort, dumpDbName, 'testcol3', 500);
     generateMongoData(mongoPort, restoreDbName, 'placeholder');
     await tree._clickRefreshButton();
     await browser.pause(1000);
