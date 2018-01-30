@@ -3,7 +3,7 @@
  * @Date:   2017-05-02T14:40:47+10:00
  * @Email:  chris@southbanksoftware.com
  * @Last modified by:   guiguan
- * @Last modified time: 2017-12-21T11:06:44+11:00
+ * @Last modified time: 2018-01-30T14:01:22+11:00
  */
 
 import {
@@ -30,7 +30,7 @@ describe('output-terminal-test-suite', () => {
   beforeAll(async () => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
-    generateMongoData(mongoPort, 'test', 'test', '--num 500');
+    generateMongoData(mongoPort, 'test', 'test', 500);
     return getApp().then((res) => {
       app = res;
       browser = app.client;

@@ -3,7 +3,7 @@
  * @Date:   2018-01-23T14:49:56+11:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-01-23T14:50:53+11:00
+ * @Last modified time: 2018-01-30T13:56:11+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -84,7 +84,7 @@ describe('backup restore test suite', () => {
   test('dump and restore a single database without any parameters', async () => {
     const dumpDbName = 'testdump-' + getRandomPort();
     const restoreDbName = 'testrestore-' + getRandomPort();
-    generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 500');
+    generateMongoData(mongoPort, dumpDbName, 'testcol', 500);
     generateMongoData(mongoPort, restoreDbName, 'placeholder');
     await tree._clickRefreshButton();
     await browser.pause(1000);
@@ -104,9 +104,9 @@ describe('backup restore test suite', () => {
 
   test('dump and restore multiple databases', async () => {
     const dumpDbName = 'testdump-' + getRandomPort();
-    generateMongoData(mongoPort, dumpDbName + '1', 'testcol1', '--num 500');
-    generateMongoData(mongoPort, dumpDbName + '2', 'testcol2', '--num 500');
-    generateMongoData(mongoPort, dumpDbName + '3', 'testcol3', '--num 500');
+    generateMongoData(mongoPort, dumpDbName + '1', 'testcol1', 500);
+    generateMongoData(mongoPort, dumpDbName + '2', 'testcol2', 500);
+    generateMongoData(mongoPort, dumpDbName + '3', 'testcol3', 500);
     await tree._clickRefreshButton();
     await browser.pause(1000);
     await bkRestore.dumpServerDatabases([dumpDbName + '1', dumpDbName + '2', dumpDbName + '3'], {
@@ -136,7 +136,7 @@ describe('backup restore test suite', () => {
 
   test('dump and restore a collection', async () => {
     const dumpDbName = 'testdump-' + getRandomPort();
-    generateMongoData(mongoPort, dumpDbName, 'testcol1', '--num 10');
+    generateMongoData(mongoPort, dumpDbName, 'testcol1', 10);
     await tree._clickRefreshButton();
     await browser.pause(1000);
     await bkRestore.dumpCollection(dumpDbName, 'testcol1', {
@@ -158,10 +158,10 @@ describe('backup restore test suite', () => {
   test('dump and restore multiple collections', async () => {
     const dumpDbName = 'testdump-' + getRandomPort();
     const restoreDbName = 'restore-' + getRandomPort();
-    generateMongoData(mongoPort, dumpDbName, 'testcol1', '--num 10');
-    generateMongoData(mongoPort, dumpDbName, 'testcol2', '--num 10');
-    generateMongoData(mongoPort, dumpDbName, 'testcol3', '--num 10');
-    generateMongoData(mongoPort, restoreDbName, 'test', '--num 10');
+    generateMongoData(mongoPort, dumpDbName, 'testcol1', 10);
+    generateMongoData(mongoPort, dumpDbName, 'testcol2', 10);
+    generateMongoData(mongoPort, dumpDbName, 'testcol3', 10);
+    generateMongoData(mongoPort, restoreDbName, 'test', 10);
     await tree._clickRefreshButton();
     await browser.pause(1000);
     await bkRestore.dumpDatabaseCollections(dumpDbName, ['testcol1', 'testcol2', 'testcol3'], {[ParameterName.pathInput]: 'data/test/dump'});
