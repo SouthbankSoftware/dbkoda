@@ -61,7 +61,7 @@
       "security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PWD ~/Library/Keychains/login.keychain-db > /dev/null",
     "dev": "yarn run cbuild:dev && yarn start",
     "dev:install": "yarn install --ignore-scripts",
-    "dev:rebuild:electron": "electron-builder install-app-deps",
+    "dev:rebuild:electron": "ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true electron-builder install-app-deps",
     "dev:rebuild:current": "npm rebuild",
     "dev:prod": "yarn run cbuild && MODE=prod yarn start",
     "dev:chrome":
