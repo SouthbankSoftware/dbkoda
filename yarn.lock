@@ -2453,9 +2453,9 @@ fill-range@^2.1.0:
     repeat-element "^1.1.2"
     repeat-string "^1.5.2"
 
-find-free-port@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/find-free-port/-/find-free-port-1.0.2.tgz#b817d8f25d378338172c74aaac9ce46e061dbeda"
+find-free-port@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/find-free-port/-/find-free-port-1.1.1.tgz#179d52da57bfaa940a590e58a0933699da8e27da"
 
 find-up@^1.0.0:
   version "1.1.2"
