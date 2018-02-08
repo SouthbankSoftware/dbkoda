@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2017-12-05T14:43:11+11:00
+ * @Last modified time: 2018-02-08T14:02:22+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -30,10 +30,9 @@ import { autoUpdater } from 'electron-updater';
 import moment from 'moment';
 import winston from 'winston';
 import { ipcMain } from 'electron';
-
+import portscanner from 'portscanner';
 import { downloadDrill, downloadDrillController } from './drill';
-
-import { identifyWorkingMode, invokeApi, getAvailablePort } from './helpers';
+import { identifyWorkingMode, invokeApi } from './helpers';
 import touchbar from './touchbar';
 
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config/');
@@ -84,23 +83,14 @@ global.PATHS = (() => {
     configPath: global.UAT ? '/tmp/config.yml' : configPath,
     profilesPath: global.UAT ? '/tmp/profiles.yml' : profilesPath,
     logs: path.resolve(userData, 'logs'),
-    stateStore: global.UAT
-      ? '/tmp/stateStore.json'
-      : path.resolve(home, 'stateStore.json')
+    stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json')
   };
 })();
-
-global.getRandomPort = (startPortRange, endPortRange, host) => {
-  return getAvailablePort(startPortRange, endPortRange, host);
-};
 
 // TODO create an uninstaller
 // ensure paths exist.
 // [IMPORTANT] Remember to add exceptions here
-sh.mkdir(
-  '-p',
-  _.values(_.omit(global.PATHS, ['stateStore', 'configPath', 'profilesPath']))
-);
+sh.mkdir('-p', _.values(_.omit(global.PATHS, ['stateStore', 'configPath', 'profilesPath'])));
 
 const configWinstonLogger = () => {
   const commonOptions = {
@@ -148,65 +138,96 @@ const configWinstonLogger = () => {
     transports
   });
 
-  process.on('unhandledRejection', (reason) => {
+  process.on('unhandledRejection', reason => {
     l.error(reason);
   });
 
-  process.on('uncaughtException', (err) => {
+  process.on('uncaughtException', err => {
     l.error(err.stack);
   });
 };
 configWinstonLogger();
 
+global.findAvailablePort = portscanner.findAPortNotInUse;
+
 l.notice(`Starting up with ${modeDescription} mode...`);
+
+let controllerPortPromise;
+
+if (global.MODE !== 'byo') {
+  const SEARCH_CONTROLLER_PORT_START = 7001;
+  const SEARCH_CONTROLLER_PORT_END = 8000;
+
+  controllerPortPromise = findAvailablePort(
+    SEARCH_CONTROLLER_PORT_START,
+    SEARCH_CONTROLLER_PORT_END,
+    global.MODE === 'prod' ? 'localhost' : '0.0.0.0'
+  ).catch(err => {
+    l.error(err);
+
+    dialog.showErrorBox(
+      'Error:',
+      `Failed to find an available port for controller ranging from ${SEARCH_CONTROLLER_PORT_START} to ${SEARCH_CONTROLLER_PORT_END}`
+    );
+  });
+} else {
+  controllerPortPromise = Promise.resolve(3030);
+}
+
+controllerPortPromise = controllerPortPromise.then(port => {
+  l.info(`Controller will be launched at localhost:${port}`);
+  global.CONTROLLER_PORT = port;
+  return port;
+});
 
 // Launch dbKoda Controller
 let controllerProcess;
 const configController = () => {
-  const controllerPath = require.resolve('../assets/controller');
+  controllerPortPromise.then(port => {
+    const controllerPath = require.resolve('../assets/controller');
 
-  // NOTE: cwd option is not supported in asar, please avoid using it
-  controllerProcess = childProcess.fork(controllerPath, [], {
-    env: _.assign({}, process.env, {
-      LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
-      MONGO_SCRIPTS_PATH: path.resolve(
-        app.getAppPath(),
-        '../app.asar.unpacked/assets/controller/lib/'
-      ),
-      UAT: global.UAT,
-      CONFIG_PATH: global.UAT
-        ? '/tmp/config.yml'
-        : path.resolve(global.PATHS.home, 'config.yml')
-    })
+    // NOTE: cwd option is not supported in asar, please avoid using it
+    controllerProcess = childProcess.fork(controllerPath, [], {
+      env: _.assign({}, process.env, {
+        LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
+        MONGO_SCRIPTS_PATH: path.resolve(
+          app.getAppPath(),
+          '../app.asar.unpacked/assets/controller/lib/'
+        ),
+        UAT: global.UAT,
+        CONFIG_PATH: global.UAT ? '/tmp/config.yml' : path.resolve(global.PATHS.home, 'config.yml'),
+        CONTROLLER_PORT: port
+      })
+    });
+
+    if (!global.UAT) {
+      // only handle once all together
+      const errorHandled = false;
+      const handleControllerError = (err, signal) => {
+        if (errorHandled || err === 0 || signal === 'SIGINT') return;
+
+        let msg;
+
+        if (err === null) {
+          msg = 'got killed unexpectedly';
+        } else if (typeof err === 'number') {
+          msg = 'exited with error';
+        } else {
+          msg = `failed: ${err.message || String(err)}`;
+        }
+
+        dialog.showErrorBox(
+          'Error:',
+          `controller ${msg}, please check logs at https://goo.gl/fGcFmv and report this issue`
+        );
+      };
+
+      controllerProcess.on('error', handleControllerError);
+      controllerProcess.on('exit', handleControllerError);
+    }
+
+    l.info(`Controller process PID: ${controllerProcess.pid}`);
   });
-
-  if (!global.UAT) {
-    // only handle once all together
-    const errorHandled = false;
-    const handleControllerError = (err, signal) => {
-      if (errorHandled || err === 0 || signal === 'SIGINT') return;
-
-      let msg;
-
-      if (err === null) {
-        msg = 'got killed unexpectedly';
-      } else if (typeof err === 'number') {
-        msg = 'exited with error';
-      } else {
-        msg = `failed: ${err.message || String(err)}`;
-      }
-
-      dialog.showErrorBox(
-        'Error:',
-        `controller ${msg}, please check logs at https://goo.gl/fGcFmv and report this issue`
-      );
-    };
-
-    controllerProcess.on('error', handleControllerError);
-    controllerProcess.on('exit', handleControllerError);
-  }
-
-  l.info(`Controller process PID: ${controllerProcess.pid}`);
 };
 const quitController = () => {
   if (!controllerProcess) return;
@@ -260,7 +281,7 @@ const handleDrillRequest = (event, arg) => {
       .then(() => {
         event.sender.send('drillResult', 'downloadDrillComplete');
       })
-      .catch((reason) => {
+      .catch(reason => {
         console.log('Error: ', reason);
       });
   } else if (arg == 'downloadController') {
@@ -268,7 +289,7 @@ const handleDrillRequest = (event, arg) => {
       .then(() => {
         event.sender.send('drillResult', 'downloadDrillControllerComplete');
       })
-      .catch((reason) => {
+      .catch(reason => {
         console.log('Error: ', reason);
       });
   }
@@ -296,134 +317,133 @@ const createWindow = (url, options) => {
 };
 
 const createMainWindow = () => {
-  const url =
-    global.MODE === 'byo' || global.MODE === 'super_dev'
-      ? 'http://localhost:3000/ui/'
-      : 'http://localhost:3030/ui/';
+  controllerPortPromise.then(port => {
+    const url =
+      global.MODE === 'byo' || global.MODE === 'super_dev'
+        ? 'http://localhost:3000/ui/'
+        : `http://localhost:${port}/ui/`;
 
-  if (global.UAT || !global.LOADER) {
+    if (global.UAT || !global.LOADER) {
+      invokeApi(
+        { url },
+        {
+          shouldRetryOnError(e) {
+            return _.includes(
+              ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
+              e.error.code || _.includes([404, 502], e.statusCode)
+            );
+          },
+          errorHandler(err) {
+            l.error(err.stack);
+            throw err;
+          }
+        }
+      ).then(() => {
+        const mainWindow = createWindow(url);
+
+        const handleAppCrashed = () => {
+          mainWindow.reload();
+        };
+        global.mainWindowId = mainWindow.id;
+        ipcMain.once('appCrashed', handleAppCrashed);
+
+        ipcMain.on('drill', handleDrillRequest);
+
+        mainWindow.on('closed', () => {
+          ipcMain.removeListener('appCrashed', handleAppCrashed);
+          ipcMain.removeListener('drill', handleDrillRequest);
+        });
+      });
+      return;
+    }
+
+    // show a splash screen
+    const splashWindow = createWindow(
+      `file://${path.resolve(__dirname, '../assets/splash/index.html')}`
+    );
+
+    // wait for uiUrl to become reachable and then show real main window
+    // const uiPath = require.resolve('@southbanksoftware/dbkoda-ui');
     invokeApi(
-      { url },
+      {
+        url
+      },
       {
         shouldRetryOnError(e) {
-          return _.includes(
-            ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
-            e.error.code || _.includes([404, 502], e.statusCode)
+          return (
+            !splashWindow.isDestroyed() &&
+            (_.includes(['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'], e.error.code) ||
+              _.includes([404, 502], e.statusCode))
           );
         },
         errorHandler(err) {
+          if (splashWindow.isDestroyed()) {
+            return;
+          }
           l.error(err.stack);
           throw err;
         }
       }
     ).then(() => {
-      const mainWindow = createWindow(url);
+      if (splashWindow.isDestroyed()) {
+        return;
+      }
+
+      const mainWindow = createWindow(url, {
+        show: false
+      });
+
+      global.mainWindowId = mainWindow.id;
 
       const handleAppCrashed = () => {
+        dialog.showMessageBox({
+          title: 'Error',
+          message:
+            'Sorry! your previous configuration (stateStore) was incompatible with current version.',
+          buttons: ['OK'],
+          detail:
+            'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.'
+        });
         mainWindow.reload();
       };
-      global.mainWindowId = mainWindow.id;
+
+      const handleAppReady = () => {
+        if (splashWindow.isDestroyed()) {
+          mainWindow.destroy();
+          return;
+        }
+        if (splashWindow.isFullScreen()) {
+          splashWindow.hide();
+          mainWindow.setFullScreen(true);
+        } else {
+          mainWindow.setBounds(splashWindow.getBounds());
+          if (splashWindow.isMinimized()) {
+            mainWindow.minimize();
+          } else {
+            mainWindow.show();
+          }
+        }
+        splashWindow.destroy();
+        mainWindow.setTouchBar(touchbar);
+        if (
+          global.MODE === 'prod' &&
+          (process.platform === 'darwin' || process.platform === 'win32')
+        ) {
+          checkForUpdates(false);
+        }
+      };
+
+      // TODO needs to assign each event a windows id if we are going to support multiple windows
+      ipcMain.once('appReady', handleAppReady);
       ipcMain.once('appCrashed', handleAppCrashed);
 
       ipcMain.on('drill', handleDrillRequest);
 
       mainWindow.on('closed', () => {
+        ipcMain.removeListener('appReady', handleAppReady);
         ipcMain.removeListener('appCrashed', handleAppCrashed);
         ipcMain.removeListener('drill', handleDrillRequest);
       });
-    });
-    return;
-  }
-
-  // show a splash screen
-  const splashWindow = createWindow(
-    `file://${path.resolve(__dirname, '../assets/splash/index.html')}`
-  );
-
-  // wait for uiUrl to become reachable and then show real main window
-  // const uiPath = require.resolve('@southbanksoftware/dbkoda-ui');
-  invokeApi(
-    {
-      url
-    },
-    {
-      shouldRetryOnError(e) {
-        return (
-          !splashWindow.isDestroyed() &&
-          (_.includes(
-            ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
-            e.error.code
-          ) ||
-            _.includes([404, 502], e.statusCode))
-        );
-      },
-      errorHandler(err) {
-        if (splashWindow.isDestroyed()) {
-          return;
-        }
-        l.error(err.stack);
-        throw err;
-      }
-    }
-  ).then(() => {
-    if (splashWindow.isDestroyed()) {
-      return;
-    }
-
-    const mainWindow = createWindow(url, {
-      show: false
-    });
-
-    global.mainWindowId = mainWindow.id;
-
-    const handleAppCrashed = () => {
-      dialog.showMessageBox({
-        title: 'Error',
-        message:
-          'Sorry! your previous configuration (stateStore) was incompatible with current version.',
-        buttons: ['OK'],
-        detail:
-          'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.'
-      });
-      mainWindow.reload();
-    };
-
-    const handleAppReady = () => {
-      if (splashWindow.isDestroyed()) {
-        mainWindow.destroy();
-        return;
-      }
-      if (splashWindow.isFullScreen()) {
-        splashWindow.hide();
-        mainWindow.setFullScreen(true);
-      } else {
-        mainWindow.setBounds(splashWindow.getBounds());
-        if (splashWindow.isMinimized()) {
-          mainWindow.minimize();
-        } else {
-          mainWindow.show();
-        }
-      }
-      splashWindow.destroy();
-      mainWindow.setTouchBar(touchbar);
-      if (
-        global.MODE === 'prod' &&
-        (process.platform === 'darwin' || process.platform === 'win32')
-      ) {
-        checkForUpdates(false);
-      }
-    };
-
-    // TODO needs to assign each event a windows id if we are going to support multiple windows
-    ipcMain.once('appReady', handleAppReady);
-    ipcMain.once('appCrashed', handleAppCrashed);
-
-    ipcMain.on('drill', handleDrillRequest);
-
-    mainWindow.on('closed', () => {
-      ipcMain.removeListener('appReady', handleAppReady);
-      ipcMain.removeListener('appCrashed', handleAppCrashed);
-      ipcMain.removeListener('drill', handleDrillRequest);
     });
   });
 };
@@ -443,7 +463,7 @@ global.DownloadUpdate = () => {
         message: 'Found updates, do you want update now?',
         buttons: ['Sure', 'No']
       },
-      (buttonIndex) => {
+      buttonIndex => {
         if (buttonIndex === 0) {
           autoUpdater.downloadUpdate();
           resolve(true);
@@ -464,7 +484,7 @@ global.InstallUpdate = () => {
           'Updates downloaded, application will update on next restart, would you like to restart now?',
         buttons: ['Sure', 'Later']
       },
-      (buttonIndex) => {
+      buttonIndex => {
         if (buttonIndex === 0) {
           setImmediate(() => autoUpdater.quitAndInstall());
           resolve(true);
@@ -499,7 +519,7 @@ autoUpdater.on('update-available', () => {
         message: 'Found updates, do you want update now?',
         buttons: ['Sure', 'No']
       },
-      (buttonIndex) => {
+      buttonIndex => {
         if (buttonIndex === 0) {
           autoUpdater.downloadUpdate();
         } else {
@@ -541,11 +561,10 @@ autoUpdater.on('error', (event, error) => {
   }
   global.checkUpdateEnabled = true;
 });
-autoUpdater.on('download-progress', (progressObj) => {
+autoUpdater.on('download-progress', progressObj => {
   let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
   logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
-  logMessage =
-    logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
+  logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
   l.notice(logMessage);
   const activeWindow = getMainWindow();
   if (activeWindow) {
@@ -566,7 +585,7 @@ autoUpdater.on('update-downloaded', () => {
           'Updates downloaded, application will update on next restart, would you like to restart now?',
         buttons: ['Sure', 'Later']
       },
-      (buttonIndex) => {
+      buttonIndex => {
         if (buttonIndex === 0) {
           setImmediate(() => autoUpdater.quitAndInstall());
         } else {
@@ -584,13 +603,13 @@ function checkForUpdates(bShowDialog = true) {
   global.checkUpdateEnabled = false;
   global.userCheckForUpdate = bShowDialog;
   /* if (process.platform === 'win32' && os.arch() === 'ia32') {
-    const s3Options = {
-      provider: 's3',
-      bucket: 'updates.dbkoda.32bit',
-      region: 'ap-southeast-2',
-    };
-    autoUpdater.setFeedURL(s3Options);
-  } */
+      const s3Options = {
+        provider: 's3',
+        bucket: 'updates.dbkoda.32bit',
+        region: 'ap-southeast-2',
+      };
+      autoUpdater.setFeedURL(s3Options);
+    } */
   autoUpdater.checkForUpdates();
 }
 function aboutDBKoda() {
@@ -647,12 +666,7 @@ const setAppMenu = () => {
     },
     {
       role: 'window',
-      submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
-        { type: 'separator' },
-        { role: 'front' }
-      ]
+      submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }]
     }
   ];
 
@@ -699,9 +713,7 @@ const setAppMenu = () => {
           click: () => {
             checkForUpdates();
           },
-          enabled:
-            global.checkUpdateEnabled &&
-            (global.MODE === 'prod' || global.mode === 'byo')
+          enabled: global.checkUpdateEnabled && (global.MODE === 'prod' || global.mode === 'byo')
         },
         { type: 'separator' },
         {
@@ -814,9 +826,7 @@ const installDevToolsExtensions = () => {
 
   if (!BrowserWindow.getDevToolsExtensions().devtron) {
     try {
-      BrowserWindow.addDevToolsExtension(
-        path.resolve(__dirname, '../node_modules/devtron')
-      );
+      BrowserWindow.addDevToolsExtension(path.resolve(__dirname, '../node_modules/devtron'));
       l.info('Added DevTools Extension: Devtron');
     } catch (err) {
       l.error(err);
