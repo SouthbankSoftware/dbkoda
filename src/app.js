@@ -30,7 +30,7 @@ import { autoUpdater } from 'electron-updater';
 import moment from 'moment';
 import winston from 'winston';
 import { ipcMain } from 'electron';
-import findFreePort from 'find-free-port';
+import portscanner from 'portscanner';
 import { downloadDrill, downloadDrillController } from './drill';
 import { identifyWorkingMode, invokeApi } from './helpers';
 import touchbar from './touchbar';
@@ -148,15 +148,42 @@ const configWinstonLogger = () => {
 };
 configWinstonLogger();
 
-const startApp = (controllerPort: number) => {
-  l.notice(`Starting up with ${modeDescription} mode...`);
+global.findAvailablePort = portscanner.findAPortNotInUse;
 
-  l.info(`Controller will be at localhost:${controllerPort}`);
-  global.CONTROLLER_PORT = controllerPort;
+l.notice(`Starting up with ${modeDescription} mode...`);
 
-  // Launch dbKoda Controller
-  let controllerProcess;
-  const configController = () => {
+let controllerPortPromise;
+
+if (global.MODE !== 'byo') {
+  const SEARCH_CONTROLLER_PORT_START = 7001;
+  const SEARCH_CONTROLLER_PORT_END = 8000;
+
+  controllerPortPromise = findAvailablePort(
+    SEARCH_CONTROLLER_PORT_START,
+    SEARCH_CONTROLLER_PORT_END,
+    global.MODE === 'prod' ? 'localhost' : '0.0.0.0'
+  ).catch(err => {
+    l.error(err);
+
+    dialog.showErrorBox(
+      'Error:',
+      `Failed to find an available port for controller ranging from ${SEARCH_CONTROLLER_PORT_START} to ${SEARCH_CONTROLLER_PORT_END}`
+    );
+  });
+} else {
+  controllerPortPromise = Promise.resolve(3030);
+}
+
+controllerPortPromise = controllerPortPromise.then(port => {
+  l.info(`Controller will be launched at localhost:${port}`);
+  global.CONTROLLER_PORT = port;
+  return port;
+});
+
+// Launch dbKoda Controller
+let controllerProcess;
+const configController = () => {
+  controllerPortPromise.then(port => {
     const controllerPath = require.resolve('../assets/controller');
 
     // NOTE: cwd option is not supported in asar, please avoid using it
@@ -169,7 +196,7 @@ const startApp = (controllerPort: number) => {
         ),
         UAT: global.UAT,
         CONFIG_PATH: global.UAT ? '/tmp/config.yml' : path.resolve(global.PATHS.home, 'config.yml'),
-        CONTROLLER_PORT
+        CONTROLLER_PORT: port
       })
     });
 
@@ -200,99 +227,101 @@ const startApp = (controllerPort: number) => {
     }
 
     l.info(`Controller process PID: ${controllerProcess.pid}`);
-  };
-  const quitController = () => {
-    if (!controllerProcess) return;
+  });
+};
+const quitController = () => {
+  if (!controllerProcess) return;
 
-    controllerProcess.removeAllListeners();
-    controllerProcess.kill();
-    controllerProcess = null;
-  };
-  if (global.MODE !== 'byo') {
-    configController();
+  controllerProcess.removeAllListeners();
+  controllerProcess.kill();
+  controllerProcess = null;
+};
+if (global.MODE !== 'byo') {
+  configController();
+}
+
+const newEditor = () => {
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('command', 'newEditor');
   }
+};
 
-  const newEditor = () => {
-    const activeWindow = BrowserWindow.getFocusedWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send('command', 'newEditor');
-    }
-  };
+const openFileInEditor = () => {
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('command', 'openFile');
+  }
+};
 
-  const openFileInEditor = () => {
-    const activeWindow = BrowserWindow.getFocusedWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send('command', 'openFile');
-    }
-  };
+const saveFileInEditor = () => {
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('command', 'saveFile');
+  }
+};
 
-  const saveFileInEditor = () => {
-    const activeWindow = BrowserWindow.getFocusedWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send('command', 'saveFile');
-    }
-  };
+const saveFileAsInEditor = () => {
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('command', 'saveFileAs');
+  }
+};
 
-  const saveFileAsInEditor = () => {
-    const activeWindow = BrowserWindow.getFocusedWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send('command', 'saveFileAs');
-    }
-  };
+const openPreferences = () => {
+  const activeWindow = BrowserWindow.getFocusedWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('command', 'openPreferences');
+  }
+};
 
-  const openPreferences = () => {
-    const activeWindow = BrowserWindow.getFocusedWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send('command', 'openPreferences');
-    }
-  };
+const handleDrillRequest = (event, arg) => {
+  if (arg == 'downloadDrill') {
+    downloadDrill()
+      .then(() => {
+        event.sender.send('drillResult', 'downloadDrillComplete');
+      })
+      .catch(reason => {
+        console.log('Error: ', reason);
+      });
+  } else if (arg == 'downloadController') {
+    downloadDrillController()
+      .then(() => {
+        event.sender.send('drillResult', 'downloadDrillControllerComplete');
+      })
+      .catch(reason => {
+        console.log('Error: ', reason);
+      });
+  }
+};
 
-  const handleDrillRequest = (event, arg) => {
-    if (arg == 'downloadDrill') {
-      downloadDrill()
-        .then(() => {
-          event.sender.send('drillResult', 'downloadDrillComplete');
-        })
-        .catch(reason => {
-          console.log('Error: ', reason);
-        });
-    } else if (arg == 'downloadController') {
-      downloadDrillController()
-        .then(() => {
-          event.sender.send('drillResult', 'downloadDrillControllerComplete');
-        })
-        .catch(reason => {
-          console.log('Error: ', reason);
-        });
-    }
-  };
+// Create main window with React UI
+const createWindow = (url, options) => {
+  options = _.assign(
+    {
+      width: 1280,
+      height: 900,
+      backgroundColor: '#363951'
+    },
+    options
+  );
+  const win = new BrowserWindow(options);
 
-  // Create main window with React UI
-  const createWindow = (url, options) => {
-    options = _.assign(
-      {
-        width: 1280,
-        height: 900,
-        backgroundColor: '#363951'
-      },
-      options
-    );
-    const win = new BrowserWindow(options);
+  win.loadURL(url);
 
-    win.loadURL(url);
+  win.on('closed', () => {
+    win.destroy();
+  });
 
-    win.on('closed', () => {
-      win.destroy();
-    });
+  return win;
+};
 
-    return win;
-  };
-
-  const createMainWindow = () => {
+const createMainWindow = () => {
+  controllerPortPromise.then(port => {
     const url =
       global.MODE === 'byo' || global.MODE === 'super_dev'
         ? 'http://localhost:3000/ui/'
-        : `http://localhost:${controllerPort}/ui/`;
+        : `http://localhost:${port}/ui/`;
 
     if (global.UAT || !global.LOADER) {
       invokeApi(
@@ -416,163 +445,164 @@ const startApp = (controllerPort: number) => {
         ipcMain.removeListener('drill', handleDrillRequest);
       });
     });
-  };
+  });
+};
 
-  // Configure Auto-Updater
-  autoUpdater.logger = l;
-  autoUpdater.autoDownload = false;
+// Configure Auto-Updater
+autoUpdater.logger = l;
+autoUpdater.autoDownload = false;
+global.checkUpdateEnabled = true;
+global.userCheckForUpdate = false;
+
+global.DownloadUpdate = () => {
+  return new Promise((resolve, reject) => {
+    dialog.showMessageBox(
+      {
+        type: 'info',
+        title: 'Found Updates',
+        message: 'Found updates, do you want update now?',
+        buttons: ['Sure', 'No']
+      },
+      buttonIndex => {
+        if (buttonIndex === 0) {
+          autoUpdater.downloadUpdate();
+          resolve(true);
+        } else {
+          reject(false); // eslint-disable-line prefer-promise-reject-errors
+        }
+      }
+    );
+  });
+};
+global.InstallUpdate = () => {
+  return new Promise((resolve, reject) => {
+    dialog.showMessageBox(
+      {
+        type: 'info',
+        title: 'Install Updates',
+        message:
+          'Updates downloaded, application will update on next restart, would you like to restart now?',
+        buttons: ['Sure', 'Later']
+      },
+      buttonIndex => {
+        if (buttonIndex === 0) {
+          setImmediate(() => autoUpdater.quitAndInstall());
+          resolve(true);
+        } else {
+          reject(false); // eslint-disable-line prefer-promise-reject-errors
+        }
+      }
+    );
+  });
+};
+const getMainWindow = () => {
+  if (global.mainWindowId) {
+    return BrowserWindow.fromId(global.mainWindowId);
+  }
+  return null;
+};
+autoUpdater.on('checking-for-update', () => {
+  l.notice('Checking for update...');
+  const activeWindow = getMainWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'CHECKING');
+  }
+});
+autoUpdater.on('update-available', () => {
+  l.notice('Update available.');
+
+  if (global.userCheckForUpdate) {
+    dialog.showMessageBox(
+      {
+        type: 'info',
+        title: 'Found Updates',
+        message: 'Found updates, do you want update now?',
+        buttons: ['Sure', 'No']
+      },
+      buttonIndex => {
+        if (buttonIndex === 0) {
+          autoUpdater.downloadUpdate();
+        } else {
+          global.checkUpdateEnabled = true;
+        }
+      }
+    );
+  }
+  const activeWindow = getMainWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'AVAILABLE');
+  }
+});
+autoUpdater.on('update-not-available', () => {
+  l.notice('Update not available.');
+  const activeWindow = getMainWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'NOT_AVAILABLE');
+  }
+  if (global.userCheckForUpdate) {
+    dialog.showMessageBox({
+      title: 'No Updates',
+      message: 'Current version is up-to-date.'
+    });
+  }
   global.checkUpdateEnabled = true;
-  global.userCheckForUpdate = false;
-
-  global.DownloadUpdate = () => {
-    return new Promise((resolve, reject) => {
-      dialog.showMessageBox(
-        {
-          type: 'info',
-          title: 'Found Updates',
-          message: 'Found updates, do you want update now?',
-          buttons: ['Sure', 'No']
-        },
-        buttonIndex => {
-          if (buttonIndex === 0) {
-            autoUpdater.downloadUpdate();
-            resolve(true);
-          } else {
-            reject(false); // eslint-disable-line prefer-promise-reject-errors
-          }
+});
+autoUpdater.on('error', (event, error) => {
+  l.notice('Error in auto-updater. ', (error.stack || error).toString());
+  const activeWindow = getMainWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'ERROR');
+  }
+  if (global.userCheckForUpdate) {
+    dialog.showErrorBox(
+      'Error: ',
+      'Unable to download update at the moment, Please try again later.'
+    );
+  }
+  global.checkUpdateEnabled = true;
+});
+autoUpdater.on('download-progress', progressObj => {
+  let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
+  logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
+  logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
+  l.notice(logMessage);
+  const activeWindow = getMainWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send(
+      'updateStatus',
+      'DOWNLOADING ' + Math.round(progressObj.percent) + '%'
+    );
+  }
+});
+autoUpdater.on('update-downloaded', () => {
+  l.notice('Update downloaded; will install on quit');
+  if (global.userCheckForUpdate) {
+    dialog.showMessageBox(
+      {
+        type: 'info',
+        title: 'Install Updates',
+        message:
+          'Updates downloaded, application will update on next restart, would you like to restart now?',
+        buttons: ['Sure', 'Later']
+      },
+      buttonIndex => {
+        if (buttonIndex === 0) {
+          setImmediate(() => autoUpdater.quitAndInstall());
+        } else {
+          global.checkUpdateEnabled = true;
         }
-      );
-    });
-  };
-  global.InstallUpdate = () => {
-    return new Promise((resolve, reject) => {
-      dialog.showMessageBox(
-        {
-          type: 'info',
-          title: 'Install Updates',
-          message:
-            'Updates downloaded, application will update on next restart, would you like to restart now?',
-          buttons: ['Sure', 'Later']
-        },
-        buttonIndex => {
-          if (buttonIndex === 0) {
-            setImmediate(() => autoUpdater.quitAndInstall());
-            resolve(true);
-          } else {
-            reject(false); // eslint-disable-line prefer-promise-reject-errors
-          }
-        }
-      );
-    });
-  };
-  const getMainWindow = () => {
-    if (global.mainWindowId) {
-      return BrowserWindow.fromId(global.mainWindowId);
-    }
-    return null;
-  };
-  autoUpdater.on('checking-for-update', () => {
-    l.notice('Checking for update...');
-    const activeWindow = getMainWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send('updateStatus', 'CHECKING');
-    }
-  });
-  autoUpdater.on('update-available', () => {
-    l.notice('Update available.');
-
-    if (global.userCheckForUpdate) {
-      dialog.showMessageBox(
-        {
-          type: 'info',
-          title: 'Found Updates',
-          message: 'Found updates, do you want update now?',
-          buttons: ['Sure', 'No']
-        },
-        buttonIndex => {
-          if (buttonIndex === 0) {
-            autoUpdater.downloadUpdate();
-          } else {
-            global.checkUpdateEnabled = true;
-          }
-        }
-      );
-    }
-    const activeWindow = getMainWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send('updateStatus', 'AVAILABLE');
-    }
-  });
-  autoUpdater.on('update-not-available', () => {
-    l.notice('Update not available.');
-    const activeWindow = getMainWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send('updateStatus', 'NOT_AVAILABLE');
-    }
-    if (global.userCheckForUpdate) {
-      dialog.showMessageBox({
-        title: 'No Updates',
-        message: 'Current version is up-to-date.'
-      });
-    }
-    global.checkUpdateEnabled = true;
-  });
-  autoUpdater.on('error', (event, error) => {
-    l.notice('Error in auto-updater. ', (error.stack || error).toString());
-    const activeWindow = getMainWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send('updateStatus', 'ERROR');
-    }
-    if (global.userCheckForUpdate) {
-      dialog.showErrorBox(
-        'Error: ',
-        'Unable to download update at the moment, Please try again later.'
-      );
-    }
-    global.checkUpdateEnabled = true;
-  });
-  autoUpdater.on('download-progress', progressObj => {
-    let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
-    logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
-    logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
-    l.notice(logMessage);
-    const activeWindow = getMainWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send(
-        'updateStatus',
-        'DOWNLOADING ' + Math.round(progressObj.percent) + '%'
-      );
-    }
-  });
-  autoUpdater.on('update-downloaded', () => {
-    l.notice('Update downloaded; will install on quit');
-    if (global.userCheckForUpdate) {
-      dialog.showMessageBox(
-        {
-          type: 'info',
-          title: 'Install Updates',
-          message:
-            'Updates downloaded, application will update on next restart, would you like to restart now?',
-          buttons: ['Sure', 'Later']
-        },
-        buttonIndex => {
-          if (buttonIndex === 0) {
-            setImmediate(() => autoUpdater.quitAndInstall());
-          } else {
-            global.checkUpdateEnabled = true;
-          }
-        }
-      );
-    }
-    const activeWindow = getMainWindow();
-    if (activeWindow) {
-      activeWindow.webContents.send('updateStatus', 'DOWNLOADED');
-    }
-  });
-  function checkForUpdates(bShowDialog = true) {
-    global.checkUpdateEnabled = false;
-    global.userCheckForUpdate = bShowDialog;
-    /* if (process.platform === 'win32' && os.arch() === 'ia32') {
+      }
+    );
+  }
+  const activeWindow = getMainWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send('updateStatus', 'DOWNLOADED');
+  }
+});
+function checkForUpdates(bShowDialog = true) {
+  global.checkUpdateEnabled = false;
+  global.userCheckForUpdate = bShowDialog;
+  /* if (process.platform === 'win32' && os.arch() === 'ia32') {
       const s3Options = {
         provider: 's3',
         bucket: 'updates.dbkoda.32bit',
@@ -580,281 +610,258 @@ const startApp = (controllerPort: number) => {
       };
       autoUpdater.setFeedURL(s3Options);
     } */
-    autoUpdater.checkForUpdates();
-  }
-  function aboutDBKoda() {
-    let strAbout = 'Version ';
-    strAbout += global.APP_VERSION;
-    strAbout += '\n\n';
-    strAbout += 'Copyright © 2018 Southbank Software';
-    dialog.showMessageBox(
-      {
-        title: 'About dbKoda',
-        message: strAbout
-      },
-      () => {}
-    );
-  }
-  // Set app menu
-  const setAppMenu = () => {
-    const menus = [
-      {
-        role: 'editMenu'
-      },
-      {
-        label: 'View',
-        submenu: [
-          { role: 'togglefullscreen' },
-          { role: 'resetzoom' },
-          { role: 'zoomin' },
-          { role: 'zoomout' }
-        ]
-      },
-      {
-        label: 'Development',
-        submenu: [
-          {
-            label: 'Reload UI',
-            accelerator: 'Ctrl+Alt+Cmd+R',
-            role: 'forcereload'
+  autoUpdater.checkForUpdates();
+}
+function aboutDBKoda() {
+  let strAbout = 'Version ';
+  strAbout += global.APP_VERSION;
+  strAbout += '\n\n';
+  strAbout += 'Copyright © 2018 Southbank Software';
+  dialog.showMessageBox(
+    {
+      title: 'About dbKoda',
+      message: strAbout
+    },
+    () => {}
+  );
+}
+// Set app menu
+const setAppMenu = () => {
+  const menus = [
+    {
+      role: 'editMenu'
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'togglefullscreen' },
+        { role: 'resetzoom' },
+        { role: 'zoomin' },
+        { role: 'zoomout' }
+      ]
+    },
+    {
+      label: 'Development',
+      submenu: [
+        {
+          label: 'Reload UI',
+          accelerator: 'Ctrl+Alt+Cmd+R',
+          role: 'forcereload'
+        },
+        {
+          label: 'Reload Controller',
+          accelerator: 'Shift+CmdOrCtrl+R',
+          click: () => {
+            quitController();
+            configController();
           },
-          {
-            label: 'Reload Controller',
-            accelerator: 'Shift+CmdOrCtrl+R',
-            click: () => {
-              quitController();
-              configController();
-            },
-            enabled: global.MODE !== 'byo'
-          },
-          {
-            label: 'Toggle DevTools',
-            accelerator: 'Alt+CmdOrCtrl+I',
-            role: 'toggledevtools'
+          enabled: global.MODE !== 'byo'
+        },
+        {
+          label: 'Toggle DevTools',
+          accelerator: 'Alt+CmdOrCtrl+I',
+          role: 'toggledevtools'
+        }
+      ]
+    },
+    {
+      role: 'window',
+      submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }]
+    }
+  ];
+
+  if (process.platform === 'darwin') {
+    menus.unshift({
+      label: 'File',
+      submenu: [
+        {
+          label: 'New Editor',
+          accelerator: 'CmdOrCtrl+N',
+          click() {
+            newEditor();
           }
-        ]
-      },
-      {
-        role: 'window',
-        submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }]
-      }
-    ];
-
-    if (process.platform === 'darwin') {
-      menus.unshift({
-        label: 'File',
-        submenu: [
-          {
-            label: 'New Editor',
-            accelerator: 'CmdOrCtrl+N',
-            click() {
-              newEditor();
-            }
-          },
-          {
-            label: 'Open File',
-            accelerator: 'CmdOrCtrl+O',
-            click() {
-              openFileInEditor();
-            }
-          },
-          {
-            label: 'Save File',
-            accelerator: 'CmdOrCtrl+S',
-            click() {
-              saveFileInEditor();
-            }
-          },
-          {
-            label: 'Save File As...',
-            accelerator: 'CmdOrCtrl+Shift+S',
-            click() {
-              saveFileAsInEditor();
-            }
-          },
-          { role: 'close' }
-        ]
-      });
-      menus.unshift({
-        submenu: [
-          { role: 'about' },
-          {
-            label: 'Check for Updates',
-            click: () => {
-              checkForUpdates();
-            },
-            enabled: global.checkUpdateEnabled && (global.MODE === 'prod' || global.mode === 'byo')
-          },
-          { type: 'separator' },
-          {
-            label: 'Preferences',
-            click: () => {
-              openPreferences();
-            },
-            accelerator: 'CmdOrCtrl+,'
-          },
-          { type: 'separator' },
-          { role: 'services', submenu: [] },
-          { type: 'separator' },
-          { role: 'hide' },
-          { role: 'hideothers' },
-          { role: 'unhide' },
-          { type: 'separator' },
-          { role: 'quit' }
-        ]
-      });
-      menus.push({
-        label: 'Help',
-        role: 'help',
-        submenu: []
-      });
-    } else {
-      menus.unshift({
-        label: 'File',
-        submenu: [
-          {
-            label: 'New Editor',
-            accelerator: 'CmdOrCtrl+N',
-            click() {
-              newEditor();
-            }
-          },
-          {
-            label: 'Open File',
-            accelerator: 'CmdOrCtrl+O',
-            click() {
-              openFileInEditor();
-            }
-          },
-          {
-            label: 'Save File',
-            accelerator: 'CmdOrCtrl+S',
-            click() {
-              saveFileInEditor();
-            }
-          },
-          {
-            label: 'Save File As...',
-            accelerator: 'CmdOrCtrl+Shift+S',
-            click() {
-              saveFileAsInEditor();
-            }
-          },
-          {
-            label: 'Preferences',
-            click() {
-              openPreferences();
-            },
-            accelerator: 'CmdOrCtrl+,'
-          },
-          { role: 'close' }
-        ]
-      });
-      menus.push({
-        label: 'Help',
-        role: 'help',
-        submenu: [
-          {
-            label: 'About',
-            click: () => {
-              aboutDBKoda();
-            }
-          },
-          {
-            label: 'Check for Updates',
-            click: () => {
-              checkForUpdates();
-            },
-            enabled: global.checkUpdateEnabled && global.MODE === 'prod'
+        },
+        {
+          label: 'Open File',
+          accelerator: 'CmdOrCtrl+O',
+          click() {
+            openFileInEditor();
           }
-        ]
-      });
-    }
+        },
+        {
+          label: 'Save File',
+          accelerator: 'CmdOrCtrl+S',
+          click() {
+            saveFileInEditor();
+          }
+        },
+        {
+          label: 'Save File As...',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click() {
+            saveFileAsInEditor();
+          }
+        },
+        { role: 'close' }
+      ]
+    });
+    menus.unshift({
+      submenu: [
+        { role: 'about' },
+        {
+          label: 'Check for Updates',
+          click: () => {
+            checkForUpdates();
+          },
+          enabled: global.checkUpdateEnabled && (global.MODE === 'prod' || global.mode === 'byo')
+        },
+        { type: 'separator' },
+        {
+          label: 'Preferences',
+          click: () => {
+            openPreferences();
+          },
+          accelerator: 'CmdOrCtrl+,'
+        },
+        { type: 'separator' },
+        { role: 'services', submenu: [] },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideothers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    });
+    menus.push({
+      label: 'Help',
+      role: 'help',
+      submenu: []
+    });
+  } else {
+    menus.unshift({
+      label: 'File',
+      submenu: [
+        {
+          label: 'New Editor',
+          accelerator: 'CmdOrCtrl+N',
+          click() {
+            newEditor();
+          }
+        },
+        {
+          label: 'Open File',
+          accelerator: 'CmdOrCtrl+O',
+          click() {
+            openFileInEditor();
+          }
+        },
+        {
+          label: 'Save File',
+          accelerator: 'CmdOrCtrl+S',
+          click() {
+            saveFileInEditor();
+          }
+        },
+        {
+          label: 'Save File As...',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click() {
+            saveFileAsInEditor();
+          }
+        },
+        {
+          label: 'Preferences',
+          click() {
+            openPreferences();
+          },
+          accelerator: 'CmdOrCtrl+,'
+        },
+        { role: 'close' }
+      ]
+    });
+    menus.push({
+      label: 'Help',
+      role: 'help',
+      submenu: [
+        {
+          label: 'About',
+          click: () => {
+            aboutDBKoda();
+          }
+        },
+        {
+          label: 'Check for Updates',
+          click: () => {
+            checkForUpdates();
+          },
+          enabled: global.checkUpdateEnabled && global.MODE === 'prod'
+        }
+      ]
+    });
+  }
 
-    Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
-  };
-
-  // Install/upgrade devtools extensions
-  // TODO installed extensions should be remembered but this is not the case with electron
-  // 1.8.2-beta.2, so we install them explicitly here as a workaround
-  const installDevToolsExtensions = () => {
-    const {
-      default: installExtension,
-      REACT_DEVELOPER_TOOLS
-    } = require('electron-devtools-installer');
-
-    installExtension(REACT_DEVELOPER_TOOLS)
-      .then(name => l.info(`Added DevTools Extension: ${name}`))
-      .catch(l.error);
-
-    installExtension({
-      id: 'pfgnfdagidkfgccljigdamigbcnndkod',
-      electron: '^1.2.1'
-    })
-      .then(name => l.info(`Added DevTools Extension: ${name}`))
-      .catch(l.error);
-
-    if (!BrowserWindow.getDevToolsExtensions().devtron) {
-      try {
-        BrowserWindow.addDevToolsExtension(path.resolve(__dirname, '../node_modules/devtron'));
-        l.info('Added DevTools Extension: Devtron');
-      } catch (err) {
-        l.error(err);
-      }
-    }
-  };
-
-  app.on('ready', () => {
-    setAppMenu();
-
-    if (!global.UAT && global.MODE !== 'prod') {
-      installDevToolsExtensions();
-    }
-
-    createMainWindow();
-  });
-
-  // Quit when all windows are closed.
-  app.on('window-all-closed', () => {
-    // On macOS it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
-  });
-
-  app.on('activate', () => {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createMainWindow();
-    }
-  });
-
-  app.on('will-quit', () => {
-    l.notice('Shutting down...');
-    quitController();
-  });
+  Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
 };
 
-if (global.MODE !== 'byo') {
-  const SEARCH_CONTROLLER_PORT_START = 7001;
-  const SEARCH_CONTROLLER_PORT_END = 8000;
+// Install/upgrade devtools extensions
+// TODO installed extensions should be remembered but this is not the case with electron
+// 1.8.2-beta.2, so we install them explicitly here as a workaround
+const installDevToolsExtensions = () => {
+  const {
+    default: installExtension,
+    REACT_DEVELOPER_TOOLS
+  } = require('electron-devtools-installer');
 
-  findFreePort(
-    SEARCH_CONTROLLER_PORT_START,
-    SEARCH_CONTROLLER_PORT_END,
-    global.MODE === 'prod' ? 'localhost' : '0.0.0.0'
-  )
-    .then(([port]) => startApp(port))
-    .catch(err => {
+  installExtension(REACT_DEVELOPER_TOOLS)
+    .then(name => l.info(`Added DevTools Extension: ${name}`))
+    .catch(l.error);
+
+  installExtension({
+    id: 'pfgnfdagidkfgccljigdamigbcnndkod',
+    electron: '^1.2.1'
+  })
+    .then(name => l.info(`Added DevTools Extension: ${name}`))
+    .catch(l.error);
+
+  if (!BrowserWindow.getDevToolsExtensions().devtron) {
+    try {
+      BrowserWindow.addDevToolsExtension(path.resolve(__dirname, '../node_modules/devtron'));
+      l.info('Added DevTools Extension: Devtron');
+    } catch (err) {
       l.error(err);
+    }
+  }
+};
 
-      dialog.showErrorBox(
-        'Error:',
-        `Failed to find an available port for controller ranging from ${SEARCH_CONTROLLER_PORT_START} to ${SEARCH_CONTROLLER_PORT_END}`
-      );
-    });
-} else {
-  startApp(3030);
-}
+app.on('ready', () => {
+  setAppMenu();
+
+  if (!global.UAT && global.MODE !== 'prod') {
+    installDevToolsExtensions();
+  }
+
+  createMainWindow();
+});
+
+// Quit when all windows are closed.
+app.on('window-all-closed', () => {
+  // On macOS it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  // On macOS it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createMainWindow();
+  }
+});
+
+app.on('will-quit', () => {
+  l.notice('Shutting down...');
+  quitController();
+});
