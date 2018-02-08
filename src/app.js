@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2018-02-08T12:51:41+11:00
+ * @Last modified time: 2018-02-08T14:02:22+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -292,7 +292,7 @@ const startApp = (controllerPort: number) => {
     const url =
       global.MODE === 'byo' || global.MODE === 'super_dev'
         ? 'http://localhost:3000/ui/'
-        : 'http://localhost:3030/ui/';
+        : `http://localhost:${controllerPort}/ui/`;
 
     if (global.UAT || !global.LOADER) {
       invokeApi(
