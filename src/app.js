@@ -1,6 +1,6 @@
 /**
- * @Last modified by:   guiguan
- * @Last modified time: 2018-02-08T14:02:22+11:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-02-16T10:27:53+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -86,6 +86,8 @@ global.PATHS = (() => {
     stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json')
   };
 })();
+
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
 
 // TODO create an uninstaller
 // ensure paths exist.
