@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   wahaj
- * @Last modified time: 2018-02-16T10:27:53+11:00
+ * @Last modified time: 2018-02-20T13:12:24+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -29,7 +29,7 @@ import { app, BrowserWindow, Menu, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import moment from 'moment';
 import winston from 'winston';
-import { ipcMain } from 'electron';
+import { ipcMain, powerSaveBlocker } from 'electron';
 import portscanner from 'portscanner';
 import { downloadDrill, downloadDrillController } from './drill';
 import { identifyWorkingMode, invokeApi } from './helpers';
@@ -88,6 +88,8 @@ global.PATHS = (() => {
 })();
 
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
+const psID = powerSaveBlocker.start('prevent-app-suspension');
+console.log('Power Saver Status:', powerSaveBlocker.isStarted(psID));
 
 // TODO create an uninstaller
 // ensure paths exist.
@@ -865,5 +867,7 @@ app.on('activate', () => {
 
 app.on('will-quit', () => {
   l.notice('Shutting down...');
+  powerSaveBlocker.stop(psID);
+  console.log('Power Saver Status:', powerSaveBlocker.isStarted(psID));
   quitController();
 });
