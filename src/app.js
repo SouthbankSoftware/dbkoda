@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   wahaj
- * @Last modified time: 2018-02-20T13:12:24+11:00
+ * @Last modified time: 2018-02-23T14:47:42+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -29,7 +29,7 @@ import { app, BrowserWindow, Menu, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import moment from 'moment';
 import winston from 'winston';
-import { ipcMain, powerSaveBlocker } from 'electron';
+import { ipcMain } from 'electron';
 import portscanner from 'portscanner';
 import { downloadDrill, downloadDrillController } from './drill';
 import { identifyWorkingMode, invokeApi } from './helpers';
@@ -88,8 +88,6 @@ global.PATHS = (() => {
 })();
 
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
-const psID = powerSaveBlocker.start('prevent-app-suspension');
-console.log('Power Saver Status:', powerSaveBlocker.isStarted(psID));
 
 // TODO create an uninstaller
 // ensure paths exist.
@@ -394,7 +392,10 @@ const createMainWindow = () => {
       }
 
       const mainWindow = createWindow(url, {
-        show: false
+        show: false,
+        webPreferences: {
+          backgroundThrottling: false
+        }
       });
 
       global.mainWindowId = mainWindow.id;
@@ -429,6 +430,14 @@ const createMainWindow = () => {
         }
         splashWindow.destroy();
         mainWindow.setTouchBar(touchbar);
+
+        mainWindow.on('unresponsive', () => {
+          console.log('Woah Woah Woah, I am getting unresponsive!!!');
+        });
+        mainWindow.on('responsive', () => {
+          console.log('Oops! I am responsive again!!!');
+        });
+
         if (
           global.MODE === 'prod' &&
           (process.platform === 'darwin' || process.platform === 'win32')
@@ -867,7 +876,5 @@ app.on('activate', () => {
 
 app.on('will-quit', () => {
   l.notice('Shutting down...');
-  powerSaveBlocker.stop(psID);
-  console.log('Power Saver Status:', powerSaveBlocker.isStarted(psID));
   quitController();
 });
