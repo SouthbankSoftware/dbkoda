@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   wahaj
- * @Last modified time: 2018-02-23T14:47:42+11:00
+ * @Last modified time: 2018-02-23T16:31:45+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -392,10 +392,7 @@ const createMainWindow = () => {
       }
 
       const mainWindow = createWindow(url, {
-        show: false,
-        webPreferences: {
-          backgroundThrottling: false
-        }
+        show: false
       });
 
       global.mainWindowId = mainWindow.id;
