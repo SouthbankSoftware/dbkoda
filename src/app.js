@@ -1,6 +1,6 @@
 /**
- * @Last modified by:   wahaj
- * @Last modified time: 2018-02-23T16:31:45+11:00
+ * @Last modified by:   guiguan
+ * @Last modified time: 2018-02-26T15:13:33+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -409,6 +409,10 @@ const createMainWindow = () => {
         mainWindow.reload();
       };
 
+      const handleRendererLog = (_event, level, message) => {
+        l[level](`Window ${mainWindow.getTitle()}: ${message}`);
+      };
+
       const handleAppReady = () => {
         if (splashWindow.isDestroyed()) {
           mainWindow.destroy();
@@ -429,10 +433,46 @@ const createMainWindow = () => {
         mainWindow.setTouchBar(touchbar);
 
         mainWindow.on('unresponsive', () => {
-          console.log('Woah Woah Woah, I am getting unresponsive!!!');
+          l.warn(`Window ${mainWindow.getTitle()} becomes unresponsive`);
         });
         mainWindow.on('responsive', () => {
-          console.log('Oops! I am responsive again!!!');
+          l.warn(`Window ${mainWindow.getTitle()} becomes responsive again`);
+        });
+
+        let closeImmediately = false;
+
+        mainWindow.on('close', event => {
+          if (!closeImmediately) {
+            event.preventDefault();
+
+            ipcMain.once(
+              'shouldShowConfirmationDialog-reply',
+              (_event, shouldShowConfirmationDialog) => {
+                if (shouldShowConfirmationDialog) {
+                  const response = dialog.showMessageBox(mainWindow, {
+                    type: 'question',
+                    buttons: ['Yes', 'No'],
+                    title: 'Confirm',
+                    message: 'You have unsaved editor tabs. Are you sure you want to continue?'
+                  });
+
+                  if (response === 0) {
+                    // if 'Yes' is clicked
+
+                    closeImmediately = true;
+                  }
+                } else {
+                  closeImmediately = true;
+                }
+
+                closeImmediately && mainWindow.close();
+              }
+            );
+
+            mainWindow.webContents.send('shouldShowConfirmationDialog');
+          } else {
+            mainWindow.webContents.send('windowClosing');
+          }
         });
 
         if (
@@ -448,11 +488,13 @@ const createMainWindow = () => {
       ipcMain.once('appCrashed', handleAppCrashed);
 
       ipcMain.on('drill', handleDrillRequest);
+      ipcMain.on('log', handleRendererLog);
 
       mainWindow.on('closed', () => {
         ipcMain.removeListener('appReady', handleAppReady);
         ipcMain.removeListener('appCrashed', handleAppCrashed);
         ipcMain.removeListener('drill', handleDrillRequest);
+        ipcMain.removeListener('log', handleRendererLog);
       });
     });
   });
@@ -856,19 +898,7 @@ app.on('ready', () => {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createMainWindow();
-  }
+  app.quit();
 });
 
 app.on('will-quit', () => {

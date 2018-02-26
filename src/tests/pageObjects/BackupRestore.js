@@ -1,4 +1,8 @@
-/*
+/**
+ * Created by joey on 17/8/17.
+ * @Last modified by:   guiguan
+ * @Last modified time: 2018-02-26T15:42:16+11:00
+ *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
  *
@@ -16,9 +20,6 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * Created by joey on 17/8/17.
  */
 
 import assert from 'assert';
@@ -480,8 +481,8 @@ export default class BackupRestore extends Page {
         } else if (o.type === 'select') {
           await this.browser.selectByVisibleText(this.prefixSelector + o.clsName, value);
         }
+        await this.browser.pause(500);
       }
-      await this.browser.pause(500);
     }
   }
 
