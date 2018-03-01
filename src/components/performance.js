@@ -3,7 +3,7 @@
  * @Date:   2018-02-27T11:00:34+11:00
  * @Email:  inbox.wahaj@gmail.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-02-27T16:52:26+11:00
+ * @Last modified time: 2018-03-01T16:37:46+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -37,31 +37,37 @@ const getMainWindow = () => {
   }
   return null;
 };
-const sendMsgToMainWindow = (channel, command, message) => {
+
+const sendMsgToMainWindow = (channel, args) => {
   const activeWindow = getMainWindow();
   if (activeWindow) {
-    activeWindow.webContents.send(channel, command, message);
+    activeWindow.webContents.send(channel, args);
   }
 };
+
 const getPerformanceWindow = (profileId) => {
   if (!hashPerformanceWindows[profileId]) {
     return null;
   }
   return hashPerformanceWindows[profileId];
 };
-const sendMsgToPerformanceWindow = (id, channel, command, message) => {
+
+const sendMsgToPerformanceWindow = (id, channel, args) => {
   const activeWindow = getPerformanceWindow(id);
-  if (activeWindow) {
-    activeWindow.webContents.send(channel, command, message);
+  if (activeWindow && activeWindow.window) {
+    activeWindow.window.webContents.send(channel, args);
   }
 };
+
 const deletePerformanceWindow = (win) => {
-  const profileId = _.findKey(hashPerformanceWindows, win);
+  const profileId = _.findKey(hashPerformanceWindows, ['window', win]);
   console.log('profileId: ', profileId);
   if (profileId) {
+    sendMsgToMainWindow('performance', {command: 'pw_windowClosed', profileId});
     delete hashPerformanceWindows[profileId];
   }
 };
+
 const createPerformanceWindow = (options) => {
   const url =
     global.MODE === 'byo' || global.MODE === 'super_dev'
@@ -93,23 +99,46 @@ const createPerformanceWindow = (options) => {
   return win;
 };
 
-const handlePerformanceRequest = (event, args) => {
-  console.log('handlePerformanceRequest: ', args);
-  if (args.command === 'createPerformanceWindow' && args.profileId !== null) {
-    if (!hashPerformanceWindows[args.profileId]) {
-      const window = createPerformanceWindow();
-      hashPerformanceWindows[args.profileId] = window;
-    }
-  } else if (args.command === 'sendMsgToPerformanceWindow' && args.profileId !== null) {
-    sendMsgToPerformanceWindow(args.profileId, 'performance', 'dataObject', args.dataObject);
+const checkPerformanceWindowInitialized = (win) => {
+  const profileId = _.findKey(hashPerformanceWindows, ['window', win]);
+  console.log('checkPerformanceWindowActive::profileId: ', profileId);
+  if (profileId) {
+    sendMsgToPerformanceWindow(profileId, 'performance', {command: 'mw_setProfileId', profileId});
   }
 };
+
+const handlePerformanceBrokerRequest = (event, args) => {
+  console.log('handlePerformanceRequest:: ', args.command, '::', args.profileId);
+  if (args.profileId) {
+    if (args.command === 'mw_createWindow') {
+      if (!hashPerformanceWindows[args.profileId]) {
+        const window = createPerformanceWindow();
+        hashPerformanceWindows[args.profileId] = { ready: false, window };
+        setTimeout(checkPerformanceWindowInitialized, 1000, window); // TODO: Check for status ready and call this function again
+      }
+    } else if (args.command === 'mw_updateData' || args.command === 'mw_initData') {
+      sendMsgToPerformanceWindow(args.profileId, 'performance', args);
+    } else if (args.command === 'mw_closeWindow') {
+      const win = getPerformanceWindow(args.profileId);
+      deletePerformanceWindow(win);
+    } else if (args.command === 'pw_windowReady') { // performance window is ready to accept data
+      const win = getPerformanceWindow(args.profileId);
+      win.ready = true;
+      sendMsgToMainWindow('performance', args);
+    }
+  } else {
+    console.error('ProfileID is required for every call!!!');
+  }
+};
+
 const initPerformanceBroker = () => {
-  ipcMain.on('performance', handlePerformanceRequest);
+  ipcMain.on('performance', handlePerformanceBrokerRequest);
 };
+
 const destroyPerformanceBroker = () => {
-  ipcMain.removeListener('performance', handlePerformanceRequest);
+  ipcMain.removeListener('performance', handlePerformanceBrokerRequest);
 };
+
 export default {
   initPerformanceBroker,
   destroyPerformanceBroker
