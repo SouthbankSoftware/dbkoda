@@ -1,6 +1,6 @@
 /**
- * @Last modified by:   guiguan
- * @Last modified time: 2018-02-26T15:13:33+11:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-02-27T13:12:54+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -31,7 +31,8 @@ import moment from 'moment';
 import winston from 'winston';
 import { ipcMain } from 'electron';
 import portscanner from 'portscanner';
-import { downloadDrill, downloadDrillController } from './drill';
+import { downloadDrill, downloadDrillController } from './components/drill';
+import { initPerformanceBroker, destroyPerformanceBroker} from './components/performance';
 import { identifyWorkingMode, invokeApi } from './helpers';
 import touchbar from './touchbar';
 
@@ -324,7 +325,7 @@ const createMainWindow = () => {
       global.MODE === 'byo' || global.MODE === 'super_dev'
         ? 'http://localhost:3000/ui/'
         : `http://localhost:${port}/ui/`;
-
+    global.uiPort = port;
     if (global.UAT || !global.LOADER) {
       invokeApi(
         { url },
@@ -490,11 +491,14 @@ const createMainWindow = () => {
       ipcMain.on('drill', handleDrillRequest);
       ipcMain.on('log', handleRendererLog);
 
+      initPerformanceBroker();
+
       mainWindow.on('closed', () => {
         ipcMain.removeListener('appReady', handleAppReady);
         ipcMain.removeListener('appCrashed', handleAppCrashed);
         ipcMain.removeListener('drill', handleDrillRequest);
         ipcMain.removeListener('log', handleRendererLog);
+        destroyPerformanceBroker();
       });
     });
   });
