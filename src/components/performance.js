@@ -3,7 +3,7 @@
  * @Date:   2018-02-27T11:00:34+11:00
  * @Email:  inbox.wahaj@gmail.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-03-02T11:56:40+11:00
+ * @Last modified time: 2018-03-02T15:25:22+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -59,11 +59,13 @@ const sendMsgToPerformanceWindow = (id, channel, args) => {
   }
 };
 
-const deletePerformanceWindow = (win) => {
+const deletePerformanceWindow = (win, bDestroy = false) => {
   const profileId = _.findKey(hashPerformanceWindows, ['window', win]);
   console.log('profileId: ', profileId);
   if (profileId) {
-    sendMsgToMainWindow('performance', {command: 'pw_windowClosed', profileId});
+    if (!bDestroy) {
+      sendMsgToMainWindow('performance', {command: 'pw_windowClosed', profileId});
+    }
     delete hashPerformanceWindows[profileId];
   }
 };
@@ -119,11 +121,14 @@ const handlePerformanceBrokerRequest = (event, args) => {
     } else if (args.command === 'mw_updateData' || args.command === 'mw_initData') {
       sendMsgToPerformanceWindow(args.profileId, 'performance', args);
     } else if (args.command === 'mw_closeWindow') {
-      const win = getPerformanceWindow(args.profileId);
-      win.window.close();
+      const winState = getPerformanceWindow(args.profileId);
+      if (winState && winState.window) {
+        deletePerformanceWindow(winState.window, true);
+        winState.window.destroy(); // we have to destroy the performance window here because we don't need close event if the close command came from main window.
+      }
     } else if (args.command === 'pw_windowReady') { // performance window is ready to accept data
-      const win = getPerformanceWindow(args.profileId);
-      win.ready = true;
+      const winState = getPerformanceWindow(args.profileId);
+      winState.ready = true;
       sendMsgToMainWindow('performance', args);
     }
   } else {
