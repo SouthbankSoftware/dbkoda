@@ -1,6 +1,6 @@
 /**
- * @Last modified by:   wahaj
- * @Last modified time: 2018-02-27T13:12:54+11:00
+ * @Last modified by:   guiguan
+ * @Last modified time: 2018-03-05T14:41:38+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -114,6 +114,7 @@ const configWinstonLogger = () => {
           datePattern: 'yyyy-MM-dd.',
           localTime: true,
           prepend: true,
+          maxDays: 30,
           json: false
         })
       )
@@ -192,7 +193,7 @@ const configController = () => {
     // NOTE: cwd option is not supported in asar, please avoid using it
     controllerProcess = childProcess.fork(controllerPath, [], {
       env: _.assign({}, process.env, {
-        LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
+        LOG_PATH: global.PATHS.logs,
         MONGO_SCRIPTS_PATH: path.resolve(
           app.getAppPath(),
           '../app.asar.unpacked/assets/controller/lib/'
