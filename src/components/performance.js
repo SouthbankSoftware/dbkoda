@@ -3,7 +3,7 @@
  * @Date:   2018-02-27T11:00:34+11:00
  * @Email:  inbox.wahaj@gmail.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-03-06T11:52:15+11:00
+ * @Last modified time: 2018-03-06T13:21:04+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -31,20 +31,6 @@ import _ from 'lodash';
 
 const hashPerformanceWindows = {};
 
-const getMainWindow = () => {
-  if (global.mainWindowId) {
-    return BrowserWindow.fromId(global.mainWindowId);
-  }
-  return null;
-};
-
-const sendMsgToMainWindow = (channel, args) => {
-  const activeWindow = getMainWindow();
-  if (activeWindow) {
-    activeWindow.webContents.send(channel, args);
-  }
-};
-
 const getPerformanceWindow = (profileId) => {
   if (!hashPerformanceWindows[profileId]) {
     return null;
@@ -52,19 +38,12 @@ const getPerformanceWindow = (profileId) => {
   return hashPerformanceWindows[profileId];
 };
 
-const sendMsgToPerformanceWindow = (id, channel, args) => {
-  const activeWindow = getPerformanceWindow(id);
-  if (activeWindow && activeWindow.window) {
-    activeWindow.window.webContents.send(channel, args);
-  }
-};
-
 const deletePerformanceWindow = (win, bDestroy = false) => {
   const profileId = _.findKey(hashPerformanceWindows, ['window', win]);
   console.log('profileId: ', profileId);
   if (profileId) {
     if (!bDestroy) {
-      sendMsgToMainWindow('performance', {command: 'pw_windowClosed', profileId});
+      global.sendMsgToMainWindow('performance', {command: 'pw_windowClosed', profileId});
     }
     delete hashPerformanceWindows[profileId];
   }
@@ -80,7 +59,8 @@ const createPerformanceWindow = (options) => {
       width: 1280,
       height: 900,
       backgroundColor: '#363951',
-      show: false
+      show: false,
+      title: 'dbKoda - Performance Panel'
     },
     options
   );
@@ -101,40 +81,76 @@ const createPerformanceWindow = (options) => {
   return win;
 };
 
-const checkPerformanceWindowInitialized = (win) => {
-  const profileId = _.findKey(hashPerformanceWindows, ['window', win]);
-  console.log('checkPerformanceWindowActive::profileId: ', profileId);
+global.sendMsgToMainWindow = (channel, args) => {
+  const activeWindow = global.getMainWindow();
+  if (activeWindow) {
+    activeWindow.webContents.send(channel, args);
+  }
+};
+
+global.sendMsgToPerformanceWindow = (id, channel, args) => {
+  const activeWindow = getPerformanceWindow(id);
+  if (activeWindow && activeWindow.window) {
+    activeWindow.window.webContents.send(channel, args);
+  }
+};
+
+global.checkPerformanceWindowInitialized = (profileId) => {
+  // console.log('checkPerformanceWindowActive::profileId: ', profileId);
+  const winState = getPerformanceWindow(profileId);
+  if (winState && !winState.ready) {
+    global.setPerformanceWindowProfileId(profileId);
+  }
+};
+
+global.setPerformanceWindowProfileId = (profileId) => {
+  // console.log('setPerformanceWindowProfileId::profileId: ', profileId);
   if (profileId) {
-    sendMsgToPerformanceWindow(profileId, 'performance', {command: 'mw_setProfileId', profileId});
+    global.sendMsgToPerformanceWindow(profileId, 'performance', {command: 'mw_setProfileId', profileId});
+    setTimeout(global.checkPerformanceWindowInitialized, 1000, profileId);
   }
 };
 
 const handlePerformanceBrokerRequest = (event, args) => {
-  console.log('handlePerformanceRequest:: ', args.command, '::', args.profileId);
+  // console.log('handlePerformanceRequest:: ', args.command, '::', args.profileId);
   if (args.profileId) {
-    if (args.command === 'mw_createWindow') {
-      if (!hashPerformanceWindows[args.profileId]) {
-        const window = createPerformanceWindow();
-        hashPerformanceWindows[args.profileId] = { ready: false, window };
-        setTimeout(checkPerformanceWindowInitialized, 1000, window); // TODO: Check for status ready and call this function again
-      }
-    } else if (args.command === 'mw_updateData' || args.command === 'mw_initData') {
-      sendMsgToPerformanceWindow(args.profileId, 'performance', args);
-    } else if (args.command === 'mw_closeWindow') {
-      const winState = getPerformanceWindow(args.profileId);
-      if (winState && winState.window) {
-        deletePerformanceWindow(winState.window, true);
-        winState.window.destroy(); // we have to destroy the performance window here because we don't need close event if the close command came from main window.
-      }
-    } else if (args.command === 'pw_windowReady') { // performance window is ready to accept data
-      const winState = getPerformanceWindow(args.profileId);
-      winState.ready = true;
-      sendMsgToMainWindow('performance', args);
-    } else if (args.command === 'pw_windowReload') {
-      const winState = getPerformanceWindow(args.profileId);
-      winState.ready = false;
-      sendMsgToMainWindow('performance', args);
-      setTimeout(checkPerformanceWindowInitialized, 1000, winState.window); // TODO: Check for status ready and call this function again
+    const winState = getPerformanceWindow(args.profileId);
+    switch (args.command) {
+      case 'mw_createWindow':
+        if (!winState) {
+          const window = createPerformanceWindow();
+          hashPerformanceWindows[args.profileId] = { ready: false, window };
+          global.setPerformanceWindowProfileId(args.profileId);
+        }
+        break;
+
+      case 'mw_updateData':
+      case 'mw_initData':
+        global.sendMsgToPerformanceWindow(args.profileId, 'performance', args);
+        break;
+
+      case 'mw_closeWindow':
+        if (winState && winState.window) {
+          deletePerformanceWindow(winState.window, true);
+          winState.window.destroy(); // we have to destroy the performance window here because we don't need close event if the close command came from main window.
+        }
+        break;
+      case 'pw_windowReady':
+        if (winState) {
+          winState.ready = true;
+          global.sendMsgToMainWindow('performance', args);
+        }
+        break;
+      case 'pw_windowReload':
+        if (winState) {
+          winState.ready = false;
+          global.sendMsgToMainWindow('performance', args);
+          setTimeout(global.setPerformanceWindowProfileId, 1000, args.profileId);
+        }
+        break;
+      default:
+        console.error('command not supported::', args.command);
+        break;
     }
   } else {
     console.error('ProfileID is required for every call!!!');

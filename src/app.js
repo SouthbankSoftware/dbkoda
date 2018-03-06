@@ -1,6 +1,6 @@
 /**
- * @Last modified by:   guiguan
- * @Last modified time: 2018-03-05T14:41:38+11:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-03-06T13:30:59+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -280,6 +280,7 @@ const openPreferences = () => {
 };
 
 const handleDrillRequest = (event, arg) => {
+  console.log('handleDrillRequest::', arg);
   if (arg == 'downloadDrill') {
     downloadDrill()
       .then(() => {
@@ -552,7 +553,7 @@ global.InstallUpdate = () => {
     );
   });
 };
-const getMainWindow = () => {
+global.getMainWindow = () => {
   if (global.mainWindowId) {
     return BrowserWindow.fromId(global.mainWindowId);
   }
@@ -560,7 +561,7 @@ const getMainWindow = () => {
 };
 autoUpdater.on('checking-for-update', () => {
   l.notice('Checking for update...');
-  const activeWindow = getMainWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'CHECKING');
   }
@@ -585,14 +586,14 @@ autoUpdater.on('update-available', () => {
       }
     );
   }
-  const activeWindow = getMainWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'AVAILABLE');
   }
 });
 autoUpdater.on('update-not-available', () => {
   l.notice('Update not available.');
-  const activeWindow = getMainWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'NOT_AVAILABLE');
   }
@@ -606,7 +607,7 @@ autoUpdater.on('update-not-available', () => {
 });
 autoUpdater.on('error', (event, error) => {
   l.notice('Error in auto-updater. ', (error.stack || error).toString());
-  const activeWindow = getMainWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'ERROR');
   }
@@ -623,7 +624,7 @@ autoUpdater.on('download-progress', progressObj => {
   logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
   logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
   l.notice(logMessage);
-  const activeWindow = getMainWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send(
       'updateStatus',
@@ -651,7 +652,7 @@ autoUpdater.on('update-downloaded', () => {
       }
     );
   }
-  const activeWindow = getMainWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'DOWNLOADED');
   }

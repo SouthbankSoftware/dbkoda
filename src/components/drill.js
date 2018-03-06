@@ -1,4 +1,10 @@
-/*
+/**
+ * @Author: Wahaj Shamim <wahaj>
+ * @Date:   2017-12-02T12:07:05+11:00
+ * @Email:  wahaj@southbanksoftware.com
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-03-06T13:15:14+11:00
+ *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
  *
@@ -18,22 +24,16 @@
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 import fs from 'fs';
 import wget from 'wget-improved';
 import tar from 'tar';
 import path from 'path';
 import sh from 'shelljs';
 import _ from 'lodash';
-import { BrowserWindow } from 'electron';
 
-const getMainWindow = () => {
-  if (global.mainWindowId) {
-    return BrowserWindow.fromId(global.mainWindowId);
-  }
-  return null;
-};
 const sendStatusToRenderer = (channel, command, message) => {
-  const activeWindow = getMainWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send(channel, command, message);
   }
