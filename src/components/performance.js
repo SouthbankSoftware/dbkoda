@@ -3,7 +3,7 @@
  * @Date:   2018-02-27T11:00:34+11:00
  * @Email:  inbox.wahaj@gmail.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-03-02T15:25:22+11:00
+ * @Last modified time: 2018-03-06T11:52:15+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -130,6 +130,11 @@ const handlePerformanceBrokerRequest = (event, args) => {
       const winState = getPerformanceWindow(args.profileId);
       winState.ready = true;
       sendMsgToMainWindow('performance', args);
+    } else if (args.command === 'pw_windowReload') {
+      const winState = getPerformanceWindow(args.profileId);
+      winState.ready = false;
+      sendMsgToMainWindow('performance', args);
+      setTimeout(checkPerformanceWindowInitialized, 1000, winState.window); // TODO: Check for status ready and call this function again
     }
   } else {
     console.error('ProfileID is required for every call!!!');
