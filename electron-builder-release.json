@@ -7,7 +7,7 @@
     "bucket": "updates.dbkoda"
   }],
   "files": ["assets", "!assets/controller/{bin,client,coverage,data,flow-typed,src,tests,.*,LICENSE,mocha.opts,README.md,yarn*}",
-    "config", "lib", "!node_modules/@southbanksoftware"
+    "lib", "!node_modules/@southbanksoftware"
   ],
   "asarUnpack": [
     "assets/controller/lib/all-in-one.js"

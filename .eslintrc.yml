@@ -80,7 +80,6 @@ globals:
   l: false
   MODE: false
   IS_PRODUCTION: false
-  IS_DEBUGGING: false
   printLogs: false
   CONTROLLER_PORT: false
   findAvailablePort: false

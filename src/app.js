@@ -27,17 +27,15 @@ import sh from 'shelljs';
 import childProcess from 'child_process';
 import { app, BrowserWindow, Menu, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import moment from 'moment';
-import winston from 'winston';
 import { ipcMain } from 'electron';
 import portscanner from 'portscanner';
+import { createLogger, format, transports, addColors } from 'winston';
+import 'winston-daily-rotate-file';
+import { levelConfig, commonFormatter, printfFormatter } from '~/helpers/winston';
 import { downloadDrill, downloadDrillController } from './components/drill';
-import { initPerformanceBroker, destroyPerformanceBroker} from './components/performance';
+import { initPerformanceBroker, destroyPerformanceBroker } from './components/performance';
 import { identifyWorkingMode, invokeApi } from './helpers';
 import touchbar from './touchbar';
-
-process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config/');
-const config = require('config');
 
 identifyWorkingMode();
 
@@ -45,8 +43,10 @@ if (global.MODE !== 'prod') {
   // in non-production mode, enable source map for stack tracing
   require('source-map-support/register');
   process.env.NODE_ENV = 'development';
+  global.IS_PRODUCTION = false;
 } else {
   process.env.NODE_ENV = 'production';
+  global.IS_PRODUCTION = true;
 }
 
 let modeDescription;
@@ -83,7 +83,7 @@ global.PATHS = (() => {
     userHome,
     configPath: global.UAT ? '/tmp/config.yml' : configPath,
     profilesPath: global.UAT ? '/tmp/profiles.yml' : profilesPath,
-    logs: path.resolve(userData, 'logs'),
+    logs: IS_PRODUCTION ? path.resolve(userData, 'logs') : path.resolve(__dirname, '../logs'),
     stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json')
   };
 })();
@@ -96,51 +96,27 @@ app.commandLine.appendSwitch('disable-renderer-backgrounding');
 sh.mkdir('-p', _.values(_.omit(global.PATHS, ['stateStore', 'configPath', 'profilesPath'])));
 
 const configWinstonLogger = () => {
-  const commonOptions = {
-    colorize: 'all',
-    timestamp() {
-      return moment().format();
-    }
-  };
-
-  const transports = [new winston.transports.Console(commonOptions)];
-
-  if (global.MODE === 'prod' && !global.UAT) {
-    require('winston-daily-rotate-file');
-    transports.push(
-      new winston.transports.DailyRotateFile(
-        _.assign({}, commonOptions, {
-          filename: path.resolve(global.PATHS.logs, 'app.log'),
-          datePattern: 'yyyy-MM-dd.',
-          localTime: true,
-          prepend: true,
-          maxDays: 30,
-          json: false
-        })
-      )
-    );
-  }
-
-  global.l = new winston.Logger({
-    level: config.get('loggerLevel'),
-    // level: 'debug',
-    padLevels: true,
-    levels: {
-      error: 0,
-      warn: 1,
-      notice: 2,
-      info: 3,
-      debug: 4
-    },
-    colors: {
-      error: 'red',
-      warn: 'yellow',
-      notice: 'green',
-      info: 'black',
-      debug: 'blue'
-    },
-    transports
+  global.l = createLogger({
+    format: format.combine(
+      format.splat(),
+      commonFormatter,
+      format.colorize({ all: true }),
+      printfFormatter
+    ),
+    level: global.IS_PRODUCTION ? 'info' : 'debug',
+    levels: levelConfig.levels,
+    transports: [
+      new transports.Console(),
+      new transports.DailyRotateFile({
+        filename: path.resolve(global.PATHS.logs, 'app_%DATE%.log'),
+        datePattern: 'YYYY-MM-DD',
+        maxSize: '1m',
+        maxFiles: global.IS_PRODUCTION ? '30d' : '3d'
+      })
+    ]
   });
+
+  addColors(levelConfig);
 
   process.on('unhandledRejection', reason => {
     l.error(reason);
