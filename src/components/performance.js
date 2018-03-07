@@ -3,7 +3,7 @@
  * @Date:   2018-02-27T11:00:34+11:00
  * @Email:  inbox.wahaj@gmail.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-03-07T13:58:16+11:00
+ * @Last modified time: 2018-03-07T15:40:06+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -129,6 +129,7 @@ const handlePerformanceBrokerRequest = (event, args) => {
 
       case 'mw_updateData':
       case 'mw_initData':
+      case 'mw_toaster':
         global.sendMsgToPerformanceWindow(args.profileId, 'performance', args);
         break;
 
