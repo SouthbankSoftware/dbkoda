@@ -3,7 +3,7 @@
  * @Date:   2018-02-27T11:00:34+11:00
  * @Email:  inbox.wahaj@gmail.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-03-06T13:21:04+11:00
+ * @Last modified time: 2018-03-07T13:58:16+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -119,6 +119,9 @@ const handlePerformanceBrokerRequest = (event, args) => {
       case 'mw_createWindow':
         if (!winState) {
           const window = createPerformanceWindow();
+          const profileAlias = (args.profileAlias) ? 'dbKoda - ' + args.profileAlias : 'dbKoda - Performance Panel';
+          console.log('profileAlias::', profileAlias);
+          window.setTitle(profileAlias);
           hashPerformanceWindows[args.profileId] = { ready: false, window };
           global.setPerformanceWindowProfileId(args.profileId);
         }
