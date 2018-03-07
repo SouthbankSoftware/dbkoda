@@ -115,8 +115,8 @@
     "shelljs": "^0.8.1",
     "tar": "^4.4.0",
     "wget-improved": "^1.5.0",
-    "winston": "^2.4.0",
-    "winston-daily-rotate-file": "^1.7.2"
+    "winston": "github:guiguan/winston",
+    "winston-daily-rotate-file": "^2.0.0-rc.6"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
