@@ -66,25 +66,22 @@ global.LOADER = process.env.LOADER !== 'false';
 global.NAME = app.getName();
 global.APP_VERSION = app.getVersion();
 global.PATHS = (() => {
-  const userHome = app.getPath('home');
-  const home = path.resolve(userHome, `.${global.NAME}`);
   const userData = app.getPath('userData');
-  const configPath = process.env.CONFIG_PATH
-    ? process.env.CONFIG_PATH
-    : path.resolve(home, 'config.yml');
-  const profilesPath = process.env.PROFILES_PATH
-    ? process.env.CONFIG_PATH
-    : path.resolve(home, 'profiles.yml');
+  const userHome = global.UAT ? '/tmp' : app.getPath('home');
+  const home = path.resolve(userHome, `${global.UAT ? '' : '.'}${global.NAME}`);
+  const configPath = process.env.CONFIG_PATH || path.resolve(home, 'config.yml');
+  const profilesPath = process.env.PROFILES_PATH || path.resolve(home, 'profiles.yml');
+  const stateStore = path.resolve(home, 'stateStore.json');
 
   // [IMPORTANT] Please read the comment of next `IMPORTANT` tag
   return {
-    home,
     userData,
-    userHome,
-    configPath: global.UAT ? '/tmp/config.yml' : configPath,
-    profilesPath: global.UAT ? '/tmp/profiles.yml' : profilesPath,
     logs: IS_PRODUCTION ? path.resolve(userData, 'logs') : path.resolve(__dirname, '../logs'),
-    stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json')
+    userHome,
+    home,
+    configPath,
+    profilesPath,
+    stateStore
   };
 })();
 
@@ -93,7 +90,7 @@ app.commandLine.appendSwitch('disable-renderer-backgrounding');
 // TODO create an uninstaller
 // ensure paths exist.
 // [IMPORTANT] Remember to add exceptions here
-sh.mkdir('-p', _.values(_.omit(global.PATHS, ['stateStore', 'configPath', 'profilesPath'])));
+sh.mkdir('-p', _.values(_.omit(global.PATHS, ['configPath', 'profilesPath', 'stateStore'])));
 
 const configWinstonLogger = () => {
   global.l = createLogger({
@@ -169,14 +166,15 @@ const configController = () => {
     // NOTE: cwd option is not supported in asar, please avoid using it
     controllerProcess = childProcess.fork(controllerPath, [], {
       env: _.assign({}, process.env, {
+        UAT: global.UAT,
+        CONTROLLER_PORT: port,
+        DBKODA_HOME: global.PATHS.home,
         LOG_PATH: global.PATHS.logs,
         MONGO_SCRIPTS_PATH: path.resolve(
           app.getAppPath(),
           '../app.asar.unpacked/assets/controller/lib/'
         ),
-        UAT: global.UAT,
-        CONFIG_PATH: global.UAT ? '/tmp/config.yml' : path.resolve(global.PATHS.home, 'config.yml'),
-        CONTROLLER_PORT: port
+        CONFIG_PATH: global.PATHS.configPath
       })
     });
 
