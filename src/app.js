@@ -1,6 +1,6 @@
 /**
- * @Last modified by:   wahaj
- * @Last modified time: 2018-03-06T13:30:59+11:00
+ * @Last modified by:   guiguan
+ * @Last modified time: 2018-03-13T10:03:35+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -63,7 +63,7 @@ if (global.MODE == 'byo') {
 global.UAT = process.env.UAT === 'true';
 global.LOADER = process.env.LOADER !== 'false';
 
-global.NAME = app.getName();
+global.NAME = 'dbKoda';
 global.APP_VERSION = app.getVersion();
 global.PATHS = (() => {
   const userData = app.getPath('userData');
@@ -174,7 +174,8 @@ const configController = () => {
           app.getAppPath(),
           '../app.asar.unpacked/assets/controller/lib/'
         ),
-        CONFIG_PATH: global.PATHS.configPath
+        CONFIG_PATH: global.PATHS.configPath,
+        PROFILES_PATH: global.PATHS.profilesPath
       })
     });
 
