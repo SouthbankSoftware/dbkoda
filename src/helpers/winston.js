@@ -3,7 +3,7 @@
  * @Date:   2018-03-06T16:47:58+11:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-03-06T17:12:59+11:00
+ * @Last modified time: 2018-03-13T16:22:28+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -24,8 +24,10 @@
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import _ from 'lodash';
 import moment from 'moment';
 import { format } from 'winston';
+import util from 'util';
 
 export const levelConfig = {
   levels: {
@@ -44,23 +46,7 @@ export const levelConfig = {
   }
 };
 
-const replacer = (key, value) => (value == null ? null : value);
-
-const stringify = (value, space) => {
-  const vType = typeof value;
-
-  if (vType === 'undefined') {
-    return 'undefined';
-  } else if (vType === 'string') {
-    return value;
-  }
-
-  if (value instanceof Error) {
-    return value.stack;
-  }
-
-  return JSON.stringify(value, replacer, space);
-};
+const stringify = _.curry(util.inspect)(_, { depth: null });
 
 export const commonFormatter = format(info => {
   const { timestamp, message, meta } = info;
@@ -69,7 +55,7 @@ export const commonFormatter = format(info => {
     info.timestamp = Date.now();
   }
 
-  info.message = stringify(message, 2);
+  info.message = stringify(message);
 
   if (meta != null) {
     info.meta = stringify(meta);
