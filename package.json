@@ -37,7 +37,7 @@
     "dist:basic": "yarn run cbuild && build --config.extraMetadata.mode=prod",
     "dist": "ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true yarn run dist:basic --publish never",
     "dist:win": "rimraf dist/win-ia32-unpacked && rimraf dist/win-unpacked && set ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true&& yarn run dist:basic --publish never --win --x64 --ia32",
-    "dist:win:nightly": "yarn run dist:win --config.extraMetadata.version=%NIGHTLY_VERSION%",
+    "dist:win:nightly": "set ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true && yarn run dist:win --config.extraMetadata.version=%NIGHTLY_VERSION%",
     "dist:release": "yarn run dist --config electron-builder-release.json",
     "dist:win:release": "yarn run dist:win --config electron-builder-release.json",
     "dist:dev": "yarn run dist --config electron-builder-dev.json --config.extraMetadata.version=$DEV_VERSION",
