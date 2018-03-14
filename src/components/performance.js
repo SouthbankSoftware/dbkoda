@@ -28,10 +28,9 @@ import { BrowserWindow } from 'electron';
 import { ipcMain } from 'electron';
 import _ from 'lodash';
 
-
 const hashPerformanceWindows = {};
 
-const getPerformanceWindow = (profileId) => {
+const getPerformanceWindow = profileId => {
   if (!hashPerformanceWindows[profileId]) {
     return null;
   }
@@ -43,21 +42,24 @@ const deletePerformanceWindow = (win, bDestroy = false) => {
   console.log('profileId: ', profileId);
   if (profileId) {
     if (!bDestroy) {
-      global.sendMsgToMainWindow('performance', {command: 'pw_windowClosed', profileId});
+      global.sendMsgToMainWindow('performance', {
+        command: 'pw_windowClosed',
+        profileId
+      });
     }
     delete hashPerformanceWindows[profileId];
   }
 };
 
-const createPerformanceWindow = (options) => {
+const createPerformanceWindow = options => {
   const url =
     global.MODE === 'byo' || global.MODE === 'super_dev'
       ? 'http://localhost:3000/ui/performance.html'
       : `http://localhost:${global.uiPort}/ui/performance.html`;
   options = _.assign(
     {
-      width: 1280,
-      height: 900,
+      width: 1680,
+      height: 1080,
       backgroundColor: '#363951',
       show: false,
       title: 'dbKoda - Performance Panel'
@@ -95,7 +97,7 @@ global.sendMsgToPerformanceWindow = (id, channel, args) => {
   }
 };
 
-global.checkPerformanceWindowInitialized = (profileId) => {
+global.checkPerformanceWindowInitialized = profileId => {
   // console.log('checkPerformanceWindowActive::profileId: ', profileId);
   const winState = getPerformanceWindow(profileId);
   if (winState && !winState.ready) {
@@ -103,10 +105,13 @@ global.checkPerformanceWindowInitialized = (profileId) => {
   }
 };
 
-global.setPerformanceWindowProfileId = (profileId) => {
+global.setPerformanceWindowProfileId = profileId => {
   // console.log('setPerformanceWindowProfileId::profileId: ', profileId);
   if (profileId) {
-    global.sendMsgToPerformanceWindow(profileId, 'performance', {command: 'mw_setProfileId', profileId});
+    global.sendMsgToPerformanceWindow(profileId, 'performance', {
+      command: 'mw_setProfileId',
+      profileId
+    });
     setTimeout(global.checkPerformanceWindowInitialized, 1000, profileId);
   }
 };
@@ -119,7 +124,9 @@ const handlePerformanceBrokerRequest = (event, args) => {
       case 'mw_createWindow':
         if (!winState) {
           const window = createPerformanceWindow();
-          const profileAlias = (args.profileAlias) ? 'dbKoda - ' + args.profileAlias : 'dbKoda - Performance Panel';
+          const profileAlias = args.profileAlias
+            ? 'dbKoda - ' + args.profileAlias
+            : 'dbKoda - Performance Panel';
           console.log('profileAlias::', profileAlias);
           window.setTitle(profileAlias);
           hashPerformanceWindows[args.profileId] = { ready: false, window };
@@ -153,7 +160,11 @@ const handlePerformanceBrokerRequest = (event, args) => {
         if (winState) {
           winState.ready = false;
           global.sendMsgToMainWindow('performance', args);
-          setTimeout(global.setPerformanceWindowProfileId, 1000, args.profileId);
+          setTimeout(
+            global.setPerformanceWindowProfileId,
+            1000,
+            args.profileId
+          );
         }
         break;
       case 'pw_resetHighWaterMark':
