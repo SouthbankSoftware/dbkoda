@@ -59,7 +59,7 @@ const createPerformanceWindow = options => {
   options = _.assign(
     {
       width: 1680,
-      height: 1050,
+      height: 1080,
       backgroundColor: '#363951',
       show: false,
       title: 'dbKoda - Performance Panel'
