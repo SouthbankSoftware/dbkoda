@@ -3,7 +3,7 @@
  * @Date:   2018-03-06T16:47:58+11:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-03-13T16:22:28+11:00
+ * @Last modified time: 2018-03-14T16:52:00+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -24,48 +24,59 @@
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import _ from 'lodash';
-import moment from 'moment';
-import { format } from 'winston';
-import util from 'util';
+ import moment from 'moment';
+ import { format } from 'winston';
+ import util from 'util';
 
-export const levelConfig = {
-  levels: {
-    error: 0,
-    warn: 1,
-    notice: 2,
-    info: 3,
-    debug: 4
-  },
-  colors: {
-    error: 'red',
-    warn: 'yellow',
-    notice: 'green',
-    info: 'gray',
-    debug: 'blue'
-  }
-};
+ export const levelConfig = {
+   levels: {
+     error: 0,
+     warn: 1,
+     notice: 2,
+     info: 3,
+     debug: 4
+   },
+   colors: {
+     error: 'red',
+     warn: 'yellow',
+     notice: 'green',
+     info: 'gray',
+     debug: 'blue'
+   }
+ };
 
-const stringify = _.curry(util.inspect)(_, { depth: null });
+ const INSPECT_OPTIONS = {
+   depth: 3
+ };
 
-export const commonFormatter = format(info => {
-  const { timestamp, message, meta } = info;
+ const stringify = value => {
+   if (typeof value === 'string') {
+     return value;
+   } else if (value instanceof Error) {
+     return value.stack;
+   }
 
-  if (!timestamp) {
-    info.timestamp = Date.now();
-  }
+   return util.inspect(value, INSPECT_OPTIONS);
+ };
 
-  info.message = stringify(message);
+ export const commonFormatter = format(info => {
+   const { timestamp, message, meta } = info;
 
-  if (meta != null) {
-    info.meta = stringify(meta);
-  }
+   if (!timestamp) {
+     info.timestamp = Date.now();
+   }
 
-  return info;
-})();
+   info.message = stringify(message);
 
-export const printfFormatter = format.printf(info => {
-  const { timestamp, level, message, meta } = info;
+   if (meta != null) {
+     info.meta = stringify(meta);
+   }
 
-  return `${moment(timestamp).format()} - ${level}: ${message}${meta != null ? ` ${meta}` : ''}`;
-});
+   return info;
+ })();
+
+ export const printfFormatter = format.printf(info => {
+   const { timestamp, level, message, meta } = info;
+
+   return `${moment(timestamp).format()} - ${level}: ${message}${meta != null ? ` ${meta}` : ''}`;
+ });
