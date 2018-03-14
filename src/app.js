@@ -279,8 +279,8 @@ const handleDrillRequest = (event, arg) => {
 const createWindow = (url, options) => {
   options = _.assign(
     {
-      width: 1280,
-      height: 900,
+      width: 1680,
+      height: 1050,
       backgroundColor: '#363951'
     },
     options
