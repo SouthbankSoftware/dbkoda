@@ -172,6 +172,11 @@ const handlePerformanceBrokerRequest = (event, args) => {
           global.sendMsgToMainWindow('performance', args);
         }
         break;
+      case 'pw_resetPerformancePanel':
+        if (winState) {
+          global.sendMsgToMainWindow('performance', args);
+        }
+        break;
       default:
         console.error('command not supported::', args.command);
         break;
