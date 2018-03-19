@@ -10,27 +10,35 @@ To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
 
 Monday March 19th 2018
 
-This release contains some cool new features, some slightly less cool but still helpful bug fixes and some possibly not cool but also possibly undetected bugs.
+This release contains some cool new features, some slightly less cool but still helpful bug fixes and some possibly not cool but also hopefully minor bugs.
 
 See our [blogs page](https://medium.com/dbkoda) for more detailed discussions about these new features.
 
 ### Performance View
 
-dbKoda can now provide you an XRay view of what's going on under the hood of your MongoDB server with a number of metrics from both the OS level, and the Mongo level. See a wide array of data that we think you'll find useful and click on the charts to see the history. dbKoda will also generate a list of alarms if we think something isn't quite right with the server that can be viewed in a list format by clicking the exclamation marks on the side of each section.
+dbKoda can now provide you an X-ray view of what's going on under the hood of your MongoDB server by providing a graphical representation of real time performance at the server and OS level.  Our intuitive dashboard shows graphically the rate of activity at each layer of the stack - network, server, wiredTiger cache and disk subsystems. Read time data is displayed on the dashboard and you can view history by clicking on a metric. dbKoda will also generate a list of alarms if we think something isn't quite right with the server that can be viewed in a list format by clicking the exclamation marks on the side of each section. For more details checkout [This blob post](https://medium.com/dbkoda/announcing-the-dbkoda-0-10-performance-panel-3c2e6bdb421f). 
 
 ### Upgraded Connection Wizard
 
-Claustrophibic? We've more than doubled the size of our Connetion panel!
+Claustrophobic? We've more than doubled the size of our Connection panel!
+
 Our connection Panel was looking a little tired, so we've revamped the whole thing! Now connections can be created and edited from a full screen panel with tips and explanations of each field. This is also the first step for us adding a larger set of connection features and configuration items in the coming months.
 
-### Master Password Control
+### Password Manager
 
-Entering passwords again and again can become tedious very quickly so we've added a Password Store to keep an encrypted version of your passwords (locally on your machine only) that you can access with a Master Password. Meaning you'll only have to enter your passwords once for each MongoDB instance you connect to. This should save you time that can be better spent looking at the beautiful performance graphs we've added.
+Entering passwords again and again can become tedious very quickly so we've added a Password Store to keep an encrypted version of your passwords (locally on your machine only) that you can access with a Master Password. Now you'll only have to enter your passwords once for each MongoDB instance you connect to. This should save you time that can be better spent looking at the beautiful performance graphs we've added.  Your passwords are encrypted and can only be extracted using the master password.  The master password system stores both SSH and mongoDB passwords.
+
+### Known issues
+
+*  Operating system metrics cannot be displayed for MongoDB servers running on Windows OS.  You can still display MongoDB metrics, but you can't see things like CPU utilisation or the run queue length.
+*  We can only show limited information for MongoDB servers which are not using the WiredTiger storage engine
+*  We currently report data from the master server in a replica set, and we don't yet support extracting statistics from a mongos process.
+*  You currently must be looking at the dbKoda performance dashboard in order to view performance statistics.  In a future release, we hope to transmit the relevant information directly into your cerebral cortex.
 
 ### Minor Fixes
 
-* You can now specify which port you would like to connect to via SSH.
-* You can now export your table style output into a CSV or JSON document.
+* You can now specify which port you would like to connect to via SSH.  Previously SSH connections could only be established over port 22.
+* You can now export your table style output into a CSV or JSON formatted file. This is useful if you want to import your data into Excel or another similar program.  
 
 ## Version 0.9.0
 
