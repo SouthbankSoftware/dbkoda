@@ -1,4 +1,10 @@
-/*
+/**
+ * Test mongo import parameter selections
+ *
+ * Created by joey on 21/8/17
+ * @Last modified by:   guiguan
+ * @Last modified time: 2018-01-30T13:58:07+11:00
+ *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
  *
@@ -17,23 +23,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * Test mongo import parameter selections
- *
- * Created by joey on 21/8/17.
- */
 
 import assert from 'assert';
-import {generateMongoData, getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
+import {
+  generateMongoData,
+  getRandomPort,
+  killMongoInstance,
+  launchSingleInstance
+} from 'test-utils';
 import ConnectionProfile from '../pageObjects/Connection';
-import BackupRestore, {ParameterName, TreeActions} from '../pageObjects/BackupRestore';
+import BackupRestore, { ParameterName, TreeActions } from '../pageObjects/BackupRestore';
 import TreeAction from '../pageObjects/TreeAction';
 import Editor from '../pageObjects/Editor';
 
-import {config, getApp} from '../helpers';
+import { config, getApp } from '../helpers';
 
 describe('mongo import test suite', () => {
-  config({initStateStore: false});
+  config({ setupFailFastTest: false });
   let mongoPort;
   let connectProfile;
   let browser;
@@ -54,22 +60,21 @@ describe('mongo import test suite', () => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     process.on('SIGINT', cleanup);
-    return getApp().then(async (res) => {
+    return getApp().then(async res => {
       dbName = 'testimport-' + getRandomPort();
-      generateMongoData(mongoPort, dbName, 'testcol', '--num 10');
+      generateMongoData(mongoPort, dbName, 'testcol', 10);
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
       bkRestore = new BackupRestore(browser);
       tree = new TreeAction(browser);
       editor = new Editor(browser);
-      await connectProfile
-        .connectProfileByHostname({
-          alias: 'test import a database ' + mongoPort,
-          hostName: 'localhost',
-          database: 'admin',
-          port: mongoPort,
-        });
+      await connectProfile.connectProfileByHostname({
+        alias: 'test import a database ' + mongoPort,
+        hostName: 'localhost',
+        database: 'admin',
+        port: mongoPort
+      });
     });
   });
 
@@ -79,9 +84,7 @@ describe('mongo import test suite', () => {
 
   afterEach(async () => {
     await bkRestore.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   });
 
   test('import a database to verify its parameter values', async () => {
@@ -98,16 +101,23 @@ describe('mongo import test suite', () => {
         [ParameterName.stopOnError]: true,
         [ParameterName.upsertFields]: '',
         [ParameterName.writeConcern]: '',
-        [ParameterName.bypassDocumentValidation]: true,
+        [ParameterName.bypassDocumentValidation]: true
       };
-      await bkRestore.openMongoBackupRestorePanel(['Databases', dbName], TreeActions.IMPORT_COLLECTIONS, params);
+      await bkRestore.openMongoBackupRestorePanel(
+        ['Databases', dbName],
+        TreeActions.IMPORT_COLLECTIONS,
+        params
+      );
       await browser.pause(1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.database), dbName);
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
       assert.equal(await bkRestore.getParameterValue(ParameterName.fields), '');
       assert.equal(await bkRestore.getParameterValue(ParameterName.jsonArray), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.fields), '');
-      assert.equal(await bkRestore.getParameterValue(ParameterName.collection), 'test-import-collections');
+      assert.equal(
+        await bkRestore.getParameterValue(ParameterName.collection),
+        'test-import-collections'
+      );
       assert.equal(await bkRestore.getParameterValue(ParameterName.columnsHaveTypes), '');
       assert.equal(await bkRestore.getParameterValue(ParameterName.drop), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.ignoreBlanks), 'true');
@@ -115,10 +125,16 @@ describe('mongo import test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.stopOnError), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.upsertFields), '');
       assert.equal(await bkRestore.getParameterValue(ParameterName.writeConcern), '');
-      assert.equal(await bkRestore.getParameterValue(ParameterName.bypassDocumentValidation), 'true');
+      assert.equal(
+        await bkRestore.getParameterValue(ParameterName.bypassDocumentValidation),
+        'true'
+      );
       let cmd = await editor._getEditorContentsAsString();
-      cmd = cmd.replace(' --parseGrace stop ', ' ').replace(' --mode insert ', ' ');
-      assert.equal(cmd, `mongoimport --host localhost --port ${mongoPort} --db "${dbName}" --collection "test-import-collections" --jsonArray --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --bypassDocumentValidation "data/test/dump"`);
+      cmd = cmd.replace(' --parseGrace "stop" ', ' ').replace(' --mode "insert" ', ' ');
+      assert.equal(
+        cmd,
+        `mongoimport --host "localhost" --port "${mongoPort}" --db "${dbName}" --collection "test-import-collections" --jsonArray --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --bypassDocumentValidation "data/test/dump"`
+      );
     } catch (err) {
       console.error(err);
       assert.fail(true, false, err.message);
@@ -138,9 +154,13 @@ describe('mongo import test suite', () => {
         [ParameterName.stopOnError]: true,
         [ParameterName.upsertFields]: '',
         [ParameterName.writeConcern]: '',
-        [ParameterName.bypassDocumentValidation]: true,
+        [ParameterName.bypassDocumentValidation]: true
       };
-      await bkRestore.openMongoBackupRestorePanel(['Databases', dbName, 'testcol'], TreeActions.IMPORT_COLLECTION, params);
+      await bkRestore.openMongoBackupRestorePanel(
+        ['Databases', dbName, 'testcol'],
+        TreeActions.IMPORT_COLLECTION,
+        params
+      );
       await browser.pause(1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.database), dbName);
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
@@ -155,10 +175,16 @@ describe('mongo import test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.stopOnError), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.upsertFields), '');
       assert.equal(await bkRestore.getParameterValue(ParameterName.writeConcern), '');
-      assert.equal(await bkRestore.getParameterValue(ParameterName.bypassDocumentValidation), 'true');
+      assert.equal(
+        await bkRestore.getParameterValue(ParameterName.bypassDocumentValidation),
+        'true'
+      );
       let cmd = await editor._getEditorContentsAsString();
-      cmd = cmd.replace(' --parseGrace stop ', ' ').replace(' --mode insert ', ' ');
-      assert.equal(cmd, `mongoimport --host localhost --port ${mongoPort} --db "${dbName}" --collection "testcol" --jsonArray --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --bypassDocumentValidation "data/test/dump"`);
+      cmd = cmd.replace(' --parseGrace "stop" ', ' ').replace(' --mode "insert" ', ' ');
+      assert.equal(
+        cmd,
+        `mongoimport --host "localhost" --port "${mongoPort}" --db "${dbName}" --collection "testcol" --jsonArray --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --bypassDocumentValidation "data/test/dump"`
+      );
     } catch (err) {
       console.error(err);
       assert.fail(true, false, err.message);

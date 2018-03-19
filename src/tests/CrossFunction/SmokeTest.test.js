@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2017-12-21T11:06:15+11:00
+ * @Last modified time: 2018-01-30T13:58:43+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -84,10 +84,10 @@ describe('Smoke Test', () => {
       global.debug = r.debug;
       r.mongoPort1 = getRandomPort();
       launchSingleInstance(r.mongoPort1);
-      generateMongoData(r.mongoPort1, 'test', 'test', '--num 500');
+      generateMongoData(r.mongoPort1, 'test', 'test', 500);
       r.mongoPort2 = getRandomPort();
       launchSingleInstance(r.mongoPort2);
-      generateMongoData(r.mongoPort2, 'test', 'test', '--num 500');
+      generateMongoData(r.mongoPort2, 'test', 'test', 500);
 
       cleanupWorkflows.push(async () => {
         if (app && app.isRunning()) {

@@ -2,8 +2,8 @@
  * @Author: chris
  * @Date:   2017-08-16T15:51:55+10:00
  * @Email:  chris@southbanksoftware.com
- * @Last modified by:   chris
- * @Last modified time: 2017-08-28T11:53:15+10:00
+ * @Last modified by:   guiguan
+ * @Last modified time: 2018-01-30T14:01:10+11:00
  */
 
  import {getRandomPort, killMongoInstance, launchSingleInstance, generateMongoData} from 'test-utils';
@@ -28,7 +28,7 @@ describe('output-panel-context-menu', () => {
   beforeAll(async() => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
-    generateMongoData(mongoPort, 'test', 'test', '--num 500');
+    generateMongoData(mongoPort, 'test', 'test', 500);
     return getApp().then((res) => {
       app = res;
       browser = app.client;

@@ -12,53 +12,61 @@ import {DELAY_TIMEOUT} from '../helpers/config';
 export default class ConnectionProfile extends Page {
   newProfileButtonSelector = '.newProfileButton';
 
-  aliasInputSelector = '.alias-input';
+  connectionProfilePanel = '.ProfileManager';
 
-  connectionProfilePanel = '.connection-profile';
+  basicConnectionSettings = '.ProfileManager .connectionLeftPane .btn-basic';
 
-  hostNameInputSelector = '.host-input-content .host-input';
+  clusterConnectionSettings = '.ProfileManager .connectionLeftPane .btn-cluster';
 
-  urlRadioSelector = '.urlRadio-input-content input';
+  advancedConnectionSettings = '.ProfileManager .connectionLeftPane .btn-advanced';
 
-  portInputSelector = '.port-input-content .port-input';
+  urlbuilderConnectionSettings = '.ProfileManager .connectionLeftPane .btn-url';
 
-  hostRadioInputSelector = '.connection-profile > form .hostRadio-input-content input';
+  sshConnectionSettings = '.ProfileManager .connectionLeftPane .btn-ssh';
 
-  shaCheckboxSelector = '.sha-input-content label';
+  aliasInputSelector = 'input#alias';
 
-  urlSelector = '.url-input';
+  hostNameInputSelector = 'input#host';
 
-  userNameInputSelector = '.username-input';
+  portInputSelector = 'input#port';
 
-  passwordInputSelector = '.password-input';
+  databaseInputSelector = 'input#database';
 
-  databaseInputSelector = '.database-input';
+  shaCheckboxSelector = 'input#sha';
 
-  sslCheckboxSelector = '.ssl-input-content label input';
+  userNameInputSelector = 'input#username';
 
-  sshCheckboxSelector = '.ssh-input-content label input';
+  passwordInputSelector = 'input#password';
 
-  remoteHostInputSelector = '.remoteHost-input-content .remoteHost-input';
+  authDatabaseInputSelector = 'input#authenticationDatabase'
 
-  remoteUserInputSelector = '.remoteUser-input-content .remoteUser-input';
+  urlRadioSelector = 'input#urlRadio';
 
-  passRadioSelector = '.passRadio-input-content input';
+  urlSelector = 'input#url';
 
-  remotePassInputSelector = '.remotePass-input-content .remotePass-input';
+  sslCheckboxSelector = 'input#ssl';
 
-  keyRadioSelector = '.keyRadio-input-content input';
+  sshCheckboxSelector = 'input#ssh';
 
-  sshKeyFileInputSelector = '.sshKeyFile-input-content .sshKeyFile-input';
+  remoteHostInputSelector = 'input#remoteHost';
 
-  passPhraseInputSelector = '.passPhrase-input-content .passPhrase-input';
+  remoteUserInputSelector = 'input#remoteUser';
 
-  sshTunnelCheckboxSelector = '.sshTunnel-input-content label input';
+  remotePassInputSelector = 'input#remotePass';
 
-  connectButtonSelector = '.connectButton';
-  closeButtonSelector = '.close-button';
-  resetButtonSelector = '.profile-button-panel .reset-button';
-  testButtonSelector = '.profile-button-panel .test-button';
-  saveButtonSelector = '.profile-button-panel .save-button';
+  keyRadioSelector = 'input#keyRadio';
+
+  sshKeyFileInputSelector = 'input#sshKeyFile';
+
+  passPhraseInputSelector = 'input#passPhrase';
+
+  sshTunnelCheckboxSelector = 'input#sshTunnel';
+
+  connectButtonSelector = '.ProfileManager .profile-button-panel .connectButton';
+  closeButtonSelector = '.ProfileManager .close-button';
+  resetButtonSelector = '.ProfileManager .profile-button-panel .reset-button';
+  testButtonSelector = '.ProfileManager .profile-button-panel .test-button';
+  saveButtonSelector = '.ProfileManager .profile-button-panel .save-button';
 
 
   /**
@@ -128,15 +136,14 @@ export default class ConnectionProfile extends Page {
   _connectProfileElementsExist() {
     return this.browser
       .waitForExist(this.aliasInputSelector)
-      .waitForExist(this.hostRadioInputSelector)
       .waitForExist(this.hostNameInputSelector)
-      .waitForExist(this.urlSelector)
       .waitForExist(this.portInputSelector)
-      .waitForExist(this.passwordInputSelector)
       .waitForExist(this.databaseInputSelector)
       .waitForExist(this.shaCheckboxSelector)
       .waitForExist(this.userNameInputSelector)
-      .waitForExist(this.passwordInputSelector);
+      .waitForExist(this.passwordInputSelector)
+      .waitForExist(this.urlRadioSelector)
+      .waitForExist(this.urlSelector);
   }
 
   /**
@@ -163,24 +170,31 @@ export default class ConnectionProfile extends Page {
     }
     if (profile.hostName) {
       await bro
-        .leftClick(this.hostRadioInputSelector)
-        .waitForEnabled(this.hostNameInputSelector)
         .setValue(this.hostNameInputSelector, profile.hostName)
         .waitForValue(this.hostNameInputSelector, profile.hostName)
         .setValue(this.portInputSelector, profile.port)
         .waitForValue(this.portInputSelector, profile.port);
     }
+    if (profile.database) {
+      bro
+        .setValue(this.databaseInputSelector, '')
+        .setValue(this.databaseInputSelector, profile.database)
+        .waitForValue(this.databaseInputSelector, profile.database);
+    }
+    await this._fillInAuthentication(profile, bro);
+    await this._selectSSL(profile, bro);
     if (profile.ssh) {
       await bro
+        .leftClick(this.sshConnectionSettings)
+        .waitForExist(this.sshCheckboxSelector)
         .leftClick(this.sshCheckboxSelector)
-        .pause(4000)
         .waitForExist(this.remoteHostInputSelector)
         .waitForExist(this.remoteUserInputSelector)
         .setValue(this.remoteHostInputSelector, profile.remoteHost)
         .waitForValue(this.remoteHostInputSelector, profile.remoteHost)
         .setValue(this.remoteUserInputSelector, profile.remoteUser)
         .waitForValue(this.remoteUserInputSelector, profile.remoteUser);
-      if (profile.passRadio) {
+      if (profile.keyRadio === false) {
         await bro
           .waitForExist(this.passRadioSelector)
           .leftClick(this.passRadioSelector)
@@ -209,14 +223,6 @@ export default class ConnectionProfile extends Page {
           .leftClick(this.sshTunnelCheckboxSelector);
       }
     }
-    await this._selectSSL(profile, bro);
-    await this._fillInAuthentication(profile, bro);
-    if (profile.database) {
-      bro
-        .setValue(this.databaseInputSelector, '')
-        .setValue(this.databaseInputSelector, profile.database)
-        .waitForValue(this.databaseInputSelector, profile.database);
-    }
     return bro.pause(1000);
   }
 
@@ -224,7 +230,12 @@ export default class ConnectionProfile extends Page {
    * try to select the ssl checkbox on connection panel if ssl exists on profile object.
    */
   async _selectSSL(profile, bro) {
-    return profile.ssl ? bro.leftClick(this.sslCheckboxSelector) : bro;
+    return profile.ssl
+    ? bro
+        .leftClick(this.advancedConnectionSettings)
+        .waitForExist(this.sslCheckboxSelector)
+        .leftClick(this.sslCheckboxSelector)
+      : bro;
   }
 
   /**

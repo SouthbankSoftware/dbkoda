@@ -1,4 +1,10 @@
-/*
+/**
+ * Test mongo dump parameter selections
+ *
+ * Created by joey on 21/8/17.
+ * @Last modified by:   guiguan
+ * @Last modified time: 2018-01-30T13:57:33+11:00
+ *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
  *
@@ -17,23 +23,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * Test mongo dump parameter selections
- *
- * Created by joey on 21/8/17.
- */
 
 import assert from 'assert';
-import {generateMongoData, getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
+import {
+  generateMongoData,
+  getRandomPort,
+  killMongoInstance,
+  launchSingleInstance
+} from 'test-utils';
 import ConnectionProfile from '../pageObjects/Connection';
-import BackupRestore, {ParameterName, TreeActions} from '../pageObjects/BackupRestore';
+import BackupRestore, { ParameterName, TreeActions } from '../pageObjects/BackupRestore';
 import TreeAction from '../pageObjects/TreeAction';
 import Editor from '../pageObjects/Editor';
 
-import {config, getApp} from '../helpers';
+import { config, getApp } from '../helpers';
 
 describe('mongo dump test suite', () => {
-  config({initStateStore: false});
+  config({ setupFailFastTest: false });
   let mongoPort;
   let connectProfile;
   let browser;
@@ -55,26 +61,25 @@ describe('mongo dump test suite', () => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     process.on('SIGINT', cleanup);
-    return getApp().then(async (res) => {
+    return getApp().then(async res => {
       dumpDbName = 'testdump-' + getRandomPort();
       dumpDbMultiCol = dumpDbName + '-multi';
-      generateMongoData(mongoPort, dumpDbName, 'testcol', '--num 10');
-      generateMongoData(mongoPort, dumpDbMultiCol, 'testcol1', '--num 10');
-      generateMongoData(mongoPort, dumpDbMultiCol, 'testcol2', '--num 10');
-      generateMongoData(mongoPort, dumpDbMultiCol, 'testcol3', '--num 10');
+      generateMongoData(mongoPort, dumpDbName, 'testcol', 10);
+      generateMongoData(mongoPort, dumpDbMultiCol, 'testcol1', 10);
+      generateMongoData(mongoPort, dumpDbMultiCol, 'testcol2', 10);
+      generateMongoData(mongoPort, dumpDbMultiCol, 'testcol3', 10);
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
       bkRestore = new BackupRestore(browser);
       tree = new TreeAction(browser);
       editor = new Editor(browser);
-      await connectProfile
-        .connectProfileByHostname({
-          alias: 'test dump a database ' + mongoPort,
-          hostName: 'localhost',
-          database: 'admin',
-          port: mongoPort,
-        });
+      await connectProfile.connectProfileByHostname({
+        alias: 'test dump a database ' + mongoPort,
+        hostName: 'localhost',
+        database: 'admin',
+        port: mongoPort
+      });
     });
   });
 
@@ -84,9 +89,7 @@ describe('mongo dump test suite', () => {
 
   afterEach(async () => {
     await bkRestore.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   });
 
   /**
@@ -94,7 +97,9 @@ describe('mongo dump test suite', () => {
    */
   test('mongodump on a single database to verify parameter values', async () => {
     try {
-      await bkRestore.openMongoBackupRestorePanel(['Databases', dumpDbName], TreeActions.DUMP_DATABASE,
+      await bkRestore.openMongoBackupRestorePanel(
+        ['Databases', dumpDbName],
+        TreeActions.DUMP_DATABASE,
         {
           [ParameterName.gzip]: true,
           [ParameterName.forceTableScan]: true,
@@ -104,7 +109,8 @@ describe('mongo dump test suite', () => {
           [ParameterName.repair]: true,
           [ParameterName.dumpDbUsersAndRoles]: true,
           [ParameterName.viewsAsCollections]: true
-        });
+        }
+      );
       await browser.pause(1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.forceTableScan), 'true');
@@ -114,7 +120,10 @@ describe('mongo dump test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.query), '{user.name: "Joey"}');
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongodump --host localhost --port ${mongoPort} --db "${dumpDbName}" --gzip --repair --dumpDbUsersAndRoles --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o "data/test/dump" `);
+      assert.equal(
+        cmd,
+        `mongodump --host "localhost" --port "${mongoPort}" --db "${dumpDbName}" --gzip --repair --dumpDbUsersAndRoles --viewsAsCollections --numParallelCollections "4" -q "{user.name: \\"Joey\\"}" --readPreference "primaryPreferred" --forceTableScan -o "data/test/dump" `
+      );
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false, err.message);
@@ -126,17 +135,16 @@ describe('mongo dump test suite', () => {
    */
   test('mongodump on a server to verify parameter values', async () => {
     try {
-      await bkRestore.openMongoBackupRestorePanel(['Databases'], TreeActions.DUMP_DATABASES,
-        {
-          [ParameterName.gzip]: true,
-          [ParameterName.forceTableScan]: true,
-          [ParameterName.query]: '{user.name: "Joey"}',
-          [ParameterName.pathInput]: 'data/test/dump',
-          [ParameterName.readPreference]: 'primaryPreferred',
-          [ParameterName.repair]: true,
-          [ParameterName.dumpDbUsersAndRoles]: true,
-          [ParameterName.viewsAsCollections]: true
-        });
+      await bkRestore.openMongoBackupRestorePanel(['Databases'], TreeActions.DUMP_DATABASES, {
+        [ParameterName.gzip]: true,
+        [ParameterName.forceTableScan]: true,
+        [ParameterName.query]: '{user.name: "Joey"}',
+        [ParameterName.pathInput]: 'data/test/dump',
+        [ParameterName.readPreference]: 'primaryPreferred',
+        [ParameterName.repair]: true,
+        [ParameterName.dumpDbUsersAndRoles]: true,
+        [ParameterName.viewsAsCollections]: true
+      });
       await browser.pause(1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.forceTableScan), 'true');
@@ -145,9 +153,15 @@ describe('mongo dump test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.viewsAsCollections), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.query), '{user.name: "Joey"}');
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
-      assert.equal(await bkRestore.getParameterValue(ParameterName.readPreference), 'primaryPreferred');
+      assert.equal(
+        await bkRestore.getParameterValue(ParameterName.readPreference),
+        'primaryPreferred'
+      );
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongodump --host localhost --port ${mongoPort} --gzip --repair --dumpDbUsersAndRoles --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o "data/test/dump" `);
+      assert.equal(
+        cmd,
+        `mongodump --host "localhost" --port "${mongoPort}" --gzip --repair --dumpDbUsersAndRoles --viewsAsCollections --numParallelCollections "4" -q "{user.name: \\"Joey\\"}" --readPreference "primaryPreferred" --forceTableScan -o "data/test/dump" `
+      );
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false, err.message);
@@ -159,7 +173,9 @@ describe('mongo dump test suite', () => {
    */
   test('mongodump on a collection to verify parameter values', async () => {
     try {
-      await bkRestore.openMongoBackupRestorePanel(['Databases', dumpDbName, 'testcol'], TreeActions.DUMP_COLLECTION,
+      await bkRestore.openMongoBackupRestorePanel(
+        ['Databases', dumpDbName, 'testcol'],
+        TreeActions.DUMP_COLLECTION,
         {
           [ParameterName.gzip]: true,
           [ParameterName.forceTableScan]: true,
@@ -169,7 +185,8 @@ describe('mongo dump test suite', () => {
           [ParameterName.repair]: true,
           [ParameterName.dumpDbUsersAndRoles]: true,
           [ParameterName.viewsAsCollections]: true
-        });
+        }
+      );
       await browser.pause(1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.forceTableScan), 'true');
@@ -179,7 +196,10 @@ describe('mongo dump test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.query), '{user.name: "Joey"}');
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
       const cmd = await editor._getEditorContentsAsString();
-      assert.equal(cmd, `mongodump --host localhost --port ${mongoPort} --db "${dumpDbName}" --gzip --repair --dumpDbUsersAndRoles --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o "data/test/dump" `);
+      assert.equal(
+        cmd,
+        `mongodump --host "localhost" --port "${mongoPort}" --db "${dumpDbName}" --gzip --repair --dumpDbUsersAndRoles --viewsAsCollections --numParallelCollections "4" -q "{user.name: \\"Joey\\"}" --readPreference "primaryPreferred" --forceTableScan -o "data/test/dump" `
+      );
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false, err.message);
@@ -191,7 +211,9 @@ describe('mongo dump test suite', () => {
    */
   test('mongodump on a single database with mutiple collections to verify parameter values', async () => {
     try {
-      await bkRestore.openMongoBackupRestorePanel(['Databases', dumpDbMultiCol], TreeActions.DUMP_DATABASE,
+      await bkRestore.openMongoBackupRestorePanel(
+        ['Databases', dumpDbMultiCol],
+        TreeActions.DUMP_DATABASE,
         {
           [ParameterName.gzip]: true,
           [ParameterName.forceTableScan]: true,
@@ -202,7 +224,8 @@ describe('mongo dump test suite', () => {
           [ParameterName.readPreference]: 'primaryPreferred',
           [ParameterName.repair]: true,
           [ParameterName.viewsAsCollections]: true
-        });
+        }
+      );
       await browser.pause(1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.allCollections), null);
@@ -215,9 +238,18 @@ describe('mongo dump test suite', () => {
       const cmd = await editor._getEditorContentsAsArray();
       console.log('get command ', cmd);
       assert.equal(cmd.length, 3);
-      assert.equal(cmd[0], `mongodump --host localhost --port ${mongoPort} --db "${dumpDbMultiCol}" --collection "testcol1" --gzip --repair --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o "data/test/dump" `);
-      assert.equal(cmd[1], `mongodump --host localhost --port ${mongoPort} --db "${dumpDbMultiCol}" --collection "testcol2" --gzip --repair --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o "data/test/dump" `);
-      assert.equal(cmd[2], `mongodump --host localhost --port ${mongoPort} --db "${dumpDbMultiCol}" --collection "testcol3" --gzip --repair --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o "data/test/dump" `);
+      assert.equal(
+        cmd[0],
+        `mongodump --host "localhost" --port "${mongoPort}" --db "${dumpDbMultiCol}" --collection "testcol1" --gzip --repair --viewsAsCollections --numParallelCollections "4" -q "{user.name: \\"Joey\\"}" --readPreference "primaryPreferred" --forceTableScan -o "data/test/dump" `
+      );
+      assert.equal(
+        cmd[1],
+        `mongodump --host "localhost" --port "${mongoPort}" --db "${dumpDbMultiCol}" --collection "testcol2" --gzip --repair --viewsAsCollections --numParallelCollections "4" -q "{user.name: \\"Joey\\"}" --readPreference "primaryPreferred" --forceTableScan -o "data/test/dump" `
+      );
+      assert.equal(
+        cmd[2],
+        `mongodump --host "localhost" --port "${mongoPort}" --db "${dumpDbMultiCol}" --collection "testcol3" --gzip --repair --viewsAsCollections --numParallelCollections "4" -q "{user.name: \\"Joey\\"}" --readPreference "primaryPreferred" --forceTableScan -o "data/test/dump" `
+      );
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false, err.message);
@@ -229,18 +261,17 @@ describe('mongo dump test suite', () => {
    */
   test('mongodump on a server with mutiple databases selections to verify parameter values', async () => {
     try {
-      await bkRestore.openMongoBackupRestorePanel(['Databases'], TreeActions.DUMP_DATABASES,
-        {
-          [ParameterName.gzip]: true,
-          [ParameterName.allDatabases]: false,
-          [ParameterName.forceTableScan]: true,
-          [ParameterName.query]: '{user.name: "Joey"}',
-          [ParameterName.pathInput]: 'data/test/dump',
-          [ParameterName.readPreference]: 'primaryPreferred',
-          [ParameterName.repair]: true,
-          [ParameterName.viewsAsCollections]: true,
-          [ParameterName.selectedDatabases]: [dumpDbName, dumpDbMultiCol],
-        });
+      await bkRestore.openMongoBackupRestorePanel(['Databases'], TreeActions.DUMP_DATABASES, {
+        [ParameterName.gzip]: true,
+        [ParameterName.allDatabases]: false,
+        [ParameterName.forceTableScan]: true,
+        [ParameterName.query]: '{user.name: "Joey"}',
+        [ParameterName.pathInput]: 'data/test/dump',
+        [ParameterName.readPreference]: 'primaryPreferred',
+        [ParameterName.repair]: true,
+        [ParameterName.viewsAsCollections]: true,
+        [ParameterName.selectedDatabases]: [dumpDbName, dumpDbMultiCol]
+      });
       await browser.pause(1000);
       assert.equal(await bkRestore.getParameterValue(ParameterName.gzip), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.forceTableScan), 'true');
@@ -249,11 +280,20 @@ describe('mongo dump test suite', () => {
       assert.equal(await bkRestore.getParameterValue(ParameterName.viewsAsCollections), 'true');
       assert.equal(await bkRestore.getParameterValue(ParameterName.query), '{user.name: "Joey"}');
       assert.equal(await bkRestore.getParameterValue(ParameterName.pathInput), 'data/test/dump');
-      assert.equal(await bkRestore.getParameterValue(ParameterName.readPreference), 'primaryPreferred');
+      assert.equal(
+        await bkRestore.getParameterValue(ParameterName.readPreference),
+        'primaryPreferred'
+      );
       const cmd = await editor._getEditorContentsAsArray();
       assert.equal(cmd.length, 2);
-      assert.equal(cmd[0], `mongodump --host localhost --port ${mongoPort} --db "${dumpDbName}" --gzip --repair --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o "data/test/dump" `);
-      assert.equal(cmd[1], `mongodump --host localhost --port ${mongoPort} --db "${dumpDbMultiCol}" --gzip --repair --viewsAsCollections --numParallelCollections 4 -q {user.name: "Joey"} --readPreference primaryPreferred --forceTableScan -o "data/test/dump" `);
+      assert.equal(
+        cmd[0],
+        `mongodump --host "localhost" --port "${mongoPort}" --db "${dumpDbName}" --gzip --repair --viewsAsCollections --numParallelCollections "4" -q "{user.name: \\"Joey\\"}" --readPreference "primaryPreferred" --forceTableScan -o "data/test/dump" `
+      );
+      assert.equal(
+        cmd[1],
+        `mongodump --host "localhost" --port "${mongoPort}" --db "${dumpDbMultiCol}" --gzip --repair --viewsAsCollections --numParallelCollections "4" -q "{user.name: \\"Joey\\"}" --readPreference "primaryPreferred" --forceTableScan -o "data/test/dump" `
+      );
     } catch (err) {
       console.error('get error ', err);
       assert.fail(true, false, err.message);

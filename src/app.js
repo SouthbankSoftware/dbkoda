@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2017-12-05T14:43:11+11:00
+ * @Last modified time: 2018-03-13T10:03:35+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -27,17 +27,15 @@ import sh from 'shelljs';
 import childProcess from 'child_process';
 import { app, BrowserWindow, Menu, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import moment from 'moment';
-import winston from 'winston';
 import { ipcMain } from 'electron';
-
-import { downloadDrill, downloadDrillController } from './drill';
-
-import { identifyWorkingMode, invokeApi, getAvailablePort } from './helpers';
+import portscanner from 'portscanner';
+import { createLogger, format, transports, addColors } from 'winston';
+import 'winston-daily-rotate-file';
+import { levelConfig, commonFormatter, printfFormatter } from '~/helpers/winston';
+import { downloadDrill, downloadDrillController } from './components/drill';
+import { initPerformanceBroker, destroyPerformanceBroker } from './components/performance';
+import { identifyWorkingMode, invokeApi } from './helpers';
 import touchbar from './touchbar';
-
-process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config/');
-const config = require('config');
 
 identifyWorkingMode();
 
@@ -45,8 +43,10 @@ if (global.MODE !== 'prod') {
   // in non-production mode, enable source map for stack tracing
   require('source-map-support/register');
   process.env.NODE_ENV = 'development';
+  global.IS_PRODUCTION = false;
 } else {
   process.env.NODE_ENV = 'production';
+  global.IS_PRODUCTION = true;
 }
 
 let modeDescription;
@@ -63,143 +63,150 @@ if (global.MODE == 'byo') {
 global.UAT = process.env.UAT === 'true';
 global.LOADER = process.env.LOADER !== 'false';
 
-global.NAME = app.getName();
+global.NAME = 'dbKoda';
 global.APP_VERSION = app.getVersion();
 global.PATHS = (() => {
-  const userHome = app.getPath('home');
-  const home = path.resolve(userHome, `.${global.NAME}`);
   const userData = app.getPath('userData');
-  const configPath = process.env.CONFIG_PATH
-    ? process.env.CONFIG_PATH
-    : path.resolve(home, 'config.yml');
-  const profilesPath = process.env.PROFILES_PATH
-    ? process.env.CONFIG_PATH
-    : path.resolve(home, 'profiles.yml');
+  const userHome = global.UAT ? '/tmp' : app.getPath('home');
+  const home = path.resolve(userHome, `${global.UAT ? '' : '.'}${global.NAME}`);
+  const configPath = process.env.CONFIG_PATH || path.resolve(home, 'config.yml');
+  const profilesPath = process.env.PROFILES_PATH || path.resolve(home, 'profiles.yml');
+  const stateStore = path.resolve(home, 'stateStore.json');
 
   // [IMPORTANT] Please read the comment of next `IMPORTANT` tag
   return {
-    home,
     userData,
+    logs: IS_PRODUCTION ? path.resolve(userData, 'logs') : path.resolve(__dirname, '../logs'),
     userHome,
-    configPath: global.UAT ? '/tmp/config.yml' : configPath,
-    profilesPath: global.UAT ? '/tmp/profiles.yml' : profilesPath,
-    logs: path.resolve(userData, 'logs'),
-    stateStore: global.UAT ? '/tmp/stateStore.json' : path.resolve(home, 'stateStore.json'),
+    home,
+    configPath,
+    profilesPath,
+    stateStore
   };
 })();
 
-global.getRandomPort = (startPortRange, endPortRange, host) => {
-  return getAvailablePort(startPortRange, endPortRange, host);
-};
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
 
 // TODO create an uninstaller
 // ensure paths exist.
 // [IMPORTANT] Remember to add exceptions here
-sh.mkdir('-p', _.values(_.omit(global.PATHS, ['stateStore', 'configPath', 'profilesPath'])));
+sh.mkdir('-p', _.values(_.omit(global.PATHS, ['configPath', 'profilesPath', 'stateStore'])));
 
 const configWinstonLogger = () => {
-  const commonOptions = {
-    colorize: 'all',
-    timestamp() {
-      return moment().format();
-    },
-  };
-
-  const transports = [new winston.transports.Console(commonOptions)];
-
-  if (global.MODE === 'prod' && !global.UAT) {
-    require('winston-daily-rotate-file');
-    transports.push(
-      new winston.transports.DailyRotateFile(
-        _.assign({}, commonOptions, {
-          filename: path.resolve(global.PATHS.logs, 'app.log'),
-          datePattern: 'yyyy-MM-dd.',
-          localTime: true,
-          prepend: true,
-          json: false,
-        }),
-      ),
-    );
-  }
-
-  global.l = new winston.Logger({
-    level: config.get('loggerLevel'),
-    // level: 'debug',
-    padLevels: true,
-    levels: {
-      error: 0,
-      warn: 1,
-      notice: 2,
-      info: 3,
-      debug: 4,
-    },
-    colors: {
-      error: 'red',
-      warn: 'yellow',
-      notice: 'green',
-      info: 'black',
-      debug: 'blue',
-    },
-    transports,
+  global.l = createLogger({
+    format: format.combine(
+      format.splat(),
+      commonFormatter,
+      format.colorize({ all: true }),
+      printfFormatter
+    ),
+    level: global.IS_PRODUCTION ? 'info' : 'debug',
+    levels: levelConfig.levels,
+    transports: [
+      new transports.Console(),
+      new transports.DailyRotateFile({
+        filename: path.resolve(global.PATHS.logs, 'app_%DATE%.log'),
+        datePattern: 'YYYY-MM-DD',
+        maxSize: '1m',
+        maxFiles: global.IS_PRODUCTION ? '30d' : '3d'
+      })
+    ]
   });
 
-  process.on('unhandledRejection', (reason) => {
+  addColors(levelConfig);
+
+  process.on('unhandledRejection', reason => {
     l.error(reason);
   });
 
-  process.on('uncaughtException', (err) => {
+  process.on('uncaughtException', err => {
     l.error(err.stack);
   });
 };
 configWinstonLogger();
 
+global.findAvailablePort = portscanner.findAPortNotInUse;
+
 l.notice(`Starting up with ${modeDescription} mode...`);
+
+let controllerPortPromise;
+
+if (global.MODE !== 'byo') {
+  const SEARCH_CONTROLLER_PORT_START = 7001;
+  const SEARCH_CONTROLLER_PORT_END = 8000;
+
+  controllerPortPromise = findAvailablePort(
+    SEARCH_CONTROLLER_PORT_START,
+    SEARCH_CONTROLLER_PORT_END,
+    global.MODE === 'prod' ? 'localhost' : '0.0.0.0'
+  ).catch(err => {
+    l.error(err);
+
+    dialog.showErrorBox(
+      'Error:',
+      `Failed to find an available port for controller ranging from ${SEARCH_CONTROLLER_PORT_START} to ${SEARCH_CONTROLLER_PORT_END}`
+    );
+  });
+} else {
+  controllerPortPromise = Promise.resolve(3030);
+}
+
+controllerPortPromise = controllerPortPromise.then(port => {
+  l.info(`Controller will be launched at localhost:${port}`);
+  global.CONTROLLER_PORT = port;
+  return port;
+});
 
 // Launch dbKoda Controller
 let controllerProcess;
 const configController = () => {
-  const controllerPath = require.resolve('../assets/controller');
+  controllerPortPromise.then(port => {
+    const controllerPath = require.resolve('../assets/controller');
 
-  // NOTE: cwd option is not supported in asar, please avoid using it
-  controllerProcess = childProcess.fork(controllerPath, [], {
-    env: _.assign({}, process.env, {
-      LOG_PATH: path.resolve(global.PATHS.logs, 'controller.log'),
-      MONGO_SCRIPTS_PATH: path.resolve(
-        app.getAppPath(),
-        '../app.asar.unpacked/assets/controller/lib/',
-      ),
-      UAT: global.UAT,
-      CONFIG_PATH: global.UAT ? '/tmp/config.yml' : path.resolve(global.PATHS.home, 'config.yml'),
-    }),
+    // NOTE: cwd option is not supported in asar, please avoid using it
+    controllerProcess = childProcess.fork(controllerPath, [], {
+      env: _.assign({}, process.env, {
+        UAT: global.UAT,
+        CONTROLLER_PORT: port,
+        DBKODA_HOME: global.PATHS.home,
+        LOG_PATH: global.PATHS.logs,
+        MONGO_SCRIPTS_PATH: path.resolve(
+          app.getAppPath(),
+          '../app.asar.unpacked/assets/controller/lib/'
+        ),
+        CONFIG_PATH: global.PATHS.configPath,
+        PROFILES_PATH: global.PATHS.profilesPath
+      })
+    });
+
+    if (!global.UAT) {
+      // only handle once all together
+      const errorHandled = false;
+      const handleControllerError = (err, signal) => {
+        if (errorHandled || err === 0 || signal === 'SIGINT') return;
+
+        let msg;
+
+        if (err === null) {
+          msg = 'got killed unexpectedly';
+        } else if (typeof err === 'number') {
+          msg = 'exited with error';
+        } else {
+          msg = `failed: ${err.message || String(err)}`;
+        }
+
+        dialog.showErrorBox(
+          'Error:',
+          `controller ${msg}, please check logs at https://goo.gl/fGcFmv and report this issue`
+        );
+      };
+
+      controllerProcess.on('error', handleControllerError);
+      controllerProcess.on('exit', handleControllerError);
+    }
+
+    l.info(`Controller process PID: ${controllerProcess.pid}`);
   });
-
-  if (!global.UAT) {
-    // only handle once all together
-    const errorHandled = false;
-    const handleControllerError = (err, signal) => {
-      if (errorHandled || err === 0 || signal === 'SIGINT') return;
-
-      let msg;
-
-      if (err === null) {
-        msg = 'got killed unexpectedly';
-      } else if (typeof err === 'number') {
-        msg = 'exited with error';
-      } else {
-        msg = `failed: ${err.message || String(err)}`;
-      }
-
-      dialog.showErrorBox(
-        'Error:',
-        `controller ${msg}, please check logs at https://goo.gl/fGcFmv and report this issue`,
-      );
-    };
-
-    controllerProcess.on('error', handleControllerError);
-    controllerProcess.on('exit', handleControllerError);
-  }
-
-  l.info(`Controller process PID: ${controllerProcess.pid}`);
 };
 const quitController = () => {
   if (!controllerProcess) return;
@@ -248,20 +255,23 @@ const openPreferences = () => {
 };
 
 const handleDrillRequest = (event, arg) => {
+  console.log('handleDrillRequest::', arg);
   if (arg == 'downloadDrill') {
-    downloadDrill().then(() => {
-      event.sender.send('drillResult', 'downloadDrillComplete');
-    })
-    .catch((reason) => {
-      console.log('Error: ', reason);
-    });
+    downloadDrill()
+      .then(() => {
+        event.sender.send('drillResult', 'downloadDrillComplete');
+      })
+      .catch(reason => {
+        console.log('Error: ', reason);
+      });
   } else if (arg == 'downloadController') {
-    downloadDrillController().then(() => {
-      event.sender.send('drillResult', 'downloadDrillControllerComplete');
-    })
-    .catch((reason) => {
-      console.log('Error: ', reason);
-    });
+    downloadDrillController()
+      .then(() => {
+        event.sender.send('drillResult', 'downloadDrillControllerComplete');
+      })
+      .catch(reason => {
+        console.log('Error: ', reason);
+      });
   }
 };
 
@@ -269,11 +279,11 @@ const handleDrillRequest = (event, arg) => {
 const createWindow = (url, options) => {
   options = _.assign(
     {
-      width: 1280,
-      height: 900,
-      backgroundColor: '#363951',
+      width: 1680,
+      height: 1050,
+      backgroundColor: '#363951'
     },
-    options,
+    options
   );
   const win = new BrowserWindow(options);
 
@@ -287,131 +297,186 @@ const createWindow = (url, options) => {
 };
 
 const createMainWindow = () => {
-  const url =
-    global.MODE === 'byo' || global.MODE === 'super_dev'
-      ? 'http://localhost:3000/ui/'
-      : 'http://localhost:3030/ui/';
-
-  if (global.UAT || !global.LOADER) {
-    invokeApi(
-      { url },
-      {
-        shouldRetryOnError(e) {
-          return _.includes(
-            ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
-            e.error.code || _.includes([404, 502], e.statusCode),
-          );
-        },
-        errorHandler(err) {
-          l.error(err.stack);
-          throw err;
-        },
-      },
-    ).then(() => {
-      const mainWindow = createWindow(url);
-
-      const handleAppCrashed = () => {
-        mainWindow.reload();
-      };
-      global.mainWindowId = mainWindow.id;
-      ipcMain.once('appCrashed', handleAppCrashed);
-
-      ipcMain.on('drill', handleDrillRequest);
-
-      mainWindow.on('closed', () => {
-        ipcMain.removeListener('appCrashed', handleAppCrashed);
-        ipcMain.removeListener('drill', handleDrillRequest);
-      });
-    });
-    return;
-  }
-
-  // show a splash screen
-  const splashWindow = createWindow(
-    `file://${path.resolve(__dirname, '../assets/splash/index.html')}`,
-  );
-
-  // wait for uiUrl to become reachable and then show real main window
-  // const uiPath = require.resolve('@southbanksoftware/dbkoda-ui');
-  invokeApi(
-    {
-      url,
-    },
-    {
-      shouldRetryOnError(e) {
-        return (
-          !splashWindow.isDestroyed() &&
-          (_.includes(['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'], e.error.code) ||
-            _.includes([404, 502], e.statusCode))
-        );
-      },
-      errorHandler(err) {
-        if (splashWindow.isDestroyed()) {
-          return;
+  controllerPortPromise.then(port => {
+    const url =
+      global.MODE === 'byo' || global.MODE === 'super_dev'
+        ? 'http://localhost:3000/ui/'
+        : `http://localhost:${port}/ui/`;
+    global.uiPort = port;
+    if (global.UAT || !global.LOADER) {
+      invokeApi(
+        { url },
+        {
+          shouldRetryOnError(e) {
+            return _.includes(
+              ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
+              e.error.code || _.includes([404, 502], e.statusCode)
+            );
+          },
+          errorHandler(err) {
+            l.error(err.stack);
+            throw err;
+          }
         }
-        l.error(err.stack);
-        throw err;
-      },
-    },
-  ).then(() => {
-    if (splashWindow.isDestroyed()) {
+      ).then(() => {
+        const mainWindow = createWindow(url);
+
+        const handleAppCrashed = () => {
+          mainWindow.reload();
+        };
+        global.mainWindowId = mainWindow.id;
+        ipcMain.once('appCrashed', handleAppCrashed);
+
+        ipcMain.on('drill', handleDrillRequest);
+
+        mainWindow.on('closed', () => {
+          ipcMain.removeListener('appCrashed', handleAppCrashed);
+          ipcMain.removeListener('drill', handleDrillRequest);
+        });
+      });
       return;
     }
 
-    const mainWindow = createWindow(url, {
-      show: false,
-    });
+    // show a splash screen
+    const splashWindow = createWindow(
+      `file://${path.resolve(__dirname, '../assets/splash/index.html')}`
+    );
 
-    global.mainWindowId = mainWindow.id;
-
-    const handleAppCrashed = () => {
-      dialog.showMessageBox({
-        title: 'Error',
-        message:
-          'Sorry! your previous configuration (stateStore) was incompatible with current version.',
-        buttons: ['OK'],
-        detail:
-          'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.',
-      });
-      mainWindow.reload();
-    };
-
-    const handleAppReady = () => {
-      if (splashWindow.isDestroyed()) {
-        mainWindow.destroy();
-        return;
-      }
-      if (splashWindow.isFullScreen()) {
-        splashWindow.hide();
-        mainWindow.setFullScreen(true);
-      } else {
-        mainWindow.setBounds(splashWindow.getBounds());
-        if (splashWindow.isMinimized()) {
-          mainWindow.minimize();
-        } else {
-          mainWindow.show();
+    // wait for uiUrl to become reachable and then show real main window
+    // const uiPath = require.resolve('@southbanksoftware/dbkoda-ui');
+    invokeApi(
+      {
+        url
+      },
+      {
+        shouldRetryOnError(e) {
+          return (
+            !splashWindow.isDestroyed() &&
+            (_.includes(['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'], e.error.code) ||
+              _.includes([404, 502], e.statusCode))
+          );
+        },
+        errorHandler(err) {
+          if (splashWindow.isDestroyed()) {
+            return;
+          }
+          l.error(err.stack);
+          throw err;
         }
       }
-      splashWindow.destroy();
-      mainWindow.setTouchBar(touchbar);
-      if (
-        global.MODE === 'prod' &&
-        (process.platform === 'darwin' || process.platform === 'win32')
-      ) {
-        checkForUpdates(false);
+    ).then(() => {
+      if (splashWindow.isDestroyed()) {
+        return;
       }
-    };
 
-    // TODO needs to assign each event a windows id if we are going to support multiple windows
-    ipcMain.once('appReady', handleAppReady);
-    ipcMain.once('appCrashed', handleAppCrashed);
+      const mainWindow = createWindow(url, {
+        show: false
+      });
 
-    ipcMain.on('drill', handleDrillRequest);
+      global.mainWindowId = mainWindow.id;
 
-    mainWindow.on('closed', () => {
-      ipcMain.removeListener('appReady', handleAppReady);
-      ipcMain.removeListener('appCrashed', handleAppCrashed);
-      ipcMain.removeListener('drill', handleDrillRequest);
+      const handleAppCrashed = () => {
+        dialog.showMessageBox({
+          title: 'Error',
+          message:
+            'Sorry! your previous configuration (stateStore) was incompatible with current version.',
+          buttons: ['OK'],
+          detail:
+            'We have made a backup of your old configuration, and created a new one. Please see http://goo.gl/t28EzL for more details.'
+        });
+        mainWindow.reload();
+      };
+
+      const handleRendererLog = (_event, level, message) => {
+        l[level](`Window ${mainWindow.getTitle()}: ${message}`);
+      };
+
+      const handleAppReady = () => {
+        if (splashWindow.isDestroyed()) {
+          mainWindow.destroy();
+          return;
+        }
+        if (splashWindow.isFullScreen()) {
+          splashWindow.hide();
+          mainWindow.setFullScreen(true);
+        } else {
+          mainWindow.setBounds(splashWindow.getBounds());
+          if (splashWindow.isMinimized()) {
+            mainWindow.minimize();
+          } else {
+            mainWindow.show();
+          }
+        }
+        splashWindow.destroy();
+        mainWindow.setTouchBar(touchbar);
+
+        mainWindow.on('unresponsive', () => {
+          l.warn(`Window ${mainWindow.getTitle()} becomes unresponsive`);
+        });
+        mainWindow.on('responsive', () => {
+          l.warn(`Window ${mainWindow.getTitle()} becomes responsive again`);
+        });
+
+        let closeImmediately = false;
+
+        mainWindow.on('close', event => {
+          if (!closeImmediately) {
+            event.preventDefault();
+
+            ipcMain.once(
+              'shouldShowConfirmationDialog-reply',
+              (_event, shouldShowConfirmationDialog) => {
+                if (shouldShowConfirmationDialog) {
+                  const response = dialog.showMessageBox(mainWindow, {
+                    type: 'question',
+                    buttons: ['Yes', 'No'],
+                    title: 'Confirm',
+                    message: 'You have unsaved editor tabs. Are you sure you want to continue?'
+                  });
+
+                  if (response === 0) {
+                    // if 'Yes' is clicked
+
+                    closeImmediately = true;
+                  }
+                } else {
+                  closeImmediately = true;
+                }
+
+                closeImmediately && mainWindow.close();
+              }
+            );
+
+            mainWindow.webContents.send('shouldShowConfirmationDialog');
+          } else {
+            mainWindow.webContents.send('windowClosing');
+          }
+        });
+
+        if (
+          global.MODE === 'prod' &&
+          (process.platform === 'darwin' || process.platform === 'win32')
+        ) {
+          checkForUpdates(false);
+        }
+      };
+
+      // TODO needs to assign each event a windows id if we are going to support multiple windows
+      ipcMain.once('appReady', handleAppReady);
+      ipcMain.once('appCrashed', handleAppCrashed);
+
+      ipcMain.on('drill', handleDrillRequest);
+      ipcMain.on('log', handleRendererLog);
+
+      initPerformanceBroker();
+
+      mainWindow.on('closed', () => {
+        ipcMain.removeListener('appReady', handleAppReady);
+        ipcMain.removeListener('appCrashed', handleAppCrashed);
+        ipcMain.removeListener('drill', handleDrillRequest);
+        ipcMain.removeListener('log', handleRendererLog);
+        destroyPerformanceBroker();
+      });
     });
   });
 };
@@ -429,16 +494,16 @@ global.DownloadUpdate = () => {
         type: 'info',
         title: 'Found Updates',
         message: 'Found updates, do you want update now?',
-        buttons: ['Sure', 'No'],
+        buttons: ['Sure', 'No']
       },
-      (buttonIndex) => {
+      buttonIndex => {
         if (buttonIndex === 0) {
           autoUpdater.downloadUpdate();
           resolve(true);
         } else {
           reject(false); // eslint-disable-line prefer-promise-reject-errors
         }
-      },
+      }
     );
   });
 };
@@ -450,22 +515,28 @@ global.InstallUpdate = () => {
         title: 'Install Updates',
         message:
           'Updates downloaded, application will update on next restart, would you like to restart now?',
-        buttons: ['Sure', 'Later'],
+        buttons: ['Sure', 'Later']
       },
-      (buttonIndex) => {
+      buttonIndex => {
         if (buttonIndex === 0) {
           setImmediate(() => autoUpdater.quitAndInstall());
           resolve(true);
         } else {
           reject(false); // eslint-disable-line prefer-promise-reject-errors
         }
-      },
+      }
     );
   });
 };
+global.getMainWindow = () => {
+  if (global.mainWindowId) {
+    return BrowserWindow.fromId(global.mainWindowId);
+  }
+  return null;
+};
 autoUpdater.on('checking-for-update', () => {
   l.notice('Checking for update...');
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'CHECKING');
   }
@@ -479,60 +550,60 @@ autoUpdater.on('update-available', () => {
         type: 'info',
         title: 'Found Updates',
         message: 'Found updates, do you want update now?',
-        buttons: ['Sure', 'No'],
+        buttons: ['Sure', 'No']
       },
-      (buttonIndex) => {
+      buttonIndex => {
         if (buttonIndex === 0) {
           autoUpdater.downloadUpdate();
         } else {
           global.checkUpdateEnabled = true;
         }
-      },
+      }
     );
   }
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'AVAILABLE');
   }
 });
 autoUpdater.on('update-not-available', () => {
   l.notice('Update not available.');
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'NOT_AVAILABLE');
   }
   if (global.userCheckForUpdate) {
     dialog.showMessageBox({
       title: 'No Updates',
-      message: 'Current version is up-to-date.',
+      message: 'Current version is up-to-date.'
     });
   }
   global.checkUpdateEnabled = true;
 });
 autoUpdater.on('error', (event, error) => {
   l.notice('Error in auto-updater. ', (error.stack || error).toString());
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'ERROR');
   }
   if (global.userCheckForUpdate) {
     dialog.showErrorBox(
       'Error: ',
-      'Unable to download update at the moment, Please try again later.',
+      'Unable to download update at the moment, Please try again later.'
     );
   }
   global.checkUpdateEnabled = true;
 });
-autoUpdater.on('download-progress', (progressObj) => {
+autoUpdater.on('download-progress', progressObj => {
   let logMessage = 'Download speed: ' + progressObj.bytesPerSecond;
   logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%';
   logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
   l.notice(logMessage);
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send(
       'updateStatus',
-      'DOWNLOADING ' + Math.round(progressObj.percent) + '%',
+      'DOWNLOADING ' + Math.round(progressObj.percent) + '%'
     );
   }
 });
@@ -545,18 +616,18 @@ autoUpdater.on('update-downloaded', () => {
         title: 'Install Updates',
         message:
           'Updates downloaded, application will update on next restart, would you like to restart now?',
-        buttons: ['Sure', 'Later'],
+        buttons: ['Sure', 'Later']
       },
-      (buttonIndex) => {
+      buttonIndex => {
         if (buttonIndex === 0) {
           setImmediate(() => autoUpdater.quitAndInstall());
         } else {
           global.checkUpdateEnabled = true;
         }
-      },
+      }
     );
   }
-  const activeWindow = BrowserWindow.getFocusedWindow();
+  const activeWindow = global.getMainWindow();
   if (activeWindow) {
     activeWindow.webContents.send('updateStatus', 'DOWNLOADED');
   }
@@ -565,33 +636,33 @@ function checkForUpdates(bShowDialog = true) {
   global.checkUpdateEnabled = false;
   global.userCheckForUpdate = bShowDialog;
   /* if (process.platform === 'win32' && os.arch() === 'ia32') {
-    const s3Options = {
-      provider: 's3',
-      bucket: 'updates.dbkoda.32bit',
-      region: 'ap-southeast-2',
-    };
-    autoUpdater.setFeedURL(s3Options);
-  } */
+      const s3Options = {
+        provider: 's3',
+        bucket: 'updates.dbkoda.32bit',
+        region: 'ap-southeast-2',
+      };
+      autoUpdater.setFeedURL(s3Options);
+    } */
   autoUpdater.checkForUpdates();
 }
 function aboutDBKoda() {
   let strAbout = 'Version ';
   strAbout += global.APP_VERSION;
   strAbout += '\n\n';
-  strAbout += 'Copyright © 2017 Southbank Software';
+  strAbout += 'Copyright © 2018 Southbank Software';
   dialog.showMessageBox(
     {
       title: 'About dbKoda',
-      message: strAbout,
+      message: strAbout
     },
-    () => {},
+    () => {}
   );
 }
 // Set app menu
 const setAppMenu = () => {
   const menus = [
     {
-      role: 'editMenu',
+      role: 'editMenu'
     },
     {
       label: 'View',
@@ -599,8 +670,8 @@ const setAppMenu = () => {
         { role: 'togglefullscreen' },
         { role: 'resetzoom' },
         { role: 'zoomin' },
-        { role: 'zoomout' },
-      ],
+        { role: 'zoomout' }
+      ]
     },
     {
       label: 'Development',
@@ -608,7 +679,7 @@ const setAppMenu = () => {
         {
           label: 'Reload UI',
           accelerator: 'Ctrl+Alt+Cmd+R',
-          role: 'forcereload',
+          role: 'forcereload'
         },
         {
           label: 'Reload Controller',
@@ -617,19 +688,19 @@ const setAppMenu = () => {
             quitController();
             configController();
           },
-          enabled: global.MODE !== 'byo',
+          enabled: global.MODE !== 'byo'
         },
         {
           label: 'Toggle DevTools',
           accelerator: 'Alt+CmdOrCtrl+I',
-          role: 'toggledevtools',
-        },
-      ],
+          role: 'toggledevtools'
+        }
+      ]
     },
     {
       role: 'window',
-      submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }],
-    },
+      submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }]
+    }
   ];
 
   if (process.platform === 'darwin') {
@@ -641,31 +712,31 @@ const setAppMenu = () => {
           accelerator: 'CmdOrCtrl+N',
           click() {
             newEditor();
-          },
+          }
         },
         {
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
           click() {
             openFileInEditor();
-          },
+          }
         },
         {
           label: 'Save File',
           accelerator: 'CmdOrCtrl+S',
           click() {
             saveFileInEditor();
-          },
+          }
         },
         {
           label: 'Save File As...',
           accelerator: 'CmdOrCtrl+Shift+S',
           click() {
             saveFileAsInEditor();
-          },
+          }
         },
-        { role: 'close' },
-      ],
+        { role: 'close' }
+      ]
     });
     menus.unshift({
       submenu: [
@@ -675,7 +746,7 @@ const setAppMenu = () => {
           click: () => {
             checkForUpdates();
           },
-          enabled: global.checkUpdateEnabled && (global.MODE === 'prod' || global.mode === 'byo'),
+          enabled: global.checkUpdateEnabled && (global.MODE === 'prod' || global.mode === 'byo')
         },
         { type: 'separator' },
         {
@@ -683,7 +754,7 @@ const setAppMenu = () => {
           click: () => {
             openPreferences();
           },
-          accelerator: 'CmdOrCtrl+,',
+          accelerator: 'CmdOrCtrl+,'
         },
         { type: 'separator' },
         { role: 'services', submenu: [] },
@@ -692,13 +763,13 @@ const setAppMenu = () => {
         { role: 'hideothers' },
         { role: 'unhide' },
         { type: 'separator' },
-        { role: 'quit' },
-      ],
+        { role: 'quit' }
+      ]
     });
     menus.push({
       label: 'Help',
       role: 'help',
-      submenu: [],
+      submenu: []
     });
   } else {
     menus.unshift({
@@ -709,38 +780,38 @@ const setAppMenu = () => {
           accelerator: 'CmdOrCtrl+N',
           click() {
             newEditor();
-          },
+          }
         },
         {
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
           click() {
             openFileInEditor();
-          },
+          }
         },
         {
           label: 'Save File',
           accelerator: 'CmdOrCtrl+S',
           click() {
             saveFileInEditor();
-          },
+          }
         },
         {
           label: 'Save File As...',
           accelerator: 'CmdOrCtrl+Shift+S',
           click() {
             saveFileAsInEditor();
-          },
+          }
         },
         {
           label: 'Preferences',
           click() {
             openPreferences();
           },
-          accelerator: 'CmdOrCtrl+,',
+          accelerator: 'CmdOrCtrl+,'
         },
-        { role: 'close' },
-      ],
+        { role: 'close' }
+      ]
     });
     menus.push({
       label: 'Help',
@@ -750,16 +821,16 @@ const setAppMenu = () => {
           label: 'About',
           click: () => {
             aboutDBKoda();
-          },
+          }
         },
         {
           label: 'Check for Updates',
           click: () => {
             checkForUpdates();
           },
-          enabled: global.checkUpdateEnabled && global.MODE === 'prod',
-        },
-      ],
+          enabled: global.checkUpdateEnabled && global.MODE === 'prod'
+        }
+      ]
     });
   }
 
@@ -772,7 +843,7 @@ const setAppMenu = () => {
 const installDevToolsExtensions = () => {
   const {
     default: installExtension,
-    REACT_DEVELOPER_TOOLS,
+    REACT_DEVELOPER_TOOLS
   } = require('electron-devtools-installer');
 
   installExtension(REACT_DEVELOPER_TOOLS)
@@ -781,7 +852,7 @@ const installDevToolsExtensions = () => {
 
   installExtension({
     id: 'pfgnfdagidkfgccljigdamigbcnndkod',
-    electron: '^1.2.1',
+    electron: '^1.2.1'
   })
     .then(name => l.info(`Added DevTools Extension: ${name}`))
     .catch(l.error);
@@ -808,19 +879,7 @@ app.on('ready', () => {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createMainWindow();
-  }
+  app.quit();
 });
 
 app.on('will-quit', () => {

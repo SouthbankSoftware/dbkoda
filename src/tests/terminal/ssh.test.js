@@ -3,7 +3,7 @@
  * @Date:   2017-12-22T10:40:33+11:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2017-12-22T11:38:25+11:00
+ * @Last modified time: 2018-01-25T15:47:44+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -62,7 +62,7 @@ describe('Terminal', () => {
       r.app = app;
       r.browser = app.client;
       r.ssh = {
-        remoteHost: '10.0.0.25',
+        remoteHost: 'iota.southbanksoftware.com',
         remoteUser: 'core',
         remotePass: process.env.EC2_SHARD_CLUSTER_PASSWORD,
       };
@@ -94,10 +94,11 @@ describe('Terminal', () => {
 
     await r.connection.connectProfileByHostname({
       alias,
-      hostName: r.ssh.remoteHost,
+      hostName: 'localhost',
       port: 27017,
       database: 'admin',
       ssh: true,
+      sshTunnel: true,
       remoteHost: r.ssh.remoteHost,
       remoteUser: r.ssh.remoteUser,
       remotePass: r.ssh.remotePass,
