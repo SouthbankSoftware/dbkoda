@@ -6,6 +6,12 @@ To get help or to request features or simply to tell us what you think, visit ou
 
 To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
 
+## Version 0.10.1
+
+Friday March 23rd 2018
+
+This minor release included some minor fixes to our telemetry service, along with a convenient button for opening our beautiful new performance panel from the toolbar, try it out!
+
 ## Version 0.10.0
 
 Monday March 19th 2018
