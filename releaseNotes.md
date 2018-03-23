@@ -6,12 +6,6 @@ To get help or to request features or simply to tell us what you think, visit ou
 
 To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
 
-## Version 0.10.1
-
-Friday March 23rd 2018
-
-This minor releases included some fixes to our telemetry service, along with the addition of a new button on the Toolbar for opening our beautiful new Performance Panel.
-
 ## Version 0.10.0
 
 Monday March 19th 2018
@@ -22,7 +16,7 @@ See our [blogs page](https://medium.com/dbkoda) for more detailed discussions ab
 
 ### Performance View
 
-dbKoda can now provide you an X-ray view of what's going on under the hood of your MongoDB server by providing a graphical representation of real time performance at the server and OS level. Our intuitive dashboard shows graphically the rate of activity at each layer of the stack - network, server, wiredTiger cache and disk subsystems. Read time data is displayed on the dashboard and you can view history by clicking on a metric. dbKoda will also generate a list of alarms if we think something isn't quite right with the server that can be viewed in a list format by clicking the exclamation marks on the side of each section. For more details checkout [This blob post](https://medium.com/dbkoda/announcing-the-dbkoda-0-10-performance-panel-3c2e6bdb421f).
+dbKoda can now provide you an X-ray view of what's going on under the hood of your MongoDB server by providing a graphical representation of real time performance at the server and OS level.  Our intuitive dashboard shows graphically the rate of activity at each layer of the stack - network, server, wiredTiger cache and disk subsystems. Read time data is displayed on the dashboard and you can view history by clicking on a metric. dbKoda will also generate a list of alarms if we think something isn't quite right with the server that can be viewed in a list format by clicking the exclamation marks on the side of each section. For more details checkout [This blob post](https://medium.com/dbkoda/announcing-the-dbkoda-0-10-performance-panel-3c2e6bdb421f). 
 
 ### Upgraded Connection Wizard
 
@@ -32,19 +26,19 @@ Our connection Panel was looking a little tired, so we've revamped the whole thi
 
 ### Password Manager
 
-Entering passwords again and again can become tedious very quickly so we've added a Password Store to keep an encrypted version of your passwords (locally on your machine only) that you can access with a Master Password. Now you'll only have to enter your passwords once for each MongoDB instance you connect to. This should save you time that can be better spent looking at the beautiful performance graphs we've added. Your passwords are encrypted and can only be extracted using the master password. The master password system stores both SSH and mongoDB passwords.
+Entering passwords again and again can become tedious very quickly so we've added a Password Store to keep an encrypted version of your passwords (locally on your machine only) that you can access with a Master Password. Now you'll only have to enter your passwords once for each MongoDB instance you connect to. This should save you time that can be better spent looking at the beautiful performance graphs we've added.  Your passwords are encrypted and can only be extracted using the master password.  The master password system stores both SSH and mongoDB passwords.
 
 ### Known issues
 
-* Operating system metrics cannot be displayed for MongoDB servers running on Windows OS. You can still display MongoDB metrics, but you can't see things like CPU utilisation or the run queue length.
-* We can only show limited information for MongoDB servers which are not using the WiredTiger storage engine
-* We currently report data from the master server in a replica set, and we don't yet support extracting statistics from a mongos process.
-* You currently must be looking at the dbKoda performance dashboard in order to view performance statistics. In a future release, we hope to transmit the relevant information directly into your cerebral cortex.
+*  Operating system metrics cannot be displayed for MongoDB servers running on Windows OS.  You can still display MongoDB metrics, but you can't see things like CPU utilisation or the run queue length.
+*  We can only show limited information for MongoDB servers which are not using the WiredTiger storage engine
+*  We currently report data from the master server in a replica set, and we don't yet support extracting statistics from a mongos process.
+*  You currently must be looking at the dbKoda performance dashboard in order to view performance statistics.  In a future release, we hope to transmit the relevant information directly into your cerebral cortex.
 
 ### Minor Fixes
 
-* You can now specify which port you would like to connect to via SSH. Previously SSH connections could only be established over port 22.
-* You can now export your table style output into a CSV or JSON formatted file. This is useful if you want to import your data into Excel or another similar program.
+* You can now specify which port you would like to connect to via SSH.  Previously SSH connections could only be established over port 22.
+* You can now export your table style output into a CSV or JSON formatted file. This is useful if you want to import your data into Excel or another similar program.  
 
 ## Version 0.9.0
 
