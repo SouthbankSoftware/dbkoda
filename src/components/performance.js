@@ -141,9 +141,9 @@ const handlePerformanceBrokerRequest = (event, args) => {
       case 'mw_updateData':
       case 'mw_initData':
       case 'mw_toaster':
+      case 'mw_error':
         global.sendMsgToPerformanceWindow(args.profileId, 'performance', args);
         break;
-
       case 'mw_closeWindow':
         if (winState && winState.window) {
           deletePerformanceWindow(winState.window, true);
