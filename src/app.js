@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2018-03-13T10:03:35+11:00
+ * @Last modified time: 2018-03-28T09:59:26+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -36,6 +36,11 @@ import { downloadDrill, downloadDrillController } from './components/drill';
 import { initPerformanceBroker, destroyPerformanceBroker } from './components/performance';
 import { identifyWorkingMode, invokeApi } from './helpers';
 import touchbar from './touchbar';
+
+// Unset proxy settings by default to prevent any potential loading problems
+// TODO: actually check and support proxy in dbKoda
+delete process.env.http_proxy;
+delete process.env.https_proxy;
 
 identifyWorkingMode();
 
