@@ -3,7 +3,7 @@
  * @Date:   2018-02-27T11:00:34+11:00
  * @Email:  inbox.wahaj@gmail.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-03-09T10:11:14+11:00
+ * @Last modified time: 2018-03-29T14:01:49+11:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -90,8 +90,8 @@ global.sendMsgToMainWindow = (channel, args) => {
   }
 };
 
-global.sendMsgToPerformanceWindow = (id, channel, args) => {
-  const activeWindow = getPerformanceWindow(id);
+global.sendMsgToPerformanceWindow = (channel, args) => {
+  const activeWindow = getPerformanceWindow(args.profileId);
   if (activeWindow && activeWindow.window) {
     activeWindow.window.webContents.send(channel, args);
   }
@@ -108,7 +108,7 @@ global.checkPerformanceWindowInitialized = profileId => {
 global.setPerformanceWindowProfileId = profileId => {
   // console.log('setPerformanceWindowProfileId::profileId: ', profileId);
   if (profileId) {
-    global.sendMsgToPerformanceWindow(profileId, 'performance', {
+    global.sendMsgToPerformanceWindow('performance', {
       command: 'mw_setProfileId',
       profileId
     });
@@ -138,12 +138,6 @@ const handlePerformanceBrokerRequest = (event, args) => {
           winState.window.focus();
         }
         break;
-      case 'mw_updateData':
-      case 'mw_initData':
-      case 'mw_toaster':
-      case 'mw_error':
-        global.sendMsgToPerformanceWindow(args.profileId, 'performance', args);
-        break;
       case 'mw_closeWindow':
         if (winState && winState.window) {
           deletePerformanceWindow(winState.window, true);
@@ -167,17 +161,16 @@ const handlePerformanceBrokerRequest = (event, args) => {
           );
         }
         break;
-      case 'pw_resetHighWaterMark':
-        if (winState) {
-          global.sendMsgToMainWindow('performance', args);
-        }
-        break;
-      case 'pw_resetPerformancePanel':
-        if (winState) {
-          global.sendMsgToMainWindow('performance', args);
-        }
-        break;
       default:
+        if (args.profileId) {
+          if (args.command.indexOf('pw_') >= 0) {
+            global.sendMsgToMainWindow('performance', args);
+            return;
+          } else if (args.command.indexOf('mw_') >= 0) {
+            global.sendMsgToPerformanceWindow('performance', args);
+            return;
+          }
+        }
         console.error('command not supported::', args.command);
         break;
     }
