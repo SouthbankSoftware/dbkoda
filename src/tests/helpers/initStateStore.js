@@ -6,18 +6,24 @@
  */
 
 import fs from 'fs-extra';
+import path from 'path';
 
 export default () => {
+  console.log('initStateStore()');
+  const basePath = '/tmp/dbkoda/';
+  console.log('State Store: ', path.resolve(basePath, 'stateStore.json'));
+  console.log('Profiles: ', path.resolve(basePath, 'profiles.yml'));
+  console.log('Config: ', path.resolve(basePath, 'config.yml'));
   fs.copySync(
     './src/tests/helpers/defaultStateStore.json',
-    '/tmp/stateStore.json'
+    path.resolve(basePath, 'stateStore.json')
   );
-  fs.copySync('./src/tests/helpers/profiles.yml', '/tmp/profiles.yml');
+  fs.copySync('./src/tests/helpers/profiles.yml', path.resolve(basePath, 'profiles.yml'));
   // Clear existing config.yml just in case.
-  fs.copySync('./src/tests/helpers/defaultConfigFile.yml', '/tmp/config.yml');
+  fs.copySync('./src/tests/helpers/defaultConfigFile.yml', path.resolve(basePath, 'config.yml'));
   fs.removeSync('.tmp/config.yml');
   fs.writeFileSync(
-    '/tmp/config.yml',
+    path.resolve(basePath, 'config.yml'),
     'mongoCmd: /usr/local/bin/mongo\n' +
       'mongoVersionCmd: /usr/local/bin/mongo --version\n' +
       'mongodumpCmd: /usr/local/bin/mongodump\n' +
