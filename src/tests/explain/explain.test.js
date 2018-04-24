@@ -59,12 +59,12 @@ describe('test explain', () => {
     }
   };
 
-  beforeAll(async (done) => {
+  beforeAll(async done => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     generateMongoData(mongoPort, 'test', 'users', 500);
     process.on('SIGINT', cleanup);
-    return getApp().then(async (res) => {
+    return getApp().then(async res => {
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
@@ -244,9 +244,7 @@ describe('test explain', () => {
       // Check editor.
       const editorContents = await editor._getEditorContentsAsString();
 
-      expect(editorContents).toMatch(
-        'db.getSiblingDB("test").users.createIndex({"user.age":1});'
-      );
+      expect(editorContents).toMatch('db.getSiblingDB("test").users.createIndex({"user.age":1});');
     } catch (err) {
       console.error(err);
       assert.equal(false, true, err);

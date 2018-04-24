@@ -5,11 +5,7 @@
  * @Last modified time: 2017-06-27T08:55:04+10:00
  */
 
-import {
-  getRandomPort,
-  killMongoInstance,
-  launchSingleInstance,
-} from 'test-utils';
+import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
 import TreeAction from '#/pageObjects/TreeAction';
 import Editor from '#/pageObjects/Editor';
 // import Output from '#/pageObjects/Output';
@@ -26,20 +22,20 @@ describe('drill-test-suite', () => {
   let mongoPort1;
   let editor; // Editor Page Object.
   let profile; // Profile Connection Page Object.
-//   let output; // Output Page Object.
+  //   let output; // Output Page Object.
   let treeAction;
   const debug = false; // Set to true to stop app closing at end of test, etc
 
   // Executes before the test suite begins.
   beforeAll(async () => {
-    return getApp().then((res) => {
+    return getApp().then(res => {
       // Get our app and browser for testing.
       app = res;
       browser = app.client;
       // Create our page objects.
       profile = new ConnectionProfile(browser);
       editor = new Editor(browser);
-    //   output = new Output(browser);
+      //   output = new Output(browser);
       treeAction = new TreeAction(browser);
 
       // Create our mongo instances.
@@ -77,7 +73,7 @@ describe('drill-test-suite', () => {
         alias: 'Test1',
         hostName: 'localhost',
         port: mongoPort1,
-        database: 'test',
+        database: 'test'
       });
       let res = await browser.waitForExist('.Test1');
       expect(res).toBe(true);
@@ -90,7 +86,7 @@ describe('drill-test-suite', () => {
 
       res = await browser.getText('.CodeMirror-scroll');
       if (debug) {
-        res.forEach((line) => {
+        res.forEach(line => {
           console.log(line);
         });
       }
@@ -101,11 +97,10 @@ describe('drill-test-suite', () => {
     }
   });
 
-
   test('Open Drill', async () => {
     try {
       await editor._appendToEditor(
-        'use test\nfor (var i=2000;i<2020;i+=1) { db.companies.insertOne({name:"company"+i,founded_year:i,});\n db.companies.insertOne({name:"company2"+i,founded_year:i,}); };\n',
+        'use test\nfor (var i=2000;i<2020;i+=1) { db.companies.insertOne({name:"company"+i,founded_year:i,});\n db.companies.insertOne({name:"company2"+i,founded_year:i,}); };\n'
       );
       await browser.pause(500);
       await editor._clickExecuteAll();
@@ -117,9 +112,7 @@ describe('drill-test-suite', () => {
         .rightClick()
         .pause(1000);
 
-      await treeAction
-        .clickContextMenu('Query Database with Drill')
-        .pause(1000);
+      await treeAction.clickContextMenu('Query Database with Drill').pause(1000);
       // console.log(browser);
       // console.log(browser.alertText());
       // if (browser.alertText()) {

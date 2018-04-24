@@ -21,7 +21,7 @@ describe('dbKoda app', () => {
   // each test suite in Jest is run independently, and therefore a new dbKoda instance will need to
   // be created before all test cases
   beforeAll(() => {
-    return getApp().then((res) => {
+    return getApp().then(res => {
       app = res;
     });
   });

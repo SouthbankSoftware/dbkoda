@@ -5,11 +5,7 @@
  * @Last modified time: 2017-06-27T08:55:04+10:00
  */
 
-import {
-  getRandomPort,
-  killMongoInstance,
-  launchSingleInstance
-} from 'test-utils';
+import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
 import TreeAction from '#/pageObjects/TreeAction';
 import AggregateBuilder from '../pageObjects/AggregateBuilder';
 import Editor from '../pageObjects/Editor';
@@ -37,7 +33,7 @@ describe('aggregate-test-suite', () => {
 
   // Executes before the test suite begins.
   beforeAll(async () => {
-    return getApp().then((res) => {
+    return getApp().then(res => {
       // Get our app and browser for testing.
       app = res;
       browser = app.client;
@@ -141,9 +137,7 @@ describe('aggregate-test-suite', () => {
       await aggregate.isBlockSelected(2);
       // Check Output - Unfilled.
       res = await output.getAllOutputLines();
-      expect(res).toMatch(
-        'Please fill in Stage details and click on the stage to see results'
-      );
+      expect(res).toMatch('Please fill in Stage details and click on the stage to see results');
 
       // Check Editor for block.
       res = await editor._getEditorContentsAsString();

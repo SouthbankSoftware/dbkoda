@@ -58,7 +58,7 @@ describe('ChartPanel', () => {
           console.error(e.stack);
         }
       },
-      Promise.resolve(),
+      Promise.resolve()
     );
   };
 
@@ -106,7 +106,7 @@ describe('ChartPanel', () => {
     // initialize the test db just in case ....
     const output = await mongoPortOutput(
       r.mongoDbPort,
-      'use test\nfor (var i=0;i<500;i+=1) { db.companies.insertOne({name:"company"+(i+1),type:"type"+((i%10)+1),num_of_employees:i*200+100}); };\n',
+      'use test\nfor (var i=0;i<500;i+=1) { db.companies.insertOne({name:"company"+(i+1),type:"type"+((i%10)+1),num_of_employees:i*200+100}); };\n'
     );
     if (debug) console.log(output);
   });
@@ -118,7 +118,7 @@ describe('ChartPanel', () => {
       alias: 'Test',
       hostName: 'localhost',
       port,
-      database: 'admin',
+      database: 'admin'
     });
     expect(await browser.waitForExist(treeAction.treeNodeSelector)).toBeTruthy;
   });

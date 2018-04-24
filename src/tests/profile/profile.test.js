@@ -5,12 +5,12 @@
 
 import assert from 'assert';
 import uuidV1 from 'uuid/v1';
-import {getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
+import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
 
 import ProfileList from '../pageObjects/ProfileList';
 import ConnectionProfile from '../pageObjects/Connection';
 
-import {config, getApp} from '../helpers';
+import { config, getApp } from '../helpers';
 
 describe('test profile list', () => {
   config();
@@ -22,7 +22,7 @@ describe('test profile list', () => {
   let connectProfile;
 
   beforeAll(async () => {
-    return getApp().then((res) => {
+    return getApp().then(res => {
       app = res;
       browser = app.client;
       profileList = new ProfileList(browser);
@@ -65,7 +65,7 @@ describe('test profile list', () => {
       .then(() => {
         return profileList.getConnectionProfileList();
       })
-      .then((elements) => {
+      .then(elements => {
         assert(elements.value.length, 1);
       })
       .then(() => {
@@ -78,7 +78,7 @@ describe('test profile list', () => {
       .then(() => {
         return profileList.getConnectionProfileList();
       })
-      .then((elements) => {
+      .then(elements => {
         assert(elements.value.length, 2);
       });
   });
@@ -90,7 +90,7 @@ describe('test profile list', () => {
       .waitUntil(() => {
         return browser
           .getAttribute(profileList.removeProfileButtonSelector, 'disabled')
-          .then((disabled) => {
+          .then(disabled => {
             return disabled === 'true';
           });
       });
@@ -109,7 +109,7 @@ describe('test profile list', () => {
       .then(() => {
         return connectProfile.getCurrentProfileData();
       })
-      .then((profile) => {
+      .then(profile => {
         assert(profile.hostName, 'localhost');
         assert(profile.port, mongoPort);
         assert(profile.database, 'test');
@@ -139,7 +139,7 @@ describe('test profile list', () => {
       .then(() => {
         return profileList.getConnectionProfileList();
       })
-      .then((elements) => {
+      .then(elements => {
         assert.equal(1, elements.value.length);
       });
   });

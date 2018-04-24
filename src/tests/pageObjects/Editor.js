@@ -81,10 +81,7 @@ export default class Editor extends Page {
   }
 
   async _selectConnectionContext(value) {
-    await this.browser.selectByVisibleText(
-      this.editorContextDropdownSelector,
-      value
-    );
+    await this.browser.selectByVisibleText(this.editorContextDropdownSelector, value);
   }
   async _getConnectionContextText() {
     const result = await this.browser
@@ -93,9 +90,7 @@ export default class Editor extends Page {
     return result;
   }
   async _getConnectionContextValue() {
-    const result = await this.browser
-      .element(this.editorContextDropdownSelector)
-      .getValue();
+    const result = await this.browser.element(this.editorContextDropdownSelector).getValue();
     return result;
   }
   async _clickExecuteLine() {
@@ -146,9 +141,7 @@ export default class Editor extends Page {
     await this.saveFileButton.click();
   }
   async _appendToEditor(value) {
-    await this.browser
-      .element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]')
-      .click();
+    await this.browser.element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]').click();
     await this.browser.keys(value.split('')).keys(['NULL']);
   }
 
@@ -188,9 +181,7 @@ export default class Editor extends Page {
     await this.browser.element('.editorTab.' + editorName).click();
   }
   async _clearEditor() {
-    await this.browser
-      .element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]')
-      .click();
+    await this.browser.element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]').click();
 
     if (os.platform() !== 'darwin') {
       await this.browser.keys(['Control', 'a']).keys('NULL');
@@ -202,9 +193,7 @@ export default class Editor extends Page {
 
     await this.browser.keys(['Back space']).keys('NULL');
 
-    await this.browser
-      .element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]')
-      .click();
+    await this.browser.element('.pt-tab-panel.editorTab.visible[aria-hidden="false"]').click();
 
     await this.browser.pause(500);
   }
@@ -225,9 +214,8 @@ export default class Editor extends Page {
    * @returns {Promise.<void>}
    */
   async getLineNumber() {
-    return this.browser.elements(
-      '.editorView .CodeMirror-code > div[style="position: relative;"]'
-    ).elements.value.length;
+    return this.browser.elements('.editorView .CodeMirror-code > div[style="position: relative;"]')
+      .elements.value.length;
   }
 
   /**
@@ -238,9 +226,7 @@ export default class Editor extends Page {
   async moveToLine(index) {
     index += 1;
     this.browser.click(
-      '.editorView .CodeMirror-code > div[style="position: relative;"]:nth-child(' +
-        index +
-        ')'
+      '.editorView .CodeMirror-code > div[style="position: relative;"]:nth-child(' + index + ')'
     );
   }
 }

@@ -17,7 +17,7 @@ describe('Layout', () => {
   let layout;
 
   beforeAll(() => {
-    return getApp().then((res) => {
+    return getApp().then(res => {
       app = res;
       browser = app.client;
       layout = new Layout(browser);
@@ -37,11 +37,7 @@ describe('Layout', () => {
     };
 
     const lastWidth = await getWidth();
-    await Layout.dragAndMoveResizer(
-      layout.rootSplitPaneResizer,
-      resizeOffset,
-      0
-    );
+    await Layout.dragAndMoveResizer(layout.rootSplitPaneResizer, resizeOffset, 0);
     const newWidth = await getWidth();
 
     expect(Math.round(newWidth - lastWidth)).toBe(resizeOffset);
@@ -56,11 +52,7 @@ describe('Layout', () => {
     };
 
     const lastHeight = await getHeight();
-    await Layout.dragAndMoveResizer(
-      layout.leftSplitPaneResizer,
-      0,
-      resizeOffset
-    );
+    await Layout.dragAndMoveResizer(layout.leftSplitPaneResizer, 0, resizeOffset);
     const newHeight = await getHeight();
 
     expect(Math.round(newHeight - lastHeight)).toBe(resizeOffset);
@@ -75,11 +67,7 @@ describe('Layout', () => {
     };
 
     const lastHeight = await getHeight();
-    await Layout.dragAndMoveResizer(
-      layout.rightSplitPaneResizer,
-      0,
-      resizeOffset
-    );
+    await Layout.dragAndMoveResizer(layout.rightSplitPaneResizer, 0, resizeOffset);
     const newHeight = await getHeight();
 
     expect(Math.round(newHeight - lastHeight)).toBe(resizeOffset);

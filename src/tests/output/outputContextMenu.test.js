@@ -6,12 +6,17 @@
  * @Last modified time: 2018-01-30T14:01:10+11:00
  */
 
- import {getRandomPort, killMongoInstance, launchSingleInstance, generateMongoData} from 'test-utils';
- import Output from '../pageObjects/Output';
- import ConnectionProfile from '../pageObjects/Connection';
- import JsonView from '../pageObjects/JsonView';
- import Editor from '../pageObjects/Editor';
- import {config, getApp} from '../helpers';
+import {
+  getRandomPort,
+  killMongoInstance,
+  launchSingleInstance,
+  generateMongoData
+} from 'test-utils';
+import Output from '../pageObjects/Output';
+import ConnectionProfile from '../pageObjects/Connection';
+import JsonView from '../pageObjects/JsonView';
+import Editor from '../pageObjects/Editor';
+import { config, getApp } from '../helpers';
 
 describe('output-panel-context-menu', () => {
   let mongoPort;
@@ -25,11 +30,11 @@ describe('output-panel-context-menu', () => {
   // always config test suite
   config();
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     generateMongoData(mongoPort, 'test', 'test', 500);
-    return getApp().then((res) => {
+    return getApp().then(res => {
       app = res;
       browser = app.client;
       output = new Output(browser);
@@ -39,12 +44,12 @@ describe('output-panel-context-menu', () => {
     });
   });
 
-   afterAll(() => {
-     killMongoInstance(mongoPort);
-     if (app && app.isRunning()) {
-       return app.stop();
-     }
-   });
+  afterAll(() => {
+    killMongoInstance(mongoPort);
+    if (app && app.isRunning()) {
+      return app.stop();
+    }
+  });
 
   test('connect and do query', async () => {
     await connection.connectProfileByHostname({

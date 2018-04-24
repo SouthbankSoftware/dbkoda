@@ -50,7 +50,7 @@ describe('Terminal', () => {
           console.error(e.stack);
         }
       },
-      Promise.resolve(),
+      Promise.resolve()
     );
   };
 
@@ -94,7 +94,7 @@ describe('Terminal', () => {
     await r.terminal.executeInTerminal(r.terminalId, 'echo TEST\r');
 
     await waitUtil(
-      async () => (await r.terminal.getTerminalLastNLines(r.terminalId, 2))[0] === 'TEST',
+      async () => (await r.terminal.getTerminalLastNLines(r.terminalId, 2))[0] === 'TEST'
     );
   });
 });

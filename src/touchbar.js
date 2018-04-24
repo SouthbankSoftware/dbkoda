@@ -80,7 +80,7 @@ const spin = new TouchBarButton({
     };
 
     spinReels();
-  },
+  }
 });
 
 export default new TouchBar([
@@ -92,5 +92,5 @@ export default new TouchBar([
   new TouchBarSpacer({ size: 'small' }),
   reel3,
   new TouchBarSpacer({ size: 'large' }),
-  result,
+  result
 ]);

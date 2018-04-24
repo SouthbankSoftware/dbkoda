@@ -29,20 +29,20 @@ export default function invokeApi(requestOptions, options = {}) {
     shouldRetry = null,
     shouldRetryOnError = null,
     retryDelay = 800,
-    errorHandler = handleError,
+    errorHandler = handleError
   } = options;
   return new Promise((resolve, reject) => {
     // make sure `invoke` can be only called at most every retryDelay
     const invoke = _.throttle(
       () => {
         request(requestOptions)
-          .then((v) => {
+          .then(v => {
             if (shouldRetry && shouldRetry(v)) {
               return _.delay(invoke, retryDelay);
             }
             resolve(v);
           })
-          .catch((e) => {
+          .catch(e => {
             if (shouldRetryOnError && shouldRetryOnError(e)) {
               return _.delay(invoke, retryDelay);
             }
@@ -55,8 +55,8 @@ export default function invokeApi(requestOptions, options = {}) {
       retryDelay,
       {
         leading: true,
-        trailing: false,
-      },
+        trailing: false
+      }
     );
     invoke();
   });

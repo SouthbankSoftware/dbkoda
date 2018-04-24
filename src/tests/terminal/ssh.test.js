@@ -51,7 +51,7 @@ describe('Terminal', () => {
           console.error(e.stack);
         }
       },
-      Promise.resolve(),
+      Promise.resolve()
     );
   };
 
@@ -64,7 +64,7 @@ describe('Terminal', () => {
       r.ssh = {
         remoteHost: 'iota.southbanksoftware.com',
         remoteUser: 'core',
-        remotePass: process.env.EC2_SHARD_CLUSTER_PASSWORD,
+        remotePass: process.env.EC2_SHARD_CLUSTER_PASSWORD
       };
       r.connection = new Connection(r.browser);
       r.profileListContextMenu = new ProfileListContextMenu(r.browser);
@@ -103,7 +103,7 @@ describe('Terminal', () => {
       remoteUser: r.ssh.remoteUser,
       remotePass: r.ssh.remotePass,
       passRadio: true,
-      authentication: false,
+      authentication: false
     });
     await r.profileListContextMenu.openContextMenu(alias);
     await r.profileListContextMenu.newSshTerminal(r.ssh.remotePass);
@@ -116,7 +116,7 @@ describe('Terminal', () => {
     await r.terminal.executeInTerminal(r.terminalId, 'echo TEST\r');
 
     await waitUtil(
-      async () => (await r.terminal.getTerminalLastNLines(r.terminalId, 2))[0] === 'TEST',
+      async () => (await r.terminal.getTerminalLastNLines(r.terminalId, 2))[0] === 'TEST'
     );
   });
 });

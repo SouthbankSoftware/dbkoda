@@ -69,11 +69,11 @@ describe('connection-profile-test-suite', () => {
     if (os.platform() !== 'win32') {
       launchSingleInstance(
         authMongoPort,
-        '--auth --username admin --password 123456 --auth-db admin',
+        '--auth --username admin --password 123456 --auth-db admin'
       );
     }
     process.on('SIGINT', cleanup);
-    return getApp().then(async (res) => {
+    return getApp().then(async res => {
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
@@ -90,12 +90,12 @@ describe('connection-profile-test-suite', () => {
         .fillConnectionProfileData({
           alias: 'invalid connection ',
           url: 'localhost',
-          database: 'admin',
+          database: 'admin'
         })
         .then(() => {
           return browser.getAttribute(connectProfile.connectButtonSelector, 'disabled');
         })
-        .then((v) => {
+        .then(v => {
           assert.equal('true', v);
           return connectProfile.closeConnectionProfile();
         })
@@ -117,7 +117,7 @@ describe('connection-profile-test-suite', () => {
         alias: 'Test ' + mongoPort + '(' + getRandomPort() + ')',
         hostName: 'localhost',
         port: mongoPort,
-        database: 'test',
+        database: 'test'
       })
       .catch(err => assert.fail(false, true, err));
   });
@@ -126,7 +126,7 @@ describe('connection-profile-test-suite', () => {
     return connectProfile.connectProfileByURL({
       alias: 'TestUrl' + mongoPort + '(' + getRandomPort() + ')',
       url: 'mongodb://localhost:' + mongoPort,
-      database: 'test',
+      database: 'test'
     });
   });
 
@@ -139,7 +139,7 @@ describe('connection-profile-test-suite', () => {
         authentication: true,
         ssl: true,
         userName: process.env.ATLAS_SERVER_USERNAME,
-        password: process.env.ATLAS_SERVER_PASSWORD,
+        password: process.env.ATLAS_SERVER_PASSWORD
       })
       .then(() => {
         browser.waitForExist(connectProfile.newProfileButtonSelector);
@@ -157,7 +157,7 @@ describe('connection-profile-test-suite', () => {
       database: 'admin',
       authentication: true,
       userName: 'admin',
-      password: '123456',
+      password: '123456'
     });
   });
 
@@ -173,7 +173,7 @@ describe('connection-profile-test-suite', () => {
         database: 'admin',
         authentication: true,
         userName: 'admin',
-        password: '123456',
+        password: '123456'
       })
       .catch(err => console.error(err));
   });
@@ -184,7 +184,7 @@ describe('connection-profile-test-suite', () => {
         alias: 'Test30' + mongoPort + '(' + getRandomPort() + ')',
         hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
         port: 27030,
-        database: 'test',
+        database: 'test'
       })
       .catch(err => assert.fail(false, true, err));
   });
@@ -195,7 +195,7 @@ describe('connection-profile-test-suite', () => {
         alias: 'Test32' + mongoPort + '(' + getRandomPort() + ')',
         hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
         port: 27032,
-        database: 'test',
+        database: 'test'
       })
       .catch(err => assert.fail(false, true, err));
   });
@@ -215,7 +215,7 @@ describe('connection-profile-test-suite', () => {
         authentication: true,
         userName: r.ec2User,
         password: r.ec2Pass,
-        sshTunnel: true,
+        sshTunnel: true
       })
       .catch(err => assert.fail(false, true, err));
   });
@@ -236,7 +236,7 @@ describe('connection-profile-test-suite', () => {
         authentication: true,
         userName: r.ec2User,
         password: r.ec2Pass,
-        sshTunnel: true,
+        sshTunnel: true
       })
       .catch(err => assert.fail(false, true, err));
   });

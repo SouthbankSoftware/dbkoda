@@ -6,11 +6,7 @@
 import _ from 'lodash';
 
 import { config, getApp } from '#/helpers';
-import {
-  getRandomPort,
-  killMongoInstance,
-  launchSingleInstance,
-} from 'test-utils';
+import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
 import TreeAction from '#/pageObjects/TreeAction';
 import Connection from '#/pageObjects/Connection';
 import Editor from '#/pageObjects/Editor';
@@ -40,7 +36,7 @@ describe('TreeAction:SimpleQuery', () => {
           console.error(e.stack);
         }
       },
-      Promise.resolve(),
+      Promise.resolve()
     );
   };
 
@@ -86,7 +82,7 @@ describe('TreeAction:SimpleQuery', () => {
     // initialize the test db just in case ....
     const output = await mongoPortOutput(
       r.mongoDbPort,
-      'use test\nfor (var i=2000;i<2020;i+=1) { db.companies.insertOne({name:"company"+i,founded_year:i,}); };\n',
+      'use test\nfor (var i=2000;i<2020;i+=1) { db.companies.insertOne({name:"company"+i,founded_year:i,}); };\n'
     );
     if (debug) console.log(output);
   });
@@ -98,7 +94,7 @@ describe('TreeAction:SimpleQuery', () => {
       alias: 'Test',
       hostName: 'localhost',
       port,
-      database: 'admin',
+      database: 'admin'
     });
     expect(await browser.waitForExist(treeAction.treeNodeSelector)).toBeTruthy;
   });
@@ -109,29 +105,33 @@ describe('TreeAction:SimpleQuery', () => {
       Database: 'test',
       CollectionName: 'companies',
       UseOr: true,
-      FilterKeys: [{
+      FilterKeys: [
+        {
           AttributeName: 'founded_year',
           Operator: '$eq',
-          Value: 2000,
+          Value: 2000
         },
         {
           AttributeName: 'founded_year',
           Operator: '$eq',
           Value: 2001,
-          last: 1,
-        }],
+          last: 1
+        }
+      ],
       IncludeProjection: true,
-      Projections: [{
+      Projections: [
+        {
           AttributeName: 'name',
-          AttributeProjectionValue: 1,
+          AttributeProjectionValue: 1
         },
         {
           AttributeName: 'founded_year',
-          AttributeProjectionValue: 1,
-        }],
+          AttributeProjectionValue: 1
+        }
+      ],
       SortKeys: false,
       Limit: 10,
-      Count: false,
+      Count: false
     };
   });
 
@@ -151,7 +151,8 @@ describe('TreeAction:SimpleQuery', () => {
     await r.browser
       .element(
         '#root > div > div.SplitPane.RootSplitPane.vertical > div.Pane.vertical.Pane1 > div > div > div > div > form > fieldset:nth-child(5) > div.scrollableDiv.field-group.columns-2-max > div:nth-child(1) > span > span > a'
-      ).click();
+      )
+      .click();
     await r.browser.pause(1000);
     await r.treeAction.fillInDialogue(r.template, r.templateInput);
     if (debug) await r.debug();

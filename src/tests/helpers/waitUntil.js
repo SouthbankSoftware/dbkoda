@@ -43,20 +43,20 @@ export default (condition, timeout = 5000, timeoutMsg = 'waitUntil timed out', i
     new Promise((resolve, reject) => {
       const checkCondition = () => {
         Promise.resolve(condition())
-          .then((result) => {
+          .then(result => {
             if (result) {
               clearTimeouts();
               return resolve();
             }
             intervalTimeoutId = setTimeout(checkCondition, interval);
           })
-          .catch((err) => {
+          .catch(err => {
             clearTimeouts();
             reject(err);
           });
       };
 
       checkCondition();
-    }),
+    })
   ]);
 };

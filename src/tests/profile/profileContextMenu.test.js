@@ -2,11 +2,11 @@
  * @Last modified by:   guiguan
  * @Last modified time: 2017-05-16T15:12:46+10:00
  */
-import {getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
+import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
 
 import ProfileListContextMenu from '../pageObjects/ProfileListContextMenu';
 import ConnectionProfile from '../pageObjects/Connection';
-import {config, getApp} from '../helpers';
+import { config, getApp } from '../helpers';
 
 describe('test profile list', () => {
   config();
@@ -17,16 +17,15 @@ describe('test profile list', () => {
   let connectProfileContextMenu;
   let debug; // eslint-disable-line
 
-  beforeAll(async() => {
-    return getApp().then((res) => {
+  beforeAll(async () => {
+    return getApp().then(res => {
       app = res;
       browser = app.client;
       profile = new ConnectionProfile(browser);
       connectProfileContextMenu = new ProfileListContextMenu(browser);
-      debug = async() => {
-          console.log('\n\nWebdriverIO debugging REPL...');
-          await browser
-              .debug();
+      debug = async () => {
+        console.log('\n\nWebdriverIO debugging REPL...');
+        await browser.debug();
       };
       mongoPort = getRandomPort();
       launchSingleInstance(mongoPort);
@@ -40,9 +39,14 @@ describe('test profile list', () => {
     }
   });
 
-  test('Create a new Connection and Open context menu', async() => {
+  test('Create a new Connection and Open context menu', async () => {
     try {
-      await profile.connectProfileByHostname({alias: 'Test1', hostName: 'localhost', port: mongoPort, database: 'test'});
+      await profile.connectProfileByHostname({
+        alias: 'Test1',
+        hostName: 'localhost',
+        port: mongoPort,
+        database: 'test'
+      });
       let res = await browser.waitForExist('.Test1');
       expect(res).toBe(true);
 
@@ -55,7 +59,7 @@ describe('test profile list', () => {
     }
   });
 
-  test('Open a new editor via context menu', async() => {
+  test('Open a new editor via context menu', async () => {
     try {
       // Check that context menu is still open.
       let res = await browser.waitForExist(connectProfileContextMenu.menuSelector);
@@ -85,7 +89,7 @@ describe('test profile list', () => {
     }
   });
 
-  test('Close a connection via context menu', async() => {
+  test('Close a connection via context menu', async () => {
     try {
       // Open the context Menu again.
       let res = await connectProfileContextMenu.openContextMenu('Test1');
@@ -102,7 +106,7 @@ describe('test profile list', () => {
     }
   });
 
-  test('Open a connection via context menu', async() => {
+  test('Open a connection via context menu', async () => {
     try {
       // Open the context Menu again.
       let res = await connectProfileContextMenu.openContextMenu('Test1');
@@ -118,7 +122,7 @@ describe('test profile list', () => {
     }
   });
 
-  test('Close and delete a connection via context menu', async() => {
+  test('Close and delete a connection via context menu', async () => {
     try {
       // Open the context Menu again.
       let res = await connectProfileContextMenu.openContextMenu('Test1');

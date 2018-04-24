@@ -39,8 +39,7 @@ export default class Chart extends Page {
   get minXValue() {
     return this.browser
       .$(
-        `${this
-          .chartPanelSelector} .recharts-xAxis g.recharts-cartesian-axis-tick:first-child text`,
+        `${this.chartPanelSelector} .recharts-xAxis g.recharts-cartesian-axis-tick:first-child text`
       )
       .getText();
   }
@@ -49,7 +48,7 @@ export default class Chart extends Page {
   get maxXValue() {
     return this.browser
       .$(
-        `${this.chartPanelSelector} .recharts-xAxis g.recharts-cartesian-axis-tick:last-child text`,
+        `${this.chartPanelSelector} .recharts-xAxis g.recharts-cartesian-axis-tick:last-child text`
       )
       .getText();
   }
@@ -58,8 +57,7 @@ export default class Chart extends Page {
   get minYValue() {
     return this.browser
       .$(
-        `${this
-          .chartPanelSelector} .recharts-yAxis g.recharts-cartesian-axis-tick:first-child text`,
+        `${this.chartPanelSelector} .recharts-yAxis g.recharts-cartesian-axis-tick:first-child text`
       )
       .getText();
   }
@@ -68,7 +66,7 @@ export default class Chart extends Page {
   get maxYValue() {
     return this.browser
       .$(
-        `${this.chartPanelSelector} .recharts-yAxis g.recharts-cartesian-axis-tick:last-child text`,
+        `${this.chartPanelSelector} .recharts-yAxis g.recharts-cartesian-axis-tick:last-child text`
       )
       .getText();
   }
@@ -107,7 +105,7 @@ export default class Chart extends Page {
               return (await eval(currNodeEleStr)).status === 0;
             },
             5000,
-            `tree node ${_.take(path, idx + 1).join(' -> ')} still not exist after 5 sec`,
+            `tree node ${_.take(path, idx + 1).join(' -> ')} still not exist after 5 sec`
           );
 
           try {
@@ -124,10 +122,10 @@ export default class Chart extends Page {
 
           return currNodeEleStr + (idx < path.length - 1 ? ".$('..')" : '');
         },
-        Promise.resolve(`_this.browser.$('${this.chartPanelSelector}')`),
-      ).then((eleStr) => {
+        Promise.resolve(`_this.browser.$('${this.chartPanelSelector}')`)
+      ).then(eleStr => {
         return eval(eleStr);
-      }),
+      })
     );
   }
   /* eslint-enable */

@@ -26,7 +26,7 @@ import assert from 'assert';
 import Page from './Page';
 import Tree from './Tree';
 import TreeAction from './TreeAction';
-import {DELAY_TIMEOUT} from '../helpers/config';
+import { DELAY_TIMEOUT } from '../helpers/config';
 
 /* eslint "no-await-in-loop": 0 */
 
@@ -38,7 +38,7 @@ export const ParameterName = {
   selectedCollections: 'selectedCollections',
   selectedDatabases: 'selectedDatabases',
   collection: 'collection',
-  collectionSelect : 'collectionSelect',
+  collectionSelect: 'collectionSelect',
   pathInput: 'pathInput',
   gzip: 'gzip',
   allCollections: 'allCollections',
@@ -77,58 +77,76 @@ export const ParameterName = {
   headerLine: 'headerLine',
   columnsHaveTypes: 'columnsHaveTypes',
   ignoreBlanks: 'ignoreBlanks',
-  upsertFields: 'upsertFields',
+  upsertFields: 'upsertFields'
 };
 
 /**
  * define each parameter classname and type
  */
 export const Options = {
-  [ParameterName.database]: {clsName: 'database-input', type: 'input'},
-  [ParameterName.collection]: {clsName: 'collection-input', type: 'input'},
-  [ParameterName.collectionSelect]: {clsName: 'list-select', type: 'select'},
-  [ParameterName.pathInput]: {clsName: 'path-input', type: 'input'},
-  [ParameterName.gzip]: {clsName: 'gzip input', type: 'checkbox'},
-  [ParameterName.allCollections]: {clsName: 'all-collections input', type: 'checkbox'},
-  [ParameterName.allDatabases]: {clsName: 'all-collections input', type: 'checkbox'},
-  [ParameterName.repair]: {clsName: 'repair input', type: 'checkbox'},
-  [ParameterName.dumpDbUsersAndRoles]: {clsName: 'dump-db-users-and-roles input', type: 'checkbox'},
-  [ParameterName.viewsAsCollections]: {clsName: 'views-as-collections input', type: 'checkbox'},
-  [ParameterName.forceTableScan]: {clsName: 'force-table-scan input', type: 'checkbox'},
-  [ParameterName.query]: {clsName: 'query', type: 'input'},
-  [ParameterName.readPreference]: {clsName: 'read-preference', type: 'input'},
-  [ParameterName.drop]: {clsName: 'drop input', type: 'checkbox'},
-  [ParameterName.dryRun]: {clsName: 'dry-run input', type: 'checkbox'},
-  [ParameterName.writeConcern]: {clsName: 'write-concern', type: 'input'},
-  [ParameterName.noIndexRestore]: {clsName: 'no-index-restore input', type: 'checkbox'},
-  [ParameterName.noOptionsRestore]: {clsName: 'no-options-restore input', type: 'checkbox'},
-  [ParameterName.keepIndexVersion]: {clsName: 'keep-index-version input', type: 'checkbox'},
-  [ParameterName.maintainInsertionOrder]: {clsName: 'maintain-insertion-order input', type: 'checkbox'},
-  [ParameterName.numParallelCollections]: {clsName: 'num-parallel-collections input', type: 'input'},
-  [ParameterName.numInsertionWorkers]: {clsName: 'num-insertion-workers input', type: 'input'},
-  [ParameterName.numInsertionWorkersImport]: {clsName: 'num-insertion-workers', type: 'input'},
-  [ParameterName.stopOnError]: {clsName: 'stop-on-error input', type: 'checkbox'},
-  [ParameterName.bypassDocumentValidation]: {clsName: 'bypass-document-validation input', type: 'checkbox'},
-  [ParameterName.objcheck]: {clsName: 'objcheck input', type: 'checkbox'},
-  [ParameterName.oplogReplay]: {clsName: 'oplog-replay input', type: 'checkbox'},
-  [ParameterName.oplogLimit]: {clsName: 'oplog-limit', type: 'input'},
-  [ParameterName.restoreDbUsersAndRoles]: {clsName: 'restore-db-users-and-roles input', type: 'checkbox'},
-  [ParameterName.pretty]: {clsName: 'pretty input', type: 'checkbox'},
-  [ParameterName.jsonArray]: {clsName: 'json-array input', type: 'checkbox'},
-  [ParameterName.noHeaderLine]: {clsName: 'no-header-line input', type: 'checkbox'},
-  [ParameterName.fields]: {clsName: 'output-fields', type: 'input'},
-  [ParameterName.assertExists]: {clsName: 'assert-exists input', type: 'checkbox'},
-  [ParameterName.skip]: {clsName: 'skip input', type: 'number'},
-  [ParameterName.limit]: {clsName: 'limit input', type: 'number'},
-  [ParameterName.sort]: {clsName: 'export-sort', type: 'input'},
-  [ParameterName.type]: {clsName: 'type', type: 'select'},
-  [ParameterName.headerLine]: {clsName: 'change-header-line input', type: 'checkbox'},
-  [ParameterName.columnsHaveTypes]: {clsName: 'columns-have-types', type: 'input'},
-  [ParameterName.ignoreBlanks]: {clsName: 'ignore-blanks input', type: 'checkbox'},
-  [ParameterName.maintainInsertionOrder]: {clsName: 'maintain-insertion-order input', type: 'checkbox'},
-  [ParameterName.upsertFields]: {clsName: 'upsert-fields', type: 'input'},
-  [ParameterName.selectedCollections]: {clsName: 'list-select', type: 'select'},
-  [ParameterName.selectedDatabases]: {clsName: 'list-select', type: 'select'},
+  [ParameterName.database]: { clsName: 'database-input', type: 'input' },
+  [ParameterName.collection]: { clsName: 'collection-input', type: 'input' },
+  [ParameterName.collectionSelect]: { clsName: 'list-select', type: 'select' },
+  [ParameterName.pathInput]: { clsName: 'path-input', type: 'input' },
+  [ParameterName.gzip]: { clsName: 'gzip input', type: 'checkbox' },
+  [ParameterName.allCollections]: { clsName: 'all-collections input', type: 'checkbox' },
+  [ParameterName.allDatabases]: { clsName: 'all-collections input', type: 'checkbox' },
+  [ParameterName.repair]: { clsName: 'repair input', type: 'checkbox' },
+  [ParameterName.dumpDbUsersAndRoles]: {
+    clsName: 'dump-db-users-and-roles input',
+    type: 'checkbox'
+  },
+  [ParameterName.viewsAsCollections]: { clsName: 'views-as-collections input', type: 'checkbox' },
+  [ParameterName.forceTableScan]: { clsName: 'force-table-scan input', type: 'checkbox' },
+  [ParameterName.query]: { clsName: 'query', type: 'input' },
+  [ParameterName.readPreference]: { clsName: 'read-preference', type: 'input' },
+  [ParameterName.drop]: { clsName: 'drop input', type: 'checkbox' },
+  [ParameterName.dryRun]: { clsName: 'dry-run input', type: 'checkbox' },
+  [ParameterName.writeConcern]: { clsName: 'write-concern', type: 'input' },
+  [ParameterName.noIndexRestore]: { clsName: 'no-index-restore input', type: 'checkbox' },
+  [ParameterName.noOptionsRestore]: { clsName: 'no-options-restore input', type: 'checkbox' },
+  [ParameterName.keepIndexVersion]: { clsName: 'keep-index-version input', type: 'checkbox' },
+  [ParameterName.maintainInsertionOrder]: {
+    clsName: 'maintain-insertion-order input',
+    type: 'checkbox'
+  },
+  [ParameterName.numParallelCollections]: {
+    clsName: 'num-parallel-collections input',
+    type: 'input'
+  },
+  [ParameterName.numInsertionWorkers]: { clsName: 'num-insertion-workers input', type: 'input' },
+  [ParameterName.numInsertionWorkersImport]: { clsName: 'num-insertion-workers', type: 'input' },
+  [ParameterName.stopOnError]: { clsName: 'stop-on-error input', type: 'checkbox' },
+  [ParameterName.bypassDocumentValidation]: {
+    clsName: 'bypass-document-validation input',
+    type: 'checkbox'
+  },
+  [ParameterName.objcheck]: { clsName: 'objcheck input', type: 'checkbox' },
+  [ParameterName.oplogReplay]: { clsName: 'oplog-replay input', type: 'checkbox' },
+  [ParameterName.oplogLimit]: { clsName: 'oplog-limit', type: 'input' },
+  [ParameterName.restoreDbUsersAndRoles]: {
+    clsName: 'restore-db-users-and-roles input',
+    type: 'checkbox'
+  },
+  [ParameterName.pretty]: { clsName: 'pretty input', type: 'checkbox' },
+  [ParameterName.jsonArray]: { clsName: 'json-array input', type: 'checkbox' },
+  [ParameterName.noHeaderLine]: { clsName: 'no-header-line input', type: 'checkbox' },
+  [ParameterName.fields]: { clsName: 'output-fields', type: 'input' },
+  [ParameterName.assertExists]: { clsName: 'assert-exists input', type: 'checkbox' },
+  [ParameterName.skip]: { clsName: 'skip input', type: 'number' },
+  [ParameterName.limit]: { clsName: 'limit input', type: 'number' },
+  [ParameterName.sort]: { clsName: 'export-sort', type: 'input' },
+  [ParameterName.type]: { clsName: 'type', type: 'select' },
+  [ParameterName.headerLine]: { clsName: 'change-header-line input', type: 'checkbox' },
+  [ParameterName.columnsHaveTypes]: { clsName: 'columns-have-types', type: 'input' },
+  [ParameterName.ignoreBlanks]: { clsName: 'ignore-blanks input', type: 'checkbox' },
+  [ParameterName.maintainInsertionOrder]: {
+    clsName: 'maintain-insertion-order input',
+    type: 'checkbox'
+  },
+  [ParameterName.upsertFields]: { clsName: 'upsert-fields', type: 'input' },
+  [ParameterName.selectedCollections]: { clsName: 'list-select', type: 'select' },
+  [ParameterName.selectedDatabases]: { clsName: 'list-select', type: 'select' }
 };
 
 /**
@@ -147,7 +165,7 @@ export const TreeActions = {
   RESTORE_COLLECTION: 'Restore Collection'
 };
 
-const getOptionObject = (key) => {
+const getOptionObject = key => {
   return Options[key];
 };
 
@@ -175,9 +193,7 @@ export default class BackupRestore extends Page {
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -196,9 +212,7 @@ export default class BackupRestore extends Page {
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -216,9 +230,7 @@ export default class BackupRestore extends Page {
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -237,9 +249,7 @@ export default class BackupRestore extends Page {
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -250,15 +260,17 @@ export default class BackupRestore extends Page {
    */
   async restoreDatabaseCollections(db, options) {
     const tree = new Tree(this.browser);
-    await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.RESTORE_DATABASE, options);
+    await this.openMongoBackupRestorePanel(
+      ['Databases', db],
+      TreeActions.RESTORE_DATABASE,
+      options
+    );
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -269,15 +281,17 @@ export default class BackupRestore extends Page {
    */
   async dumpCollection(db, col, options) {
     const tree = new Tree(this.browser);
-    await this.openMongoBackupRestorePanel(['Databases', db, col], TreeActions.DUMP_COLLECTION, options);
+    await this.openMongoBackupRestorePanel(
+      ['Databases', db, col],
+      TreeActions.DUMP_COLLECTION,
+      options
+    );
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -288,15 +302,17 @@ export default class BackupRestore extends Page {
    */
   async restoreCollection(db, col, options) {
     const tree = new Tree(this.browser);
-    await this.openMongoBackupRestorePanel(['Databases', db, col], TreeActions.RESTORE_COLLECTION, options);
+    await this.openMongoBackupRestorePanel(
+      ['Databases', db, col],
+      TreeActions.RESTORE_COLLECTION,
+      options
+    );
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -306,15 +322,17 @@ export default class BackupRestore extends Page {
    */
   async exportDatabase(db, options) {
     const tree = new Tree(this.browser);
-    await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.EXPORT_COLLECTIONS, options);
+    await this.openMongoBackupRestorePanel(
+      ['Databases', db],
+      TreeActions.EXPORT_COLLECTIONS,
+      options
+    );
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -325,15 +343,17 @@ export default class BackupRestore extends Page {
   async importCollectionToDatabase(db, col, options) {
     const tree = new Tree(this.browser);
     options[ParameterName.collection] = col;
-    await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.IMPORT_COLLECTIONS, options);
+    await this.openMongoBackupRestorePanel(
+      ['Databases', db],
+      TreeActions.IMPORT_COLLECTIONS,
+      options
+    );
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -345,15 +365,17 @@ export default class BackupRestore extends Page {
    */
   async exportCollection(db, col, options) {
     const tree = new Tree(this.browser);
-    await this.openMongoBackupRestorePanel(['Databases', db, col], TreeActions.EXPORT_COLLECTION, options);
+    await this.openMongoBackupRestorePanel(
+      ['Databases', db, col],
+      TreeActions.EXPORT_COLLECTION,
+      options
+    );
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -364,15 +386,17 @@ export default class BackupRestore extends Page {
    */
   async importCollection(db, col, options) {
     const tree = new Tree(this.browser);
-    await this.openMongoBackupRestorePanel(['Databases', db, col], TreeActions.IMPORT_COLLECTION, options);
+    await this.openMongoBackupRestorePanel(
+      ['Databases', db, col],
+      TreeActions.IMPORT_COLLECTION,
+      options
+    );
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -386,15 +410,17 @@ export default class BackupRestore extends Page {
     const tree = new Tree(this.browser);
     options[ParameterName.allCollections] = false;
     options[ParameterName.selectedCollections] = cols;
-    await this.openMongoBackupRestorePanel(['Databases', db], TreeActions.EXPORT_COLLECTIONS, options);
+    await this.openMongoBackupRestorePanel(
+      ['Databases', db],
+      TreeActions.EXPORT_COLLECTIONS,
+      options
+    );
     await this.browser.waitForExist(this.panelSelector);
     await this.browser.pause(1000);
     await this.executeCommand();
     await this.browser.pause(3000);
     await this.closePanel();
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
   }
 
   /**
@@ -408,12 +434,13 @@ export default class BackupRestore extends Page {
   async openMongoBackupRestorePanel(nodePath, action, options) {
     const tree = new Tree(this.browser);
     const treeAction = new TreeAction(this.browser);
-    await tree.toogleExpandTreeNode(
-      tree.databasesNodeSelector
-    );
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector);
     await this.browser.waitForExist(tree.treeNodeSelector);
     await this.browser.pause(1000);
-    await treeAction.getTreeNodeByPath(nodePath).rightClick().pause(1000);
+    await treeAction
+      .getTreeNodeByPath(nodePath)
+      .rightClick()
+      .pause(1000);
     await treeAction.clickContextMenu(action);
     await this.browser.pause(1000);
     await this.fillInOptions(options);

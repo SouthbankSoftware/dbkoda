@@ -154,11 +154,7 @@ const handlePerformanceBrokerRequest = (event, args) => {
         if (winState) {
           winState.ready = false;
           global.sendMsgToMainWindow('performance', args);
-          setTimeout(
-            global.setPerformanceWindowProfileId,
-            1000,
-            args.profileId
-          );
+          setTimeout(global.setPerformanceWindowProfileId, 1000, args.profileId);
         }
         break;
       default:

@@ -21,7 +21,6 @@
  * Created by joey on 11/10/17.
  */
 
-
 import Page from './Page';
 
 export default class Translator extends Page {

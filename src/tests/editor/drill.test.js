@@ -143,9 +143,7 @@ describe('Drill Tests', () => {
 
   test('Tree can Update', async () => {
     try {
-      await r.treeAction
-        .getTreeNodeByPath(['Databases', 'test', 'companies'])
-        .pause(500);
+      await r.treeAction.getTreeNodeByPath(['Databases', 'test', 'companies']).pause(500);
       expect(true).toBe(true);
     } catch (error) {
       console.log(error);
@@ -167,9 +165,7 @@ describe('Drill Tests', () => {
         .getTreeNodeByPath(['Databases', 'test'])
         .rightClick()
         .pause(500);
-      await r.treeAction
-        .clickContextMenu('Query Database with Drill')
-        .pause(5000);
+      await r.treeAction.clickContextMenu('Query Database with Drill').pause(5000);
       await r.browser.waitForExist('.docCount', 30000);
       expect(true).toBe(true);
     } catch (error) {

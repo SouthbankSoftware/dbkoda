@@ -145,9 +145,7 @@ describe('Smoke Test', () => {
 
   test('Tree can Update', async () => {
     try {
-      await r.treeAction
-        .getTreeNodeByPath(['Databases', 'test', 'companies'])
-        .pause(500);
+      await r.treeAction.getTreeNodeByPath(['Databases', 'test', 'companies']).pause(500);
       expect(true).toBe(true);
     } catch (error) {
       console.log(error);

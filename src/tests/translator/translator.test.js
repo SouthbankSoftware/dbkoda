@@ -24,17 +24,21 @@
 
 import assert from 'assert';
 import uuidV1 from 'uuid/v1';
-import {generateMongoData, getRandomPort, killMongoInstance, launchSingleInstance} from 'test-utils';
+import {
+  generateMongoData,
+  getRandomPort,
+  killMongoInstance,
+  launchSingleInstance
+} from 'test-utils';
 
 import Translator from '../pageObjects/Translator';
 import Editor from '../pageObjects/Editor';
-import {config, getApp} from '../helpers';
+import { config, getApp } from '../helpers';
 import ConnectionProfile from '../pageObjects/Connection';
-
 
 describe('test translator', () => {
   // always config test suite
-  config({setupFailFastTest: false});
+  config({ setupFailFastTest: false });
 
   let app;
   let browser;
@@ -50,12 +54,12 @@ describe('test translator', () => {
     }
   };
 
-  beforeAll(async (done) => {
+  beforeAll(async done => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     generateMongoData(mongoPort, 'test', 'users', 500);
     process.on('SIGINT', cleanup);
-    return getApp().then(async (res) => {
+    return getApp().then(async res => {
       app = res;
       browser = app.client;
       connectProfile = new ConnectionProfile(browser);
@@ -70,7 +74,6 @@ describe('test translator', () => {
       done();
     });
   });
-
 
   afterAll(() => {
     return cleanup();

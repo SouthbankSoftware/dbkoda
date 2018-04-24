@@ -6,11 +6,7 @@
  * @Last modified time: 2017-05-30T09:34:17+10:00
  */
 
-import {
-  getRandomPort,
-  killMongoInstance,
-  launchSingleInstance
-} from 'test-utils';
+import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
 import Tree from '../pageObjects/Tree';
 import ConnectionProfile from '../pageObjects/Connection';
 import { config, getApp } from '../helpers';
@@ -39,7 +35,7 @@ describe('tree-test-suite', () => {
     launchSingleInstance(mongoPort1);
     // launchSingleInstance(mongoPort2);
     process.on('SIGINT', cleanup);
-    return getApp().then((res) => {
+    return getApp().then(res => {
       app = res;
       browser = app.client;
       tree = new Tree(browser);
@@ -90,14 +86,10 @@ describe('tree-test-suite', () => {
   });
 
   test('expand and collapse the database node', async () => {
-    const bDatabasesNode = await browser.waitForExist(
-      tree.databasesNodeSelector
-    );
+    const bDatabasesNode = await browser.waitForExist(tree.databasesNodeSelector);
     expect(bDatabasesNode).toBe(true);
 
-    let bDBNodeExpanded = await tree.checkTreeNodeExpanded(
-      tree.databasesNodeSelector
-    );
+    let bDBNodeExpanded = await tree.checkTreeNodeExpanded(tree.databasesNodeSelector);
     console.log('bDBNodeExpanded: ', bDBNodeExpanded);
 
     await tree
@@ -105,21 +97,15 @@ describe('tree-test-suite', () => {
       .leftClick()
       .pause(500);
 
-    bDBNodeExpanded = await tree.checkTreeNodeExpanded(
-      tree.databasesNodeSelector
-    );
+    bDBNodeExpanded = await tree.checkTreeNodeExpanded(tree.databasesNodeSelector);
     console.log('bDBNodeExpanded: ', bDBNodeExpanded);
     expect(bDBNodeExpanded).toBe(true);
 
-    await tree
-      .toogleExpandTreeNode(tree.databasesNodeSelector)
-      .pause(500);
+    await tree.toogleExpandTreeNode(tree.databasesNodeSelector).pause(500);
 
-      bDBNodeExpanded = await tree.checkTreeNodeExpanded(
-        tree.databasesNodeSelector
-      );
-      console.log('bDBNodeExpanded: ', bDBNodeExpanded);
-      expect(bDBNodeExpanded).toBe(false);
+    bDBNodeExpanded = await tree.checkTreeNodeExpanded(tree.databasesNodeSelector);
+    console.log('bDBNodeExpanded: ', bDBNodeExpanded);
+    expect(bDBNodeExpanded).toBe(false);
   });
 
   // test('drag and drop a tree node', async () => {

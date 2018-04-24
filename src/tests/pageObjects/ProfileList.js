@@ -40,7 +40,8 @@ export default class ProfileList extends Page {
 
   cancelCloseButtonSelector = '.close-profile-alert-dialog .dialogButtons .cancelButton';
 
-  confirmRemoveButtonSelector = this.removeProfileAlertDialogSelector + ' .dialogButtons .submitButton';
+  confirmRemoveButtonSelector = this.removeProfileAlertDialogSelector +
+  ' .dialogButtons .submitButton';
 
   /**
    * open connection panel
@@ -109,13 +110,11 @@ export default class ProfileList extends Page {
    * @param index the index of the profile on the list, start from 0
    */
   clickProfile(index) {
-    return this.browser
-      .click(this._getConnectProfileSelector(index))
-      .waitUntil(() => {
-        return this.getProfileClassName(index).then((className) => {
-          return className.indexOf(this.selectedProfileClassName) >= 0;
-        });
+    return this.browser.click(this._getConnectProfileSelector(index)).waitUntil(() => {
+      return this.getProfileClassName(index).then(className => {
+        return className.indexOf(this.selectedProfileClassName) >= 0;
       });
+    });
   }
 
   /**
@@ -123,10 +122,7 @@ export default class ProfileList extends Page {
    * @param index the index of the profile on the list, start from 0
    */
   getProfileClassName(index) {
-    return this.browser.getAttribute(
-      this._getConnectProfileSelector(index),
-      'className'
-    );
+    return this.browser.getAttribute(this._getConnectProfileSelector(index), 'className');
   }
 
   _getConnectProfileSelector(index) {

@@ -69,14 +69,14 @@ export default class Terminal extends Page {
 
         for (let i = 0; i < n; i += 1) {
           result.push(
-            buffer.translateBufferLineToString(buffer.ybase + buffer.y - n + 1 + i, true),
+            buffer.translateBufferLineToString(buffer.ybase + buffer.y - n + 1 + i, true)
           );
         }
 
         return n === 1 ? result[0] : result;
       },
       id,
-      n,
+      n
     )).value;
     /* eslint-enable */
   }
@@ -85,7 +85,7 @@ export default class Terminal extends Page {
     return waitUtil(
       async () => (await this.getTerminalLastNLines(id)).length > 0,
       timeout,
-      `expects terminal to be ready within ${timeout} ms`,
+      `expects terminal to be ready within ${timeout} ms`
     );
   }
 
@@ -98,7 +98,7 @@ export default class Terminal extends Page {
         reactComponent.props.send(command);
       },
       id,
-      command,
+      command
     );
     /* eslint-enable */
   }

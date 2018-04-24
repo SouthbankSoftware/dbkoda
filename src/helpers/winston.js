@@ -24,59 +24,59 @@
  * along with dbKoda.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- import moment from 'moment';
- import { format } from 'winston';
- import util from 'util';
+import moment from 'moment';
+import { format } from 'winston';
+import util from 'util';
 
- export const levelConfig = {
-   levels: {
-     error: 0,
-     warn: 1,
-     notice: 2,
-     info: 3,
-     debug: 4
-   },
-   colors: {
-     error: 'red',
-     warn: 'yellow',
-     notice: 'green',
-     info: 'gray',
-     debug: 'blue'
-   }
- };
+export const levelConfig = {
+  levels: {
+    error: 0,
+    warn: 1,
+    notice: 2,
+    info: 3,
+    debug: 4
+  },
+  colors: {
+    error: 'red',
+    warn: 'yellow',
+    notice: 'green',
+    info: 'gray',
+    debug: 'blue'
+  }
+};
 
- const INSPECT_OPTIONS = {
-   depth: 3
- };
+const INSPECT_OPTIONS = {
+  depth: 3
+};
 
- const stringify = value => {
-   if (typeof value === 'string') {
-     return value;
-   } else if (value instanceof Error) {
-     return value.stack;
-   }
+const stringify = value => {
+  if (typeof value === 'string') {
+    return value;
+  } else if (value instanceof Error) {
+    return value.stack;
+  }
 
-   return util.inspect(value, INSPECT_OPTIONS);
- };
+  return util.inspect(value, INSPECT_OPTIONS);
+};
 
- export const commonFormatter = format(info => {
-   const { timestamp, message, meta } = info;
+export const commonFormatter = format(info => {
+  const { timestamp, message, meta } = info;
 
-   if (!timestamp) {
-     info.timestamp = Date.now();
-   }
+  if (!timestamp) {
+    info.timestamp = Date.now();
+  }
 
-   info.message = stringify(message);
+  info.message = stringify(message);
 
-   if (meta != null) {
-     info.meta = stringify(meta);
-   }
+  if (meta != null) {
+    info.meta = stringify(meta);
+  }
 
-   return info;
- })();
+  return info;
+})();
 
- export const printfFormatter = format.printf(info => {
-   const { timestamp, level, message, meta } = info;
+export const printfFormatter = format.printf(info => {
+  const { timestamp, level, message, meta } = info;
 
-   return `${moment(timestamp).format()} - ${level}: ${message}${meta != null ? ` ${meta}` : ''}`;
- });
+  return `${moment(timestamp).format()} - ${level}: ${message}${meta != null ? ` ${meta}` : ''}`;
+});

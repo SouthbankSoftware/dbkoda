@@ -6,11 +6,16 @@
  * @Last modified time: 2018-01-30T14:00:55+11:00
  */
 
-import {getRandomPort, killMongoInstance, launchSingleInstance, generateMongoData} from 'test-utils';
+import {
+  getRandomPort,
+  killMongoInstance,
+  launchSingleInstance,
+  generateMongoData
+} from 'test-utils';
 import Output from '../pageObjects/Output';
 import ConnectionProfile from '../pageObjects/Connection';
 import Editor from '../pageObjects/Editor';
-import {config, getApp} from '../helpers';
+import { config, getApp } from '../helpers';
 
 describe('output-panel-test-suite', () => {
   // always config test suite
@@ -24,11 +29,11 @@ describe('output-panel-test-suite', () => {
   let connection;
   let editor;
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     generateMongoData(mongoPort, 'test', 'test', 500);
-    return getApp().then((res) => {
+    return getApp().then(res => {
       app = res;
       browser = app.client;
       output = new Output(browser);

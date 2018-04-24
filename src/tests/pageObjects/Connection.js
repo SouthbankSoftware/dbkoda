@@ -7,7 +7,7 @@
  */
 
 import Page from './Page';
-import {DELAY_TIMEOUT} from '../helpers/config';
+import { DELAY_TIMEOUT } from '../helpers/config';
 
 export default class ConnectionProfile extends Page {
   newProfileButtonSelector = '.newProfileButton';
@@ -38,7 +38,7 @@ export default class ConnectionProfile extends Page {
 
   passwordInputSelector = 'input#password';
 
-  authDatabaseInputSelector = 'input#authenticationDatabase'
+  authDatabaseInputSelector = 'input#authenticationDatabase';
 
   urlRadioSelector = 'input#urlRadio';
 
@@ -67,7 +67,6 @@ export default class ConnectionProfile extends Page {
   resetButtonSelector = '.ProfileManager .profile-button-panel .reset-button';
   testButtonSelector = '.ProfileManager .profile-button-panel .test-button';
   saveButtonSelector = '.ProfileManager .profile-button-panel .save-button';
-
 
   /**
    * open connection panel
@@ -111,10 +110,11 @@ export default class ConnectionProfile extends Page {
    * @returns {*}
    */
   saveProfile(profile) {
-    return this.fillConnectionProfileData(profile)
-      .then(() => {
-        this.browser.leftClick(this.saveButtonSelector).waitForExist(this.connectionProfilePanel, DELAY_TIMEOUT, true);
-      });
+    return this.fillConnectionProfileData(profile).then(() => {
+      this.browser
+        .leftClick(this.saveButtonSelector)
+        .waitForExist(this.connectionProfilePanel, DELAY_TIMEOUT, true);
+    });
   }
 
   /**
@@ -152,7 +152,7 @@ export default class ConnectionProfile extends Page {
    */
   async fillConnectionProfileData(profile) {
     let bro = this.browser;
-    if (!await this.browser.isExisting(this.connectionProfilePanel)) {
+    if (!(await this.browser.isExisting(this.connectionProfilePanel))) {
       bro = this.openConnectionProfilePanel();
     }
     if (profile.alias) {
@@ -208,13 +208,13 @@ export default class ConnectionProfile extends Page {
           .waitForEnabled(this.sshKeyFileInputSelector)
           .setValue(this.sshKeyFileInputSelector, profile.sshKeyFile)
           .waitForValue(this.sshKeyFileInputSelector, profile.sshKeyFile);
-          if (profile.passPhrase) {
-            await bro
+        if (profile.passPhrase) {
+          await bro
             .waitForExist(this.passPhraseInputSelector)
             .waitForEnabled(this.passPhraseInputSelector)
             .setValue(this.passPhraseInputSelector, profile.passPhrase)
             .waitForValue(this.passPhraseInputSelector, profile.passPhrase);
-          }
+        }
       }
 
       if (profile.sshTunnel) {
@@ -231,10 +231,10 @@ export default class ConnectionProfile extends Page {
    */
   async _selectSSL(profile, bro) {
     return profile.ssl
-    ? bro
-        .leftClick(this.advancedConnectionSettings)
-        .waitForExist(this.sslCheckboxSelector)
-        .leftClick(this.sslCheckboxSelector)
+      ? bro
+          .leftClick(this.advancedConnectionSettings)
+          .waitForExist(this.sslCheckboxSelector)
+          .leftClick(this.sslCheckboxSelector)
       : bro;
   }
 
@@ -245,13 +245,13 @@ export default class ConnectionProfile extends Page {
   async _fillInAuthentication(profile, bro) {
     return profile.authentication
       ? bro
-        .leftClick(this.shaCheckboxSelector)
-        .waitForEnabled(this.userNameInputSelector)
-        .waitForEnabled(this.passwordInputSelector)
-        .setValue(this.userNameInputSelector, profile.userName)
-        .setValue(this.passwordInputSelector, profile.password)
-        .waitForValue(this.userNameInputSelector)
-        .waitForValue(this.passwordInputSelector)
+          .leftClick(this.shaCheckboxSelector)
+          .waitForEnabled(this.userNameInputSelector)
+          .waitForEnabled(this.passwordInputSelector)
+          .setValue(this.userNameInputSelector, profile.userName)
+          .setValue(this.passwordInputSelector, profile.password)
+          .waitForValue(this.userNameInputSelector)
+          .waitForValue(this.passwordInputSelector)
       : bro;
   }
 
@@ -278,8 +278,8 @@ export default class ConnectionProfile extends Page {
       this.browser.getValue(this.userNameInputSelector),
       this.browser.getValue(this.passwordInputSelector)
     );
-    return new Promise((resolve) => {
-      Promise.all(promises).then((v) => {
+    return new Promise(resolve => {
+      Promise.all(promises).then(v => {
         resolve({
           alias: v[0],
           hostName: v[1],

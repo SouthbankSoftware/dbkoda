@@ -31,7 +31,7 @@ describe('output-terminal-test-suite', () => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     generateMongoData(mongoPort, 'test', 'test', 500);
-    return getApp().then((res) => {
+    return getApp().then(res => {
       app = res;
       browser = app.client;
       mongoPort = getRandomPort();
@@ -59,9 +59,7 @@ describe('output-terminal-test-suite', () => {
     await output.setNewOutputCursor();
     await terminal.executeCommand('use test;');
     await browser.pause(100);
-    const outputLines =
-      (await output.getNewOutputLines())
-      .replace(/\r?\n|\r/g, '');
+    const outputLines = (await output.getNewOutputLines()).replace(/\r?\n|\r/g, '');
     const expectedOutput = expect.stringMatching('use test;switched to db testdbKoda&gt;');
     expect(outputLines).toEqual(expectedOutput);
   });

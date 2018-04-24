@@ -31,18 +31,12 @@ export default class AggregateBuilder extends Page {
   aggregatePaletteWrapperSelector = '.aggregatePaletteWrapper';
   palettRootNodeSelector = '.pt-tree-root';
   expandSelector = ' > .pt-tree-node-content > .pt-tree-node-caret';
-  commonCategoryNodesSelector = '.pt-tree-root > li:nth-child(1)' +
-    this.expandSelector;
-  queryAndAggregateCategoryNodesSelector = '.pt-tree-root > li:nth-child(2)' +
-    this.expandSelector;
-  groupAndJoinCategoryNodesSelector = '.pt-tree-root > li:nth-child(3)' +
-    this.expandSelector;
-  transformCategoryNodesSelector = '.pt-tree-root > li:nth-child(4)' +
-    this.expandSelector;
-  otherCategoryNodesSelector = '.pt-tree-root > li:nth-child(5)' +
-    this.expandSelector;
-  allCategoryNodesSelector = '.pt-tree-root > li:nth-child(6)' +
-    this.expandSelector;
+  commonCategoryNodesSelector = '.pt-tree-root > li:nth-child(1)' + this.expandSelector;
+  queryAndAggregateCategoryNodesSelector = '.pt-tree-root > li:nth-child(2)' + this.expandSelector;
+  groupAndJoinCategoryNodesSelector = '.pt-tree-root > li:nth-child(3)' + this.expandSelector;
+  transformCategoryNodesSelector = '.pt-tree-root > li:nth-child(4)' + this.expandSelector;
+  otherCategoryNodesSelector = '.pt-tree-root > li:nth-child(5)' + this.expandSelector;
+  allCategoryNodesSelector = '.pt-tree-root > li:nth-child(6)' + this.expandSelector;
 
   // Details //
   aggregateDetailsWrapperSelector = '.aggregateDetailsWrapper';
@@ -55,8 +49,7 @@ export default class AggregateBuilder extends Page {
   hideButtonSelector = '.aggregateDetailsToolbar > .pt-align-right > .pt-popover-target > .hideLeftPanelButton';
 
   async addBlockFromPalette(blockName) {
-    const blockSelector =
-      '.aggregateBlock.' + blockName + '.selected_undefined > div > svg';
+    const blockSelector = '.aggregateBlock.' + blockName + '.selected_undefined > div > svg';
     await this.browser.waitForExist(blockSelector);
     await this.browser.element(blockSelector).click();
   }
@@ -67,14 +60,10 @@ export default class AggregateBuilder extends Page {
         await this.browser.element(this.commonCategoryNodesSelector).click();
         break;
       case 'QueryAndAggregate':
-        await this.browser
-          .element(this.queryAndAggregateCategoryNodesSelector)
-          .click();
+        await this.browser.element(this.queryAndAggregateCategoryNodesSelector).click();
         break;
       case 'GroupAndJoin':
-        await this.browser
-          .element(this.groupAndJoinCategoryNodesSelector)
-          .click();
+        await this.browser.element(this.groupAndJoinCategoryNodesSelector).click();
         break;
       case 'Transform':
         await this.browser.element(this.transformCategoryNodesSelector).click();
@@ -99,39 +88,46 @@ export default class AggregateBuilder extends Page {
   async isBlockSelected(blockIndex) {
     blockIndex += 1;
     await this.browser.waitForExist(
-      '.graphicalBuilderBlockList > div:nth-child(' +
-        blockIndex +
-        ').selected_true',
+      '.graphicalBuilderBlockList > div:nth-child(' + blockIndex + ').selected_true'
     );
   }
 
   async selectBlock(blockIndex) {
     blockIndex += 1;
-    const indexSelector =
-      '.graphicalBuilderBlockList > div:nth-child(' + blockIndex + ')';
+    const indexSelector = '.graphicalBuilderBlockList > div:nth-child(' + blockIndex + ')';
     await this.browser.waitForExist(indexSelector);
-    await this.browser.element(indexSelector).click().pause(500);
+    await this.browser
+      .element(indexSelector)
+      .click()
+      .pause(500);
   }
 
   async removeBlock(blockIndex) {
     blockIndex += 1;
     const indexSelector =
-      '.graphicalBuilderBlockList > div:nth-child(' +
-      blockIndex +
-      ') > div > svg.closeBlockIcon';
+      '.graphicalBuilderBlockList > div:nth-child(' + blockIndex + ') > div > svg.closeBlockIcon';
     await this.browser.waitForExist(indexSelector);
-    await this.browser.element(indexSelector).click().pause(500);
+    await this.browser
+      .element(indexSelector)
+      .click()
+      .pause(500);
   }
 
   async openLeftPanel() {
     await this.browser.waitForExist(this.showButtonSelector);
-    await this.browser.element(this.showButtonSelector).click().pause(500);
+    await this.browser
+      .element(this.showButtonSelector)
+      .click()
+      .pause(500);
     await this.browser.waitForExist(this.hideButtonSelector);
   }
 
   async closeLeftPanel() {
     await this.browser.waitForExist(this.hideButtonSelector);
-    await this.browser.element(this.hideButtonSelector).click().pause(500);
+    await this.browser
+      .element(this.hideButtonSelector)
+      .click()
+      .pause(500);
     await this.browser.waitForExist(this.showButtonSelector);
   }
 

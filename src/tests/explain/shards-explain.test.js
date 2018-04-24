@@ -26,7 +26,12 @@
  */
 import assert from 'assert';
 import uuidV1 from 'uuid/v1';
-import { getRandomPort, killMongoInstance, launchMongoInstance, generateMongoData } from 'test-utils';
+import {
+  getRandomPort,
+  killMongoInstance,
+  launchMongoInstance,
+  generateMongoData
+} from 'test-utils';
 
 import ConnectionProfile from '../pageObjects/Connection';
 import Editor from '../pageObjects/Editor';
@@ -46,41 +51,43 @@ describe('test explain', () => {
   let editor;
   let explain;
 
-  const cleanup = async() => {
+  const cleanup = async () => {
     killMongoInstance(mongoPort);
     if (app && app.isRunning()) {
       return app.stop();
     }
   };
 
-  beforeAll(async(done) => {
+  beforeAll(async done => {
     mongoPort = getRandomPort();
     launchMongoInstance('--replicaset', mongoPort, '--mongos 3 --sharded 3 --hostname localhost');
     setTimeout(() => {
       generateMongoData(mongoPort, 'test', 'users', 500);
       process.on('SIGINT', cleanup);
-      return getApp().then(async(res) => {
-        app = res;
-        browser = app.client;
-        await browser.pause(10000);
-        connectProfile = new ConnectionProfile(browser);
-        explain = new Explain(browser);
-        editor = new Editor(browser);
-        const alias = 'connection:' + uuidV1();
-        return connectProfile.connectProfileByURL({
-          alias,
-          url: 'mongodb://localhost:' + mongoPort,
-          database: 'test'
+      return getApp()
+        .then(async res => {
+          app = res;
+          browser = app.client;
+          await browser.pause(10000);
+          connectProfile = new ConnectionProfile(browser);
+          explain = new Explain(browser);
+          editor = new Editor(browser);
+          const alias = 'connection:' + uuidV1();
+          return connectProfile.connectProfileByURL({
+            alias,
+            url: 'mongodb://localhost:' + mongoPort,
+            database: 'test'
+          });
+        })
+        .then(async () => {
+          await editor._appendToEditor('use admin;\n');
+          await editor._appendToEditor('db.runCommand({enableSharding: "test"});\n');
+          await editor._appendToEditor('use test;\n');
+          await editor._appendToEditor('db.users.createIndex({"user.age":1});\n');
+          await editor._clickExecuteAll();
+          console.log('finish before all');
+          done();
         });
-      }).then(async() => {
-        await editor._appendToEditor('use admin;\n');
-        await editor._appendToEditor('db.runCommand({enableSharding: "test"});\n');
-        await editor._appendToEditor('use test;\n');
-        await editor._appendToEditor('db.users.createIndex({"user.age":1});\n');
-        await editor._clickExecuteAll();
-        console.log('finish before all');
-        done();
-      });
     }, 120000);
   });
 
@@ -88,7 +95,7 @@ describe('test explain', () => {
     return cleanup();
   });
 
-  test('run explain query on a shard cluster', async() => {
+  test('run explain query on a shard cluster', async () => {
     try {
       await editor._clearEditor();
       await editor._appendToEditor('\n use test;\n');
@@ -118,11 +125,13 @@ describe('test explain', () => {
     }
   });
 
-  test('shard collection and execute explain', async() => {
+  test('shard collection and execute explain', async () => {
     try {
       await editor._clearEditor();
       await editor._appendToEditor('use admin;\n');
-      await editor._appendToEditor('db.runCommand( { shardCollection: "test.users", key: { "user.age": 1 } } );\n');
+      await editor._appendToEditor(
+        'db.runCommand( { shardCollection: "test.users", key: { "user.age": 1 } } );\n'
+      );
       await editor._clickExecuteAll();
       await browser.pause(1000);
       await editor._appendToEditor('sh.splitAt("test.users", {"user.age":30});\n');

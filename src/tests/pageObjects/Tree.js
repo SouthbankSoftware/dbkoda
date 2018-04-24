@@ -83,7 +83,7 @@ class Tree extends Page {
     try {
       const bExpanded = await this.getTreeNode(selector).waitForExist(
         '.pt-tree-node-caret-open',
-        100,
+        100
       );
       return bExpanded;
     } catch (e) {

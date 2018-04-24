@@ -5,11 +5,7 @@
 
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
-import {
-  getRandomPort,
-  killMongoInstance,
-  launchSingleInstance
-} from 'test-utils';
+import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
 import TreeAction from '#/pageObjects/TreeAction';
 import Connection from '#/pageObjects/Connection';
 import { config, getApp } from '#/helpers';
@@ -146,14 +142,10 @@ describe('TreeAction:AlterUser', () => {
     await r.treeAction.execute().pause(1000);
   });
 
-
-
   /** Get output and compare */
   test('returns the correct output', async () => {
     const output = await mongoPortOutput(r.mongoDbPort, r.validateUserCmd);
-    const expectedOutput = expect.stringMatching(
-      sprintf('%s updated ok', r.adminRandomUser)
-    );
+    const expectedOutput = expect.stringMatching(sprintf('%s updated ok', r.adminRandomUser));
     expect(output).toEqual(expectedOutput);
   });
 });

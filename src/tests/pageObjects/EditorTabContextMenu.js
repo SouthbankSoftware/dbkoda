@@ -19,45 +19,29 @@ export default class EditorTabContextMenu extends Page {
 
   async openContextMenu(tabName) {
     console.log(`${this.tabSelector}${tabName}`);
-    return this
-      .browser
+    return this.browser
       .waitForExist(`${this.tabSelector}${tabName}`)
       .rightClick(`${this.tabSelector}${tabName}`)
       .waitForExist(this.menuSelector);
   }
 
   async closeTab() {
-    return this
-      .browser
-      .waitForExist(this.closeTabSelector)
-      .leftClick(this.closeTabSelector);
+    return this.browser.waitForExist(this.closeTabSelector).leftClick(this.closeTabSelector);
   }
 
   async closeOtherTabs() {
-    return this
-      .browser
-      .waitForExist(this.closeOtherSelector)
-      .leftClick(this.closeOtherSelector);
+    return this.browser.waitForExist(this.closeOtherSelector).leftClick(this.closeOtherSelector);
   }
 
   async closeAllTabs() {
-    return this
-      .browser
-      .waitForExist(this.closeTabSelector)
-      .leftClick(this.closeTabSelector);
+    return this.browser.waitForExist(this.closeTabSelector).leftClick(this.closeTabSelector);
   }
 
   async closeLeftTabs() {
-    return this
-      .browser
-      .waitForExist(this.closeLeftSelector)
-      .leftClick(this.closeLeftSelector);
+    return this.browser.waitForExist(this.closeLeftSelector).leftClick(this.closeLeftSelector);
   }
 
   async closeRightTabs() {
-    return this
-      .browser
-      .waitForExist(this.closeRightSelector)
-      .leftClick(this.closeRightSelector);
+    return this.browser.waitForExist(this.closeRightSelector).leftClick(this.closeRightSelector);
   }
 }

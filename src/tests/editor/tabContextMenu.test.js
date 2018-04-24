@@ -1,16 +1,12 @@
 /**
-* @Author: chris
-* @Date:   2017-05-26T11:17:01+10:00
-* @Email:  chris@southbanksoftware.com
+ * @Author: chris
+ * @Date:   2017-05-26T11:17:01+10:00
+ * @Email:  chris@southbanksoftware.com
  * @Last modified by:   chris
  * @Last modified time: 2017-05-29T13:42:46+10:00
-*/
+ */
 
-import {
-  getRandomPort,
-  killMongoInstance,
-  launchSingleInstance
-} from 'test-utils';
+import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
 import Editor from '../pageObjects/Editor';
 import EditorTabContextMenu from '../pageObjects/EditorTabContextMenu';
 import ConnectionProfile from '../pageObjects/Connection';
@@ -31,7 +27,7 @@ describe('editor-test-suite', () => {
 
   // Executes before the test suite begins.
   beforeAll(async () => {
-    return getApp().then((res) => {
+    return getApp().then(res => {
       // Get our app and browser for testing.
       app = res;
       browser = app.client;

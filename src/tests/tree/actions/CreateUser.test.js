@@ -4,23 +4,12 @@
  */
 
 import _ from 'lodash';
-import {
-  getRandomPort,
-  killMongoInstance,
-  launchSingleInstance
-} from 'test-utils';
-import {
-  sprintf
-} from 'sprintf-js';
+import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
+import { sprintf } from 'sprintf-js';
 import TreeAction from '#/pageObjects/TreeAction';
 import Connection from '#/pageObjects/Connection';
-import {
-  config,
-  getApp
-} from '#/helpers';
-import {
-  mongoPortOutput
-} from './uiDefinitions/inputAndTest/common';
+import { config, getApp } from '#/helpers';
+import { mongoPortOutput } from './uiDefinitions/inputAndTest/common';
 
 const debug = false;
 
@@ -32,19 +21,23 @@ describe('TreeAction:CreateUser', () => {
   const r = {};
   const cleanupWorkflows = [];
 
-  const cleanup = async() => {
+  const cleanup = async () => {
     // cleanup in reverse order
-    await _.reduceRight(cleanupWorkflows, async(acc, wf) => {
-      await acc;
-      try {
-        await wf();
-      } catch (e) {
-        console.error(e.stack);
-      }
-    }, Promise.resolve());
+    await _.reduceRight(
+      cleanupWorkflows,
+      async (acc, wf) => {
+        await acc;
+        try {
+          await wf();
+        } catch (e) {
+          console.error(e.stack);
+        }
+      },
+      Promise.resolve()
+    );
   };
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     try {
       const app = await getApp();
 
@@ -52,15 +45,13 @@ describe('TreeAction:CreateUser', () => {
       r.browser = app.client;
       r.treeAction = new TreeAction(r.browser);
       r.connection = new Connection(r.browser);
-      r.debug = async() => {
+      r.debug = async () => {
         console.log('\n\nWebdriverIO debugging REPL...');
-        await r
-          .browser
-          .debug();
+        await r.browser.debug();
       };
       global.debug = r.debug;
 
-      cleanupWorkflows.push(async() => {
+      cleanupWorkflows.push(async () => {
         if (app && app.isRunning()) {
           await app.stop();
         }
@@ -70,18 +61,18 @@ describe('TreeAction:CreateUser', () => {
     }
   });
 
-  afterAll(async() => {
+  afterAll(async () => {
     await cleanup();
   });
 
   /** Setup database */
-  test('requires a testing database', async() => {
+  test('requires a testing database', async () => {
     r.mongoDbPort = getRandomPort();
     launchSingleInstance(r.mongoDbPort);
     if (debug) {
       console.log('DB start');
     }
-    cleanupWorkflows.push(async() => {
+    cleanupWorkflows.push(async () => {
       killMongoInstance(r.mongoDbPort);
     });
     if (debug) {
@@ -110,21 +101,22 @@ describe('TreeAction:CreateUser', () => {
     r.templateInput.Database; // Fails on this for some reason
     r.templateInput.Roles;
     r.createDatabase = 'db.getSiblingDB("admin").xxx.insertOne({x:1});';
-    r.dropUserCmd = sprintf('db.getSiblingDB("admin").dropUser(   "%s",{w: "majority"}) ;\n', r.randomUser);
-    r.validateUserCmd = sprintf('\ndb.getSiblingDB("admin").system.users.find({_id:"%s"});' +
-      'var  userDoc=db.getSiblingDB("admin").system.users.find({_id:"%s"}).toArray()[' +
-      '0];\n  print (userDoc._id+" created roles="+userDoc.roles.length); \n',
-      r.adminRandomUser, r.adminRandomUser);
+    r.dropUserCmd = sprintf(
+      'db.getSiblingDB("admin").dropUser(   "%s",{w: "majority"}) ;\n',
+      r.randomUser
+    );
+    r.validateUserCmd = sprintf(
+      '\ndb.getSiblingDB("admin").system.users.find({_id:"%s"});' +
+        'var  userDoc=db.getSiblingDB("admin").system.users.find({_id:"%s"}).toArray()[' +
+        '0];\n  print (userDoc._id+" created roles="+userDoc.roles.length); \n',
+      r.adminRandomUser,
+      r.adminRandomUser
+    );
   });
 
   /** Connect to database */
-  test('Create a connection', async() => {
-    const {
-      browser,
-      connection,
-      mongoDbPort: port,
-      treeAction
-    } = r;
+  test('Create a connection', async () => {
+    const { browser, connection, mongoDbPort: port, treeAction } = r;
 
     await connection.connectProfileByHostname({
       alias: 'Test',
@@ -136,7 +128,7 @@ describe('TreeAction:CreateUser', () => {
     expect(await browser.waitForExist(treeAction.treeNodeSelector)).toBeTruthy;
   });
 
-  test('Create admin database', async() => {
+  test('Create admin database', async () => {
     // This is only neccessary on Mongo < 3.4
     await mongoPortOutput(r.mongoDbPort, r.createDatabase);
     if (debug) {
@@ -145,45 +137,33 @@ describe('TreeAction:CreateUser', () => {
   });
 
   /** Select tree node and bring up action dialogue */
-  test('Invoke create user',
-    async() => {
-      await r
-        .treeAction
-        .getTreeNodeByPath(['Users'])
-        .rightClick()
-        .pause(500);
-      await r
-        .treeAction
-        .clickContextMenu(r.template.Title);
-    });
+  test('Invoke create user', async () => {
+    await r.treeAction
+      .getTreeNodeByPath(['Users'])
+      .rightClick()
+      .pause(500);
+    await r.treeAction.clickContextMenu(r.template.Title);
+  });
 
   /** Fill in action dialogue */
-  test('Enter user properties', async() => {
-    await r
-      .browser
-      .waitForExist('.dynamic-form')
-      .pause(500);
+  test('Enter user properties', async () => {
+    await r.browser.waitForExist('.dynamic-form').pause(500);
     console.log('Form exists!');
     if (debug) {
       console.log(r.template);
       console.log(r.templateInput);
     }
     if (debug) await r.debug();
-    await r
-      .treeAction
-      .fillInDialogue(r.template, r.templateInput);
+    await r.treeAction.fillInDialogue(r.template, r.templateInput);
     if (debug) await r.debug();
   });
 
   /** Press execute */
-  test('Hit execute', async() => {
-    await r
-      .treeAction
-      .execute()
-      .pause(500);
+  test('Hit execute', async () => {
+    await r.treeAction.execute().pause(500);
   });
 
-  test('Validate user created', async() => {
+  test('Validate user created', async () => {
     // await r.debug();
     await mongoPortOutput(r.mongoDbPort, r.validateUserCmd);
 
@@ -198,7 +178,7 @@ describe('TreeAction:CreateUser', () => {
     expect(output).toEqual(expectedOutput);
   });
 
-  test('Drop user', async() => {
+  test('Drop user', async () => {
     await mongoPortOutput(r.mongoDbPort, r.dropUserCmd);
 
     if (debug) {
