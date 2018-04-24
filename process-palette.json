@@ -1,0 +1,52 @@
+{
+  "patterns": {
+    "P1": {
+      "expression": "(path):(line)"
+    },
+    "P2": {
+      "expression": "(path)\\s+(line)",
+      "path": "(?:\\/[\\w\\.\\-]+)+"
+    }
+  },
+  "commands": [
+    {
+      "namespace": "dbkoda-atom",
+      "action": "format",
+      "command": "yarn format {filePath}",
+      "arguments": [],
+      "cwd": "{configDirAbsPath}",
+      "inputDialogs": [],
+      "env": {},
+      "keystroke": "cmd-i",
+      "stream": true,
+      "outputTarget": "panel",
+      "outputBufferSize": 80000,
+      "maxCompleted": 1,
+      "autoShowOutput": true,
+      "autoHideOutput": true,
+      "scrollLockEnabled": false,
+      "singular": false,
+      "promptToSave": false,
+      "saveOption": "referenced",
+      "patterns": ["default"],
+      "successOutput": "{stdout}",
+      "errorOutput": "{stdout}\n{stderr}",
+      "fatalOutput": "Failed to execute : {fullCommand}\n{stdout}\n{stderr}",
+      "startMessage": null,
+      "successMessage": null,
+      "errorMessage": "Executed : {fullCommand}\nReturned with code {exitStatus}\n{stderr}",
+      "fatalMessage": "Failed to execute : {fullCommand}\n{stdout}\n{stderr}",
+      "menus": [],
+      "startScript": null,
+      "successScript": null,
+      "errorScript": null,
+      "scriptOnStart": false,
+      "scriptOnSuccess": false,
+      "scriptOnError": false,
+      "notifyOnStart": false,
+      "notifyOnSuccess": false,
+      "notifyOnError": true,
+      "input": null
+    }
+  ]
+}
