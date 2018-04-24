@@ -40,6 +40,13 @@ mongoCmd: /usr/local/bin/mongo
 
 ```
 
+Please configure docker command if you are using mongo shell through a docker container:
+
+```yaml
+mongoCmd: docker run -it --rm $DOCKER_IMAGE_NAME mongo mongo
+mongoVersionCmd: docker run --rm $DOCKER_IMAGE_NAME mongo mongo --version
+```
+
 ### dbKoda Home Folder
 Mac & Linux: `~/.dbKoda/`
 Windows: `c:\Users\<username>\.dbKoda\`
