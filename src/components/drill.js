@@ -3,7 +3,7 @@
  * @Date:   2017-12-02T12:07:05+11:00
  * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-03-06T13:15:14+11:00
+ * @Last modified time: 2018-04-24T12:34:30+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -39,7 +39,7 @@ const sendStatusToRenderer = (channel, command, message) => {
 };
 const downloadDrill = () => {
   return new Promise((resolve, reject) => {
-    const drillVersion = 'drill-1.11.0';
+    const drillVersion = 'drill-1.13.0';
     const drillPath = path.resolve(global.PATHS.home, 'drill');
     console.log(drillPath);
     const src = `http://apache.mirrors.hoobly.com/drill/${drillVersion}/apache-${drillVersion}.tar.gz`;
