@@ -21,7 +21,7 @@ export default class Editor extends Page {
 
   // Panel
   editorPanelSelector = '.editorTabView';
-  welcomeTabSelector = '.welcomeTab';
+  welcomeTabSelector = '#pt-tab-title_EditorTabs_Default';
 
   get editorContextDropdown() {
     return this.getEditorElement(this.editorContextDropdownSelector);

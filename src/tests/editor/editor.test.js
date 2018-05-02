@@ -85,13 +85,10 @@ describe('editor-test-suite', () => {
       editor._clickExecuteAll();
       res = await browser.waitForExist('span*=local');
 
-      res = await browser.getText('.CodeMirror-scroll');
-      if (debug) {
-        res.forEach(line => {
-          console.log(line);
-        });
-      }
-      expect(res[3]).toMatch(/local/);
+      const outputLines = await output.getAllOutputLines();
+      console.log(outputLines);
+      const expectedOutput = expect.stringMatching('local');
+      expect(outputLines.toString()).toEqual(expectedOutput);
     } catch (err) {
       console.log(err);
       expect(true).toBe(false);
