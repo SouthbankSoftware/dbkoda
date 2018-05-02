@@ -11,7 +11,7 @@ import Page from './Page';
  * Layout page object
  */
 class Layout extends Page {
-  rootSplitPaneSelector = '.RootSplitPane';
+  rootSplitPaneSelector = '.EditorSplitPane';
 
   /** @type {WebDriverIoPromise} */
   get rootSplitPane() {
