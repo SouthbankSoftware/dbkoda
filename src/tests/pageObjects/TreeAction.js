@@ -54,10 +54,12 @@ class TreeAction extends Tree {
   }
 
   clickContextMenu(label) {
-    return this.browser
-      .$('.pt-popover .pt-menu')
-      .$(`.pt-menu-item=${label}`)
-      .leftClick();
+    return (
+      this.browser
+        // .$('.pt-popover .pt-menu .pt-menu-item')
+        .$(`.pt-text-overflow-ellipsis=${label}`)
+        .leftClick()
+    );
   }
 
   /** CodeMirror field */
@@ -306,8 +308,7 @@ class TreeAction extends Tree {
       _.reduce(
         path,
         async (accPromise, nodeName, idx, path) => {
-          const currNodeEleStr = (await accPromise) + `.$('.pt-tree-node-content=${nodeName}')`;
-
+          const currNodeEleStr = (await accPromise) + `.$('.nodeLbl=${nodeName}')`;
           await this.browser.waitUntil(
             async () => {
               return (await eval(currNodeEleStr)).status === 0;
@@ -318,16 +319,25 @@ class TreeAction extends Tree {
 
           try {
             const needToExpandCaret =
-              (await eval(currNodeEleStr).$('.pt-tree-node-caret.pt-tree-node-caret-closed'))
-                .status === 0;
+              (await eval(currNodeEleStr)
+                .$('..')
+                .$('..')
+                .$('..')
+                .$('.pt-tree-node-caret.pt-tree-node-caret-closed')).status === 0;
             if (needToExpandCaret) {
               await eval(currNodeEleStr)
+                .$('..')
+                .$('..')
+                .$('..')
                 .$('.pt-tree-node-caret.pt-tree-node-caret-closed')
                 .leftClick();
             }
           } catch (_e) {} // eslint-disable-line no-empty
 
-          return currNodeEleStr + (idx < path.length - 1 ? ".$('..')" : '');
+          return (
+            currNodeEleStr +
+            (idx < path.length - 1 ? ".$('..').$('..').$('..').$('..').$('.pt-collapse')" : '')
+          );
         },
         Promise.resolve('_this.browser')
       ).then(eleStr => {
