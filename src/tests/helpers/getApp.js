@@ -117,7 +117,7 @@ export default (options = {}) => {
                       return resolve(
                         app.client
                           .windowByIndex(winIdx)
-                          .waitUntilTextExists('#pt-tab-title_EditorTabs_Default', 'Welcome')
+                          .waitUntilTextExists('#pt-tab-title_EditorTabs_Default', 'Home')
                       );
                     }
                     _.delay(getTitle, 200);

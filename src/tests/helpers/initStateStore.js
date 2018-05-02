@@ -10,7 +10,7 @@ import path from 'path';
 
 export default () => {
   console.log('initStateStore()');
-  const basePath = '/tmp/dbkoda/';
+  const basePath = '/tmp/dbKoda/';
   console.log('State Store: ', path.resolve(basePath, 'stateStore.json'));
   console.log('Profiles: ', path.resolve(basePath, 'profiles.yml'));
   console.log('Config: ', path.resolve(basePath, 'config.yml'));
@@ -24,7 +24,9 @@ export default () => {
   fs.removeSync('.tmp/config.yml');
   fs.writeFileSync(
     path.resolve(basePath, 'config.yml'),
-    'mongoCmd: /usr/local/bin/mongo\n' +
+    'user:\n' +
+      '  id: VbtwcsPR5A1EgjlutbS4K\n' +
+      'mongoCmd: /usr/local/bin/mongo\n' +
       'mongoVersionCmd: /usr/local/bin/mongo --version\n' +
       'mongodumpCmd: /usr/local/bin/mongodump\n' +
       'mongorestoreCmd: /usr/local/bin/mongorestore\n' +
@@ -36,9 +38,19 @@ export default () => {
       'drillControllerCmd: ' +
       process.env.DRILL_CONTROLLER_PATH +
       '\n' +
-      'showWelcomePageAtStart: true\n' +
-      'telemetryEnabled: true\n' +
-      'sshCounterInterval: 2\n' +
-      'sshCounterCmd: vmstat'
+      'telemetryEnabled: false\n' +
+      'showNewFeaturesDialogOnStart: false\n' +
+      'tableOutputDefault: false\n' +
+      'automaticAutoComplete: false\n' +
+      'showWelcomePageAtStart: false\n' +
+      'passwordStoreEnabled: false\n' +
+      'performancePanel:\n' +
+      '  preventDisplaySleep: false\n' +
+      '  metricSmoothingWindow: 6\n' +
+      '  foregroundSamplingRate: 5000\n' +
+      '  backgroundSamplingRate: 15000\n' +
+      '  historySize: 720\n' +
+      '  historyBrushSize: 30\n' +
+      '  alarmDisplayingWindow: 60000\n'
   );
 };

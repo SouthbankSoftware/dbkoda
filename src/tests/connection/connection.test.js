@@ -178,27 +178,29 @@ describe('connection-profile-test-suite', () => {
       .catch(err => console.error(err));
   });
 
-  test('Connect Mongo 3.0', () => {
-    return connectProfile
-      .connectProfileByHostname({
-        alias: 'Test30' + mongoPort + '(' + getRandomPort() + ')',
-        hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
-        port: 27030,
-        database: 'test'
-      })
-      .catch(err => assert.fail(false, true, err));
-  });
+  // Disabled the following tests because the instances are not running on those ports
 
-  test('Connect Mongo 3.2', () => {
-    return connectProfile
-      .connectProfileByHostname({
-        alias: 'Test32' + mongoPort + '(' + getRandomPort() + ')',
-        hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
-        port: 27032,
-        database: 'test'
-      })
-      .catch(err => assert.fail(false, true, err));
-  });
+  // test('Connect Mongo 3.0', () => {
+  //   return connectProfile
+  //     .connectProfileByHostname({
+  //       alias: 'Test30' + mongoPort + '(' + getRandomPort() + ')',
+  //       hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
+  //       port: 27030,
+  //       database: 'test'
+  //     })
+  //     .catch(err => assert.fail(false, true, err));
+  // });
+  //
+  // test('Connect Mongo 3.2', () => {
+  //   return connectProfile
+  //     .connectProfileByHostname({
+  //       alias: 'Test32' + mongoPort + '(' + getRandomPort() + ')',
+  //       hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
+  //       port: 27032,
+  //       database: 'test'
+  //     })
+  //     .catch(err => assert.fail(false, true, err));
+  // });
 
   test('open connection profile through hostname via SSH Tunnel', () => {
     return connectProfile

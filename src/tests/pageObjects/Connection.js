@@ -16,6 +16,8 @@ export default class ConnectionProfile extends Page {
 
   basicConnectionSettings = '.ProfileManager .connectionLeftPane .btn-basic';
 
+  authenticationConnectionSettings = '.ProfileManager .connectionLeftPane .btn-authentication';
+
   clusterConnectionSettings = '.ProfileManager .connectionLeftPane .btn-cluster';
 
   advancedConnectionSettings = '.ProfileManager .connectionLeftPane .btn-advanced';
@@ -139,9 +141,6 @@ export default class ConnectionProfile extends Page {
       .waitForExist(this.hostNameInputSelector)
       .waitForExist(this.portInputSelector)
       .waitForExist(this.databaseInputSelector)
-      .waitForExist(this.shaCheckboxSelector)
-      .waitForExist(this.userNameInputSelector)
-      .waitForExist(this.passwordInputSelector)
       .waitForExist(this.urlRadioSelector)
       .waitForExist(this.urlSelector);
   }
@@ -181,8 +180,8 @@ export default class ConnectionProfile extends Page {
         .setValue(this.databaseInputSelector, profile.database)
         .waitForValue(this.databaseInputSelector, profile.database);
     }
-    await this._fillInAuthentication(profile, bro);
     await this._selectSSL(profile, bro);
+    await this._fillInAuthentication(profile, bro);
     if (profile.ssh) {
       await bro
         .leftClick(this.sshConnectionSettings)
@@ -231,10 +230,7 @@ export default class ConnectionProfile extends Page {
    */
   async _selectSSL(profile, bro) {
     return profile.ssl
-      ? bro
-          .leftClick(this.advancedConnectionSettings)
-          .waitForExist(this.sslCheckboxSelector)
-          .leftClick(this.sslCheckboxSelector)
+      ? bro.waitForExist(this.sslCheckboxSelector).leftClick(this.sslCheckboxSelector)
       : bro;
   }
 
@@ -245,6 +241,8 @@ export default class ConnectionProfile extends Page {
   async _fillInAuthentication(profile, bro) {
     return profile.authentication
       ? bro
+          .leftClick(this.authenticationConnectionSettings)
+          .waitForExist(this.shaCheckboxSelector)
           .leftClick(this.shaCheckboxSelector)
           .waitForEnabled(this.userNameInputSelector)
           .waitForEnabled(this.passwordInputSelector)

@@ -1,40 +1,57 @@
 {
   "@0": {
+    "config": "@1",
     "locale": "en",
-    "profiles": "@1",
+    "version": "0.11.0-beta",
+    "previousVersion": "0.11.0-beta",
+    "updateAvailable": false,
     "editors": "@2",
     "outputs": "@3",
-    "userPreferences": "@4",
-    "welcomePage": "@5",
-    "editorPanel": "@6",
-    "editorToolbar": "@7",
-    "outputPanel": "@8",
-    "layout": "@9",
-    "drawer": "@10",
-    "treeActionPanel": "@11",
-    "detailsPanel": "@12",
-    "treePanel": "@13",
-    "explainPanel": "@14",
-    "mongoShellPrompt": "@15",
-    "profileList": "@16",
-    "dragItem": "@17",
-    "topology": "@18"
+    "terminals": "@4",
+    "performancePanels": "@5",
+    "performancePanel": null,
+    "welcomePage": "@6",
+    "configPage": "@7",
+    "editorPanel": "@8",
+    "editorToolbar": "@9",
+    "outputPanel": "@10",
+    "layout": "@11",
+    "drawer": "@12",
+    "treeActionPanel": "@13",
+    "aggregateBuilder": "@14",
+    "detailsPanel": "@15",
+    "storagePanel": "@16",
+    "treePanel": "@17",
+    "explainPanel": "@18",
+    "mongoShellPrompt": "@19",
+    "profileList": "@20",
+    "dragItem": "@21",
+    "password": "@22",
+    "topology": "@23"
   },
-  "@1": { "entries": "@19", "__dump__": "ObservableMap" },
-  "@2": { "entries": "@20", "__dump__": "ObservableMap" },
-  "@3": { "entries": "@21", "__dump__": "ObservableMap" },
-  "@4": {
+  "@1": {
     "__dump__": "ObservableObject",
-    "telemetryEnabled": true,
-    "showWelcomePageAtStart": true
+    "path": "/Users/wahaj/.dbKoda/config.yml",
+    "settings": "@24"
   },
-  "@5": {
+  "@2": { "entries": "@25", "__dump__": "ObservableMap" },
+  "@3": { "entries": "@26", "__dump__": "ObservableMap" },
+  "@4": { "entries": "@27", "__dump__": "ObservableMap" },
+  "@5": { "entries": "@28", "__dump__": "ObservableMap" },
+  "@6": {
     "__dump__": "ObservableObject",
     "isOpen": true,
-    "newsFeed": "@22",
+    "newsFeed": "@29",
     "currentContent": "Welcome"
   },
-  "@6": {
+  "@7": {
+    "__dump__": "ObservableObject",
+    "isOpen": true,
+    "selectedMenu": "Paths",
+    "changedFields": "@30",
+    "newSettings": "@31"
+  },
+  "@8": {
     "__dump__": "ObservableObject",
     "creatingNewEditor": false,
     "res": null,
@@ -45,100 +62,174 @@
     "stoppingExecution": false,
     "removingTabId": false,
     "isRemovingCurrentTab": false,
-    "tabFilter": ""
+    "tabFilter": "",
+    "showingSavingDialogEditorIds": "@32",
+    "lastFileSavingDirectoryPath": "/Users/wahaj",
+    "shouldScrollToActiveTab": false,
+    "tabScrollLeftPosition": 0,
+    "updateAggregateDetails": false,
+    "updateAggregateCode": false,
+    "showNewFeaturesDialog": false
   },
-  "@7": {
+  "@9": {
     "__dump__": "ObservableObject",
+    "reloadToolbar": false,
     "newConnectionLoading": false,
     "currentProfile": 0,
     "noActiveProfile": true,
     "isActiveExecuting": false,
     "id": 0,
     "shellId": 0,
-    "newEditorForTreeAction": false
+    "newEditorForTreeAction": false,
+    "newEditorForProfileId": "",
+    "saveAs": false
   },
-  "@8": {
+  "@10": {
     "__dump__": "ObservableObject",
     "currentTab": "Default",
     "clearingOutput": false,
     "executingShowMore": false,
     "executingTerminalCmd": false,
-    "sendingCommand": ""
+    "sendingCommand": "",
+    "collapseTable": false,
+    "expandTable": false,
+    "editorRefs": "@33"
   },
-  "@9": {
-    "__dump__": "ObservableObject",
-    "optInVisible": false,
-    "overallSplitPos": "35%",
-    "leftSplitPos": "50%",
-    "rightSplitPos": "50%"
-  },
-  "@10": { "__dump__": "ObservableObject", "drawerChild": "default" },
   "@11": {
+    "__dump__": "ObservableObject",
+    "alertIsLoading": false,
+    "optInVisible": false,
+    "overallSplitPos": "25%",
+    "leftSplitPos": "50%",
+    "rightSplitPos": "60%"
+  },
+  "@12": { "__dump__": "ObservableObject", "drawerChild": "default", "activeNavPane": "Editor" },
+  "@13": {
     "__dump__": "ObservableObject",
     "treeNode": null,
     "treeAction": null,
     "treeActionEditorId": "",
-    "newEditorCreated": false,
     "formValues": "",
     "isNewFormValues": false,
-    "editors": "@23"
+    "editors": "@34",
+    "refreshOnExecution": false
   },
-  "@12": { "__dump__": "ObservableObject", "detailsViewInfo": null, "activeEditorId": "" },
-  "@13": { "__dump__": "ObservableObject", "isRefreshing": false, "isRefreshDisabled": false },
-  "@14": { "__dump__": "ObservableObject", "explainAvailable": false },
-  "@15": { "__dump__": "ObservableObject", "prompt": "dbkoda>" },
-  "@16": { "__dump__": "ObservableObject", "selectedProfile": null, "creatingNewProfile": false },
+  "@14": {
+    "__dump__": "ObservableObject",
+    "includeCreateView": true,
+    "viewName": "",
+    "showViewNameDialog": false
+  },
+  "@15": {
+    "__dump__": "ObservableObject",
+    "lastTreeAction": null,
+    "lastTreeNode": null,
+    "detailsViewInfo": null,
+    "activeEditorId": ""
+  },
+  "@16": { "__dump__": "ObservableObject", "selectedDatabase": null },
   "@17": {
+    "__dump__": "ObservableObject",
+    "isRefreshing": false,
+    "isRefreshDisabled": true,
+    "downloadingDrill": false,
+    "showDrillStatus": false,
+    "drillDownloadProgress": null,
+    "drillStatusMsg": ""
+  },
+  "@18": { "__dump__": "ObservableObject", "explainAvailable": false },
+  "@19": { "__dump__": "ObservableObject", "prompt": "dbkoda>" },
+  "@20": { "__dump__": "ObservableObject", "selectedProfile": null, "creatingNewProfile": false },
+  "@21": {
     "__dump__": "ObservableObject",
     "dragDrop": false,
     "dragDropTerminal": false,
     "item": null
   },
-  "@18": { "__dump__": "ObservableObject", "isChanged": false, "json": "@24" },
-  "@19": [],
-  "@20": [],
-  "@21": ["@25"],
-  "@22": { "values": "@26", "__dump__": "ObservableArray" },
-  "@23": { "entries": "@27", "__dump__": "ObservableMap" },
-  "@24": { "__dump__": "ObservableObject" },
-  "@25": ["Default", "@28"],
-  "@26": ["@29", "@30", "@31", "@32"],
+  "@22": {
+    "__dump__": "ObservableObject",
+    "showDialog": false,
+    "showResetDialog": false,
+    "passwordVerified": false,
+    "missingProfiles": "@35",
+    "initialPassword": "",
+    "repeatPassword": ""
+  },
+  "@23": { "__dump__": "ObservableObject", "isChanged": false, "json": "@36", "profileId": "" },
+  "@24": {
+    "__dump__": "ObservableObject",
+    "user": "@37",
+    "mongoCmd": "/usr/local/bin/mongo",
+    "drillCmd": null,
+    "drillControllerCmd": null,
+    "mongoVersionCmd": "\"/usr/local/bin/mongo\" --version",
+    "mongoexportCmd": "/usr/local/bin/mongoexport",
+    "mongoimportCmd": "/usr/local/bin/mongoimport",
+    "mongodumpCmd": "/usr/local/bin/mongodump",
+    "mongorestoreCmd": "/usr/local/bin/mongorestore",
+    "telemetryEnabled": false,
+    "showNewFeaturesDialogOnStart": false,
+    "tableOutputDefault": false,
+    "automaticAutoComplete": true,
+    "showWelcomePageAtStart": true,
+    "passwordStoreEnabled": false,
+    "performancePanel": "@38"
+  },
+  "@25": [],
+  "@26": [],
   "@27": [],
-  "@28": {
-    "__dump__": "ObservableObject",
-    "id": "Default",
-    "shellId": 0,
-    "title": "Default",
-    "output": "",
-    "cannotShowMore": true,
-    "showingMore": false,
-    "commandHistory": "@33"
-  },
-  "@29": {
-    "__dump__": "ObservableObject",
-    "title": "DBEnvy",
-    "content": "<p>There is some content <b>here</b>.</p>",
-    "pubDate": "Wed, 17 May 2017 05:00:18 GMT"
-  },
-  "@30": {
-    "__dump__": "ObservableObject",
-    "title": "Sample 3",
-    "content": "<p>Blah Blah Sample 3 Blah</p>",
-    "pubDate": "Wed, 17 May 2017 04:16:59 GMT"
-  },
+  "@28": [],
+  "@29": { "values": "@39", "__dump__": "ObservableArray" },
+  "@30": { "values": "@40", "__dump__": "ObservableArray" },
   "@31": {
     "__dump__": "ObservableObject",
-    "title": "Sample 2",
-    "content": "<p>Blah blah blah</p>",
-    "pubDate": "Wed, 17 May 2017 04:16:39 GMT"
+    "user": "@41",
+    "mongoCmd": "/usr/local/bin/mongo",
+    "drillCmd": null,
+    "drillControllerCmd": null,
+    "mongoVersionCmd": "\"/usr/local/bin/mongo\" --version",
+    "mongoexportCmd": "/usr/local/bin/mongoexport",
+    "mongoimportCmd": "/usr/local/bin/mongoimport",
+    "mongodumpCmd": "/usr/local/bin/mongodump",
+    "mongorestoreCmd": "/usr/local/bin/mongorestore",
+    "telemetryEnabled": false,
+    "showNewFeaturesDialogOnStart": false,
+    "tableOutputDefault": false,
+    "automaticAutoComplete": true,
+    "showWelcomePageAtStart": true,
+    "passwordStoreEnabled": false,
+    "performancePanel": "@42"
   },
-  "@32": {
+  "@32": { "values": "@43", "__dump__": "ObservableArray" },
+  "@33": [],
+  "@34": { "entries": "@44", "__dump__": "ObservableMap" },
+  "@35": { "values": "@45", "__dump__": "ObservableArray" },
+  "@36": { "__dump__": "ObservableObject" },
+  "@37": { "__dump__": "ObservableObject", "id": "VbtwcsPR5A1EgjlutbS4K" },
+  "@38": {
     "__dump__": "ObservableObject",
-    "title": "Sample Post",
-    "content":
-      "<p><strong>This</strong> is a sample post. Here is a list of some things we can do:</p>\n\n<ul>\n<li><p>Here is some <em>italic text.</em></p></li>\n<li><blockquote>\n  <p>This is a quote.</p>\n</blockquote></li>\n<li><p><code>This is a code snippet</code></p></li>\n</ul>",
-    "pubDate": "Mon, 15 May 2017 05:15:49 GMT"
+    "preventDisplaySleep": false,
+    "metricSmoothingWindow": 6,
+    "foregroundSamplingRate": 5000,
+    "backgroundSamplingRate": 15000,
+    "historySize": 720,
+    "historyBrushSize": 30,
+    "alarmDisplayingWindow": 60000
   },
-  "@33": { "values": "@34", "__dump__": "ObservableArray" },
-  "@34": []
+  "@39": [],
+  "@40": [],
+  "@41": { "__dump__": "ObservableObject", "id": "VbtwcsPR5A1EgjlutbS4K" },
+  "@42": {
+    "__dump__": "ObservableObject",
+    "preventDisplaySleep": false,
+    "metricSmoothingWindow": 6,
+    "foregroundSamplingRate": 5000,
+    "backgroundSamplingRate": 15000,
+    "historySize": 720,
+    "historyBrushSize": 30,
+    "alarmDisplayingWindow": 60000
+  },
+  "@43": [],
+  "@44": [],
+  "@45": []
 }

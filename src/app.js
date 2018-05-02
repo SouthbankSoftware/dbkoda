@@ -65,15 +65,15 @@ if (global.MODE == 'byo') {
   modeDescription = 'Production';
 }
 
-global.UAT = process.env.UAT === 'true';
+global.UAT = process.env.UAT === 'true' || process.env.UAT === true;
 global.LOADER = process.env.LOADER !== 'false';
 
 global.NAME = 'dbKoda';
 global.APP_VERSION = app.getVersion();
 global.PATHS = (() => {
   const userData = app.getPath('userData');
-  const userHome = global.UAT ? '/tmp' : app.getPath('home');
-  const home = path.resolve(userHome, `${global.UAT ? '' : '.'}${global.NAME}`);
+  const userHome = global.UAT ? '' : app.getPath('home');
+  const home = path.resolve(userHome, `${global.UAT ? '/tmp/' : '.'}${global.NAME}`);
   const configPath = process.env.CONFIG_PATH || path.resolve(home, 'config.yml');
   const profilesPath = process.env.PROFILES_PATH || path.resolve(home, 'profiles.yml');
   const stateStore = path.resolve(home, 'stateStore.json');
@@ -95,7 +95,11 @@ app.commandLine.appendSwitch('disable-renderer-backgrounding');
 // TODO create an uninstaller
 // ensure paths exist.
 // [IMPORTANT] Remember to add exceptions here
-sh.mkdir('-p', _.values(_.omit(global.PATHS, ['configPath', 'profilesPath', 'stateStore'])));
+try {
+  sh.mkdir('-p', _.values(_.omit(global.PATHS, ['configPath', 'profilesPath', 'stateStore'])));
+} catch (err) {
+  console.log(err);
+}
 
 const configWinstonLogger = () => {
   global.l = createLogger({
@@ -133,6 +137,12 @@ configWinstonLogger();
 global.findAvailablePort = portscanner.findAPortNotInUse;
 
 l.notice(`Starting up with ${modeDescription} mode...`);
+l.info(`isUAT:: ${process.env.UAT} :: ${global.UAT}`);
+l.info(
+  `Global Paths::${global.PATHS.configPath} , ${global.PATHS.profilesPath} , ${
+    global.PATHS.stateStore
+  }`
+);
 
 let controllerPortPromise;
 

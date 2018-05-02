@@ -144,7 +144,7 @@
     "babel-cli": "^6.24.1",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.2",
-    "babel-jest": "^22.4.1",
+    "babel-jest": "^22.4.3",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-root-import": "^5.1.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
@@ -154,7 +154,7 @@
     "babel-preset-flow": "^6.23.0",
     "concurrently": "^3.5.1",
     "devtron": "^1.4.0",
-    "electron": "^1.8.2",
+    "electron": "^1.8.6",
     "electron-builder": "^20.2.0",
     "electron-devtools-installer": "^2.2.3",
     "electron-publisher-s3": "^20.2.0",
@@ -170,7 +170,7 @@
     "fs-extra": "^5.0.0",
     "handlebars": "^4.0.11",
     "husky": "^0.14.3",
-    "jest": "^22.4.2",
+    "jest": "^22.4.3",
     "jest-html-reporter": "github:SouthbankSoftware/jest-html-reporter",
     "nodemon": "^1.15.1",
     "prettier": "1.12.1",
@@ -179,7 +179,6 @@
     "spectron": "^3.8.0",
     "sprintf-js": "^1.1.1",
     "test-utils": "^1.1.1",
-    "uuid": "^3.2.1",
-    "webdriverio": "^4.10.2"
+    "uuid": "^3.2.1"
   }
 }

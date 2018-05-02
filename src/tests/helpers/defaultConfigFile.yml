@@ -1,3 +1,5 @@
+user:
+  id: VbtwcsPR5A1EgjlutbS4K
 mongoCmd: /usr/local/bin/mongo
 mongoVersionCmd: /usr/local/bin/mongo --version
 mongodumpCmd: /usr/local/bin/mongodump
@@ -6,7 +8,17 @@ mongoimportCmd: /usr/local/bin/mongoimport
 mongoexportCmd: /usr/local/bin/mongoexport
 drillCmd: $DRILL_PATH
 drillControllerCmd: $DRILL_CONTROLLER_PATH
+telemetryEnabled: false
+showNewFeaturesDialogOnStart: false
+tableOutputDefault: false
+automaticAutoComplete: true
 showWelcomePageAtStart: true
-telemetryEnabled: true
-sshCounterInterval: 2
-sshCounterCmd: vmstat
+passwordStoreEnabled: false
+performancePanel:
+  preventDisplaySleep: false
+  metricSmoothingWindow: 6
+  foregroundSamplingRate: 5000
+  backgroundSamplingRate: 15000
+  historySize: 720
+  historyBrushSize: 30
+  alarmDisplayingWindow: 60000

@@ -2,8 +2,8 @@
  * @Author: Wahaj Shamim <wahaj>
  * @Date:   2017-04-26T09:58:01+10:00
  * @Email:  wahaj@southbanksoftware.com
- * @Last modified by:   guiguan
- * @Last modified time: 2017-11-27T13:30:18+11:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-05-02T09:27:53+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -29,33 +29,33 @@ import Page from './Page';
 class Tree extends Page {
   treeNodeSelector = '.pt-tree-node-list > li';
 
-  shardsNodeSelector = '.shardsIcon';
+  shardsNodeSelector = '.shardsNode';
 
-  configsNodeSelector = '.configServersIcon';
+  configsNodeSelector = '.configserversNode';
 
-  routersNodeSelector = '.routersIcon';
+  routersNodeSelector = '.routersNode';
 
-  databasesNodeSelector = '.databasesIcon';
+  databasesNodeSelector = '.databasesNode';
 
-  usersNodeSelector = '.usersIcon';
+  usersNodeSelector = '.usersNode';
 
-  shardNodeSelector = '.shardIcon';
+  shardNodeSelector = '.shardNode';
 
-  configNodeSelector = '.configIcon';
+  configNodeSelector = '.configNode';
 
-  mongosNodeSelector = '.mongosIcon';
+  mongosNodeSelector = '.mongosNode';
 
-  databaseNodeSelector = '.databaseIcon';
+  databaseNodeSelector = '.databaseNode';
 
-  collectionNodeSelector = '.collectionIcon';
+  collectionNodeSelector = '.collectionNode';
 
-  indexNodeSelector = '.indexIcon';
+  indexNodeSelector = '.indexNode';
 
-  userNodeSelector = '.userIcon';
+  userNodeSelector = '.userNode';
 
-  replicasetNodeSelector = '.replicaSetIcon';
+  replicasetNodeSelector = '.replicasetNode';
 
-  replicaMemberNodeSelector = '.replicaMemberIcon';
+  replicaMemberNodeSelector = '.replica_memberNode';
 
   _getTreeElement(name) {
     return this.browser.element(`${name}`);
@@ -64,9 +64,7 @@ class Tree extends Page {
     return this.browser.element('.refreshTreeButton');
   }
   getTreeNode(selector) {
-    return this._getTreeElement(selector)
-      .$('..')
-      .$('..');
+    return this._getTreeElement(selector);
   }
   getTreeNodeCaret(selector) {
     return this.getTreeNode(selector).$('.pt-tree-node-caret');
