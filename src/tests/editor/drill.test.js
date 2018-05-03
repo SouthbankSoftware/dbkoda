@@ -165,7 +165,7 @@ describe('Drill Tests', () => {
         .getTreeNodeByPath(['Databases', 'test'])
         .rightClick()
         .pause(500);
-      await r.treeAction.clickContextMenu('Query Database with Drill').pause(5000);
+      await r.treeAction.clickContextMenu('SQL Query with Apache Drill').pause(5000);
       await r.browser.waitForExist('.docCount', 30000);
       expect(true).toBe(true);
     } catch (error) {
