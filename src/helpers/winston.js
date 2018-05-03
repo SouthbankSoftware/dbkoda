@@ -3,7 +3,7 @@
  * @Date:   2018-03-06T16:47:58+11:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-03-14T16:52:00+11:00
+ * @Last modified time: 2018-05-02T12:22:45+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -27,6 +27,7 @@
 import moment from 'moment';
 import { format } from 'winston';
 import util from 'util';
+import _ from 'lodash';
 
 export const levelConfig = {
   levels: {
@@ -45,38 +46,104 @@ export const levelConfig = {
   }
 };
 
-const INSPECT_OPTIONS = {
-  depth: 3
-};
-
-const stringify = value => {
-  if (typeof value === 'string') {
-    return value;
-  } else if (value instanceof Error) {
-    return value.stack;
-  }
-
-  return util.inspect(value, INSPECT_OPTIONS);
-};
-
 export const commonFormatter = format(info => {
-  const { timestamp, message, meta } = info;
+  const { timestamp, message } = info;
+  const level = info[Symbol.for('level')];
 
   if (!timestamp) {
     info.timestamp = Date.now();
   }
 
-  info.message = stringify(message);
+  if (typeof message !== 'string') {
+    if (level === 'error' && info.raygun !== false && message instanceof Error) {
+      // shallow clone original error
+      info.error = Object.create(
+        Object.getPrototypeOf(message),
+        Object.getOwnPropertyDescriptors(message)
+      );
+    }
 
-  if (meta != null) {
-    info.meta = stringify(meta);
+    info.message = util.format(message);
+  }
+
+  // final check for `error`
+  if (level === 'error' && info.raygun !== false && !info.error) {
+    info.error = new Error(info.message);
   }
 
   return info;
 })();
 
 export const printfFormatter = format.printf(info => {
-  const { timestamp, level, message, meta } = info;
+  const { timestamp, level, message } = info;
 
-  return `${moment(timestamp).format()} - ${level}: ${message}${meta != null ? ` ${meta}` : ''}`;
+  return `${moment(timestamp).format()} - ${level}: ${message}`;
 });
+
+export const infoSymbol = Symbol.for('info');
+
+export const bindDbKodaLoggingApi = logger => {
+  const { levels } = logger;
+
+  _.forEach(levels, (v, k) => {
+    logger[k] = (...args) => {
+      const results = [];
+      let resultsWithErrors;
+      const info = {};
+
+      for (const arg of args) {
+        const argType = typeof arg;
+        let isIgnored = false;
+
+        if (argType === 'object' && arg) {
+          const c = arg[infoSymbol];
+
+          if (c) {
+            isIgnored = true;
+            _.assign(info, c);
+          }
+
+          if (v === 0 && info.raygun !== false && arg instanceof Error) {
+            isIgnored = true;
+
+            if (!resultsWithErrors) {
+              // lazy init
+              resultsWithErrors = results.slice();
+            }
+
+            // shallow clone original error
+            info.error = Object.create(
+              Object.getPrototypeOf(arg),
+              Object.getOwnPropertyDescriptors(arg)
+            );
+
+            results.push(arg);
+            resultsWithErrors.push(arg.message);
+          }
+        }
+
+        if (!isIgnored) {
+          results.push(arg);
+          resultsWithErrors && resultsWithErrors.push(arg);
+        }
+      }
+
+      // stringify input args
+      info.message = util.format(...results);
+
+      if (info.error) {
+        info.error.message = util.format(...resultsWithErrors);
+      }
+
+      logger.log(k, info);
+    };
+  });
+
+  logger._error = (...args) => {
+    logger.error(...args, { [infoSymbol]: { raygun: false } });
+  };
+
+  // finally, connect general error. Note that original `console.error` is already backed up as
+  // `console._error`
+  console.error = logger.error;
+};
