@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2018-04-24T16:07:36+10:00
+ * @Last modified time: 2018-05-03T21:37:58+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -31,7 +31,19 @@ import { ipcMain } from 'electron';
 import portscanner from 'portscanner';
 import { createLogger, format, transports, addColors } from 'winston';
 import 'winston-daily-rotate-file';
-import { levelConfig, commonFormatter, printfFormatter } from '~/helpers/winston';
+import {
+  levelConfig,
+  commonFormatter,
+  printfFormatter,
+  bindDbKodaLoggingApi
+} from '~/helpers/winston';
+import {
+  initRaygun,
+  RaygunTransport,
+  toggleRaygun,
+  setUser,
+  setExitOnUnhandledError
+} from '~/helpers/raygun';
 import { downloadDrill, downloadDrillController } from './components/drill';
 import { initPerformanceBroker, destroyPerformanceBroker } from './components/performance';
 import { identifyWorkingMode, invokeApi } from './helpers';
@@ -90,6 +102,7 @@ global.PATHS = (() => {
   };
 })();
 
+// TODO can we remove this?
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 
 // TODO create an uninstaller
@@ -101,14 +114,13 @@ try {
   console.log(err);
 }
 
-const configWinstonLogger = () => {
-  global.l = createLogger({
-    format: format.combine(
-      format.splat(),
-      commonFormatter,
-      format.colorize({ all: true }),
-      printfFormatter
-    ),
+// `raygun` should always be inited
+initRaygun(path.resolve(global.PATHS.home, 'raygunCache/dbkoda/'), ['dbkoda']);
+
+// config winston
+{
+  global.logger = global.l = createLogger({
+    format: format.combine(commonFormatter, format.colorize({ all: true }), printfFormatter),
     level: global.IS_PRODUCTION ? 'info' : 'debug',
     levels: levelConfig.levels,
     transports: [
@@ -118,31 +130,25 @@ const configWinstonLogger = () => {
         datePattern: 'YYYY-MM-DD',
         maxSize: '1m',
         maxFiles: global.IS_PRODUCTION ? '30d' : '3d'
+      }),
+      new RaygunTransport({
+        handleExceptions: true
       })
-    ]
+    ],
+    exitOnError: false
   });
 
   addColors(levelConfig);
 
-  process.on('unhandledRejection', reason => {
-    l.error(reason);
-  });
+  bindDbKodaLoggingApi(l);
 
-  process.on('uncaughtException', err => {
-    l.error(err.stack);
-  });
-};
-configWinstonLogger();
+  // NOTE: after this point, every error (unhandled, l.error, console.error) should be reported to
+  // `raygun`
+}
 
 global.findAvailablePort = portscanner.findAPortNotInUse;
 
 l.notice(`Starting up with ${modeDescription} mode...`);
-l.info(`isUAT:: ${process.env.UAT} :: ${global.UAT}`);
-l.info(
-  `Global Paths::${global.PATHS.configPath} , ${global.PATHS.profilesPath} , ${
-    global.PATHS.stateStore
-  }`
-);
 
 let controllerPortPromise;
 
@@ -403,7 +409,12 @@ const createMainWindow = () => {
       };
 
       const handleRendererLog = (_event, level, message) => {
-        l[level](`Window ${mainWindow.getTitle()}: ${message}`);
+        if (level === 'error') {
+          // don't forward ui errors to raygun via main process (dbkoda)
+          l._error(`Window ${mainWindow.getTitle()}: ${message}`);
+        } else {
+          l[level](`Window ${mainWindow.getTitle()}: ${message}`);
+        }
       };
 
       const handleAppReady = () => {
@@ -476,12 +487,42 @@ const createMainWindow = () => {
         }
       };
 
+      // NOTE: global.config is ready only all time
+      const handleConfigLoaded = (_event, config) => {
+        global.config = config;
+
+        setExitOnUnhandledError(false);
+
+        setUser(_.get(global.config, 'user'));
+        // BUG: it has to be toggled off first, then it can toggle freely; otherwise, toggle on will
+        // throw an exception
+        toggleRaygun(false);
+        toggleRaygun(_.get(global.config, 'telemetryEnabled'));
+      };
+
+      const handleConfigChanged = (_event, changed) => {
+        _.forEach(changed, (v, k) => {
+          _.set(global.config, k, v.new);
+        });
+
+        if (_.has(changed, 'user.id')) {
+          setUser(_.get(global.config, 'user'));
+        }
+
+        if (_.has(changed, 'telemetryEnabled')) {
+          toggleRaygun(_.get(global.config, 'telemetryEnabled'));
+        }
+      };
+
       // TODO needs to assign each event a windows id if we are going to support multiple windows
       ipcMain.once('appReady', handleAppReady);
       ipcMain.once('appCrashed', handleAppCrashed);
 
       ipcMain.on('drill', handleDrillRequest);
       ipcMain.on('log', handleRendererLog);
+
+      ipcMain.on('configLoaded', handleConfigLoaded);
+      ipcMain.on('configChanged', handleConfigChanged);
 
       initPerformanceBroker();
 
@@ -899,5 +940,6 @@ app.on('window-all-closed', () => {
 
 app.on('will-quit', () => {
   l.notice('Shutting down...');
+  setExitOnUnhandledError(true);
   quitController();
 });
