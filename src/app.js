@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-03T21:37:58+10:00
+ * @Last modified time: 2018-05-04T18:00:23+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -324,44 +324,12 @@ const createMainWindow = () => {
         ? 'http://localhost:3000/ui/'
         : `http://localhost:${port}/ui/`;
     global.uiPort = port;
-    if (global.UAT || !global.LOADER) {
-      invokeApi(
-        { url },
-        {
-          shouldRetryOnError(e) {
-            return _.includes(
-              ['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'],
-              e.error.code || _.includes([404, 502], e.statusCode)
-            );
-          },
-          errorHandler(err) {
-            l.error(err.stack);
-            throw err;
-          }
-        }
-      ).then(() => {
-        const mainWindow = createWindow(url);
-
-        const handleAppCrashed = () => {
-          mainWindow.reload();
-        };
-        global.mainWindowId = mainWindow.id;
-        ipcMain.once('appCrashed', handleAppCrashed);
-
-        ipcMain.on('drill', handleDrillRequest);
-
-        mainWindow.on('closed', () => {
-          ipcMain.removeListener('appCrashed', handleAppCrashed);
-          ipcMain.removeListener('drill', handleDrillRequest);
-        });
-      });
-      return;
-    }
 
     // show a splash screen
-    const splashWindow = createWindow(
-      `file://${path.resolve(__dirname, '../assets/splash/index.html')}`
-    );
+    const splashWindow =
+      global.UAT || !global.LOADER
+        ? null
+        : createWindow(`file://${path.resolve(__dirname, '../assets/splash/index.html')}`);
 
     // wait for uiUrl to become reachable and then show real main window
     // const uiPath = require.resolve('@southbanksoftware/dbkoda-ui');
@@ -372,13 +340,13 @@ const createMainWindow = () => {
       {
         shouldRetryOnError(e) {
           return (
-            !splashWindow.isDestroyed() &&
+            ((splashWindow && !splashWindow.isDestroyed()) || !splashWindow) &&
             (_.includes(['ECONNREFUSED', 'ECONNRESET', 'ESOCKETTIMEDOUT'], e.error.code) ||
               _.includes([404, 502], e.statusCode))
           );
         },
         errorHandler(err) {
-          if (splashWindow.isDestroyed()) {
+          if (splashWindow && splashWindow.isDestroyed()) {
             return;
           }
           l.error(err.stack);
@@ -386,12 +354,12 @@ const createMainWindow = () => {
         }
       }
     ).then(() => {
-      if (splashWindow.isDestroyed()) {
+      if (splashWindow && splashWindow.isDestroyed()) {
         return;
       }
 
       const mainWindow = createWindow(url, {
-        show: false
+        show: splashWindow == null
       });
 
       global.mainWindowId = mainWindow.id;
@@ -408,32 +376,46 @@ const createMainWindow = () => {
         mainWindow.reload();
       };
 
-      const handleRendererLog = (_event, level, message) => {
+      const handleRendererLog = (event, level, message) => {
+        const webContents = _.get(event, 'sender.webContents');
+        let title = 'unknown';
+
+        if (webContents) {
+          const win = BrowserWindow.fromWebContents(webContents);
+
+          if (win) {
+            title = win.getTitle();
+          }
+        }
+
         if (level === 'error') {
           // don't forward ui errors to raygun via main process (dbkoda)
-          l._error(`Window ${mainWindow.getTitle()}: ${message}`);
+          l._error(`Window ${title}: ${message}`);
         } else {
-          l[level](`Window ${mainWindow.getTitle()}: ${message}`);
+          l[level](`Window ${title}: ${message}`);
         }
       };
 
       const handleAppReady = () => {
-        if (splashWindow.isDestroyed()) {
-          mainWindow.destroy();
-          return;
-        }
-        if (splashWindow.isFullScreen()) {
-          splashWindow.hide();
-          mainWindow.setFullScreen(true);
-        } else {
-          mainWindow.setBounds(splashWindow.getBounds());
-          if (splashWindow.isMinimized()) {
-            mainWindow.minimize();
-          } else {
-            mainWindow.show();
+        if (splashWindow) {
+          if (splashWindow.isDestroyed()) {
+            mainWindow.destroy();
+            return;
           }
+          if (splashWindow.isFullScreen()) {
+            splashWindow.hide();
+            mainWindow.setFullScreen(true);
+          } else {
+            mainWindow.setBounds(splashWindow.getBounds());
+            if (splashWindow.isMinimized()) {
+              mainWindow.minimize();
+            } else {
+              mainWindow.show();
+            }
+          }
+          splashWindow.destroy();
         }
-        splashWindow.destroy();
+
         mainWindow.setTouchBar(touchbar);
 
         mainWindow.on('unresponsive', () => {

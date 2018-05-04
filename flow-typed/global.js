@@ -2,7 +2,7 @@
  * @Author: guiguan
  * @Date:   2017-10-02T13:50:52+11:00
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-02T17:34:06+10:00
+ * @Last modified time: 2018-05-04T12:04:57+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -25,6 +25,6 @@
 
 /* eslint-disable */
 
-declare var l: Function;
-declare var logger: Function;
+declare var l: any;
+declare var logger: any;
 declare var IS_PRODUCTION: boolean;
