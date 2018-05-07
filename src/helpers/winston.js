@@ -3,7 +3,7 @@
  * @Date:   2018-03-06T16:47:58+11:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-02T12:22:45+10:00
+ * @Last modified time: 2018-05-07T15:27:52+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -133,6 +133,10 @@ export const bindDbKodaLoggingApi = logger => {
 
       if (info.error) {
         info.error.message = util.format(...resultsWithErrors);
+        info.error.stack = info.error.stack.replace(
+          /^.*/,
+          `${info.error.constructor.name}: ${info.error.message}`
+        );
       }
 
       logger.log(k, info);

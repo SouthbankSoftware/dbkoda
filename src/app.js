@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-04T18:00:23+10:00
+ * @Last modified time: 2018-05-07T18:02:13+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -35,7 +35,8 @@ import {
   levelConfig,
   commonFormatter,
   printfFormatter,
-  bindDbKodaLoggingApi
+  bindDbKodaLoggingApi,
+  infoSymbol
 } from '~/helpers/winston';
 import {
   initRaygun,
@@ -376,7 +377,7 @@ const createMainWindow = () => {
         mainWindow.reload();
       };
 
-      const handleRendererLog = (event, level, message) => {
+      const handleRendererLog = (event, level, message, options) => {
         const webContents = _.get(event, 'sender.webContents');
         let title = 'unknown';
 
@@ -389,8 +390,26 @@ const createMainWindow = () => {
         }
 
         if (level === 'error') {
-          // don't forward ui errors to raygun via main process (dbkoda)
-          l._error(`Window ${title}: ${message}`);
+          const { tags, stack } = options || {};
+          let logger;
+
+          // don't forward ui errors to raygun via main process (dbkoda) unless piggybacking
+          if (tags && _.includes(tags, 'piggyback')) {
+            logger = l.error;
+          } else {
+            logger = l._error;
+          }
+
+          const err = new Error(message);
+          if (stack) {
+            err.stack = stack;
+          }
+
+          logger(`Window ${title}:`, err, {
+            [infoSymbol]: {
+              tags
+            }
+          });
         } else {
           l[level](`Window ${title}: ${message}`);
         }
@@ -469,16 +488,21 @@ const createMainWindow = () => {
         }
       };
 
-      // NOTE: global.config is ready only all time
+      const broadcastToChildWindows = (channel, ...args) => {
+        for (const win of BrowserWindow.getAllWindows()) {
+          if (win.id !== mainWindow.id) {
+            win.webContents.send(channel, ...args);
+          }
+        }
+      };
+
+      // NOTE: global.config should be READ only all time
       const handleConfigLoaded = (_event, config) => {
         global.config = config;
 
         setExitOnUnhandledError(false);
 
         setUser(_.get(global.config, 'user'));
-        // BUG: it has to be toggled off first, then it can toggle freely; otherwise, toggle on will
-        // throw an exception
-        toggleRaygun(false);
         toggleRaygun(_.get(global.config, 'telemetryEnabled'));
       };
 
@@ -494,17 +518,21 @@ const createMainWindow = () => {
         if (_.has(changed, 'telemetryEnabled')) {
           toggleRaygun(_.get(global.config, 'telemetryEnabled'));
         }
+
+        broadcastToChildWindows('configChanged', changed);
       };
 
-      // TODO needs to assign each event a windows id if we are going to support multiple windows
+      const handleConfigQueried = event => {
+        event.returnValue = global.config;
+      };
+
       ipcMain.once('appReady', handleAppReady);
       ipcMain.once('appCrashed', handleAppCrashed);
-
       ipcMain.on('drill', handleDrillRequest);
       ipcMain.on('log', handleRendererLog);
-
       ipcMain.on('configLoaded', handleConfigLoaded);
       ipcMain.on('configChanged', handleConfigChanged);
+      ipcMain.on('configQueried', handleConfigQueried);
 
       initPerformanceBroker();
 
@@ -513,6 +541,10 @@ const createMainWindow = () => {
         ipcMain.removeListener('appCrashed', handleAppCrashed);
         ipcMain.removeListener('drill', handleDrillRequest);
         ipcMain.removeListener('log', handleRendererLog);
+        ipcMain.removeListener('configLoaded', handleConfigLoaded);
+        ipcMain.removeListener('configChanged', handleConfigChanged);
+        ipcMain.removeListener('configQueried', handleConfigQueried);
+
         destroyPerformanceBroker();
       });
     });

@@ -5,7 +5,7 @@
  * @Date:   2018-04-27T11:01:11+10:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-03T17:18:36+10:00
+ * @Last modified time: 2018-05-07T17:58:00+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -50,7 +50,7 @@ export const initRaygun = (cachePath: string, defaultTags: string[]) => {
 
   raygunClient = new raygun.Client().init({
     apiKey,
-    isOffline: false,
+    isOffline: true,
     offlineStorageOptions: {
       cachePath,
       cacheLimit: 1000
@@ -66,7 +66,7 @@ export const initRaygun = (cachePath: string, defaultTags: string[]) => {
   setUser({ id: 'beforeConfigLoaded' });
 };
 
-export let isRaygunEnabled = true; // eslint-disable-line
+export let isRaygunEnabled = false; // eslint-disable-line
 
 let bringRaygunOnlineTimeout = null;
 const BRING_RAYGUN_ONLINE_TIMEOUT = 60000; // after a minute
