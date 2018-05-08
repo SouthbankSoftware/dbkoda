@@ -5,7 +5,7 @@
  * @Date:   2018-04-27T11:01:11+10:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-07T17:58:00+10:00
+ * @Last modified time: 2018-05-08T13:46:44+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -199,11 +199,11 @@ const handleError = (err, desc) => {
 const onUnhandledRejection = reason => {
   const err = reason instanceof Error ? reason : new Error(String(reason));
 
-  handleError(err, 'unhandled rejection');
+  handleError(err, 'unhandled-rejection');
 };
 
 const onUncaughtException = err => {
-  handleError(err, 'unhandled exception');
+  handleError(err, 'unhandled-exception');
 };
 
 process.on('unhandledRejection', onUnhandledRejection);

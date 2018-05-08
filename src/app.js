@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-07T18:02:13+10:00
+ * @Last modified time: 2018-05-08T14:46:35+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -390,11 +390,11 @@ const createMainWindow = () => {
         }
 
         if (level === 'error') {
-          const { tags, stack } = options || {};
+          const { usePiggyback, stack, info } = options || {};
           let logger;
 
           // don't forward ui errors to raygun via main process (dbkoda) unless piggybacking
-          if (tags && _.includes(tags, 'piggyback')) {
+          if (usePiggyback) {
             logger = l.error;
           } else {
             logger = l._error;
@@ -406,9 +406,7 @@ const createMainWindow = () => {
           }
 
           logger(`Window ${title}:`, err, {
-            [infoSymbol]: {
-              tags
-            }
+            [infoSymbol]: info
           });
         } else {
           l[level](`Window ${title}: ${message}`);
@@ -438,10 +436,10 @@ const createMainWindow = () => {
         mainWindow.setTouchBar(touchbar);
 
         mainWindow.on('unresponsive', () => {
-          l.warn(`Window ${mainWindow.getTitle()} becomes unresponsive`);
+          l.error(`Window ${mainWindow.getTitle()} becomes unresponsive`);
         });
         mainWindow.on('responsive', () => {
-          l.warn(`Window ${mainWindow.getTitle()} becomes responsive again`);
+          l.error(`Window ${mainWindow.getTitle()} becomes responsive again`);
         });
 
         let closeImmediately = false;
