@@ -5,7 +5,7 @@
  * @Date:   2018-04-27T11:01:11+10:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-08T13:46:44+10:00
+ * @Last modified time: 2018-05-08T16:02:12+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -64,6 +64,14 @@ export const initRaygun = (cachePath: string, defaultTags: string[]) => {
   raygunClient.setTags(defaultTags);
 
   setUser({ id: 'beforeConfigLoaded' });
+
+  if (IS_PRODUCTION) {
+    raygunClient.onBeforeSend(payload => {
+      _.unset(payload, 'details.machineName');
+
+      return payload;
+    });
+  }
 };
 
 export let isRaygunEnabled = false; // eslint-disable-line
