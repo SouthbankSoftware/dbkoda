@@ -3,7 +3,7 @@
  * @Date:   2017-05-01T09:06:09+10:00
  * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   wahaj
- * @Last modified time: 2017-08-23T15:37:56+10:00
+ * @Last modified time: 2018-05-10T11:00:30+10:00
  */
 
 import Page from './Page';
@@ -175,13 +175,19 @@ export default class ConnectionProfile extends Page {
         .waitForValue(this.portInputSelector, profile.port);
     }
     if (profile.database) {
-      bro
+      await bro
         .setValue(this.databaseInputSelector, '')
         .setValue(this.databaseInputSelector, profile.database)
         .waitForValue(this.databaseInputSelector, profile.database);
     }
     await this._selectSSL(profile, bro);
     await this._fillInAuthentication(profile, bro);
+    if (profile.authentication && profile.authenticationDatabase) {
+      await bro
+        .waitForExist(this.authDatabaseInputSelector)
+        .setValue(this.authDatabaseInputSelector, profile.authenticationDatabase)
+        .waitForValue(this.authDatabaseInputSelector, profile.authenticationDatabase);
+    }
     if (profile.ssh) {
       await bro
         .leftClick(this.sshConnectionSettings)

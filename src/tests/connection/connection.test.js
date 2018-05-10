@@ -1,8 +1,8 @@
 /**
  * Test connection profile
  *
- * @Last modified by:   guiguan
- * @Last modified time: 2017-11-27T13:30:58+11:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-05-10T12:45:27+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -178,29 +178,35 @@ describe('connection-profile-test-suite', () => {
       .catch(err => console.error(err));
   });
 
-  // Disabled the following tests because the instances are not running on those ports
+  test('Connect Mongo 3.0', () => {
+    return connectProfile
+      .connectProfileByHostname({
+        alias: 'Test30' + mongoPort + '(' + getRandomPort() + ')',
+        hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
+        port: 27030,
+        database: 'admin',
+        authentication: true,
+        authenticationDatabase: 'admin',
+        userName: r.ec2User,
+        password: r.ec2Pass
+      })
+      .catch(err => assert.fail(false, true, err));
+  });
 
-  // test('Connect Mongo 3.0', () => {
-  //   return connectProfile
-  //     .connectProfileByHostname({
-  //       alias: 'Test30' + mongoPort + '(' + getRandomPort() + ')',
-  //       hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
-  //       port: 27030,
-  //       database: 'test'
-  //     })
-  //     .catch(err => assert.fail(false, true, err));
-  // });
-  //
-  // test('Connect Mongo 3.2', () => {
-  //   return connectProfile
-  //     .connectProfileByHostname({
-  //       alias: 'Test32' + mongoPort + '(' + getRandomPort() + ')',
-  //       hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
-  //       port: 27032,
-  //       database: 'test'
-  //     })
-  //     .catch(err => assert.fail(false, true, err));
-  // });
+  test('Connect Mongo 3.2', () => {
+    return connectProfile
+      .connectProfileByHostname({
+        alias: 'Test32' + mongoPort + '(' + getRandomPort() + ')',
+        hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
+        port: 27032,
+        database: 'admin',
+        authentication: true,
+        authenticationDatabase: 'admin',
+        userName: r.ec2User,
+        password: r.ec2Pass
+      })
+      .catch(err => assert.fail(false, true, err));
+  });
 
   test('open connection profile through hostname via SSH Tunnel', () => {
     return connectProfile
@@ -215,6 +221,7 @@ describe('connection-profile-test-suite', () => {
         keyRadio: true,
         sshKeyFile: r.ec2SshKey2,
         authentication: true,
+        authenticationDatabase: 'admin',
         userName: r.ec2User,
         password: r.ec2Pass,
         sshTunnel: true
@@ -236,6 +243,7 @@ describe('connection-profile-test-suite', () => {
         sshKeyFile: r.ec2SshKey,
         passPhrase: r.ec2SshKeyPass,
         authentication: true,
+        authenticationDatabase: 'admin',
         userName: r.ec2User,
         password: r.ec2Pass,
         sshTunnel: true

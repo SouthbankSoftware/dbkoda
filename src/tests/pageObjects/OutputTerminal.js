@@ -2,8 +2,8 @@
  * @Author: chris
  * @Date:   2017-04-28T14:27:49+10:00
  * @Email:  chris@southbanksoftware.com
- * @Last modified by:   chris
- * @Last modified time: 2017-05-19T15:18:38+10:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-05-10T11:34:20+10:00
  */
 
 import Page from './Page';
@@ -12,7 +12,7 @@ export default class OutputTerminal extends Page {
   terminalSelector = '.pt-tab-panel.visible[aria-hidden="false"] > .outputEditor > .outputTerminal ';
   commandLineSelector = this.terminalSelector + '.outputCmdLine';
   commandTextArea = this.terminalSelector + '.outputCmdLine > .CodeMirror .CodeMirror-line span'; // '.outputCmdLine > textarea';
-  executeCmdSelector = this.terminalSelector + '.executeCmdBtn > a';
+  executeCmdSelector = this.terminalSelector + '.executeCmdBtn > div > a';
   sendToEditorItemSelector = '.pt-menu-item';
 
   /** @type {WebDriverIoPromise} */

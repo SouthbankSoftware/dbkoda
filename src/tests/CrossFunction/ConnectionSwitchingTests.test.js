@@ -1,6 +1,6 @@
 /**
- * @Last modified by:   guiguan
- * @Last modified time: 2017-12-21T11:05:55+11:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-05-10T12:43:44+10:00
  */
 
 import _ from 'lodash';
@@ -14,7 +14,7 @@ import Terminal from '#/pageObjects/OutputTerminal';
 import { config, getApp } from '#/helpers';
 import { DELAY_TIMEOUT } from '../helpers/config';
 
-const debug = false;
+const debug = true;
 
 describe('CrossFunction:connection Switching', () => {
   /** Global (to current test suite) setup */
@@ -77,6 +77,8 @@ describe('CrossFunction:connection Switching', () => {
 
   test('Setup globals', async () => {
     r.ec2 = process.env.EC2_SHARD_CLUSTER_HOSTNAME;
+    r.ec2User = process.env.EC2_SHARD_CLUSTER_USERNAME;
+    r.ec2Pass = process.env.EC2_SHARD_CLUSTER_PASSWORD;
   });
 
   /** Connect to database */
@@ -88,10 +90,14 @@ describe('CrossFunction:connection Switching', () => {
       treeAction
     } = r;
     await connection.connectProfileByHostname({
-      alias: 'db30',
+      alias: '00-db30',
       hostName: r.ec2,
       port: 27030,
-      database: 'test'
+      database: 'admin',
+      authentication: true,
+      authenticationDatabase: 'admin',
+      userName: r.ec2User,
+      password: r.ec2Pass
     });
     expect(await browser.waitForExist(treeAction.treeNodeSelector)).toBeTruthy;
     console.log(r.profileList.getConnectionProfileList());
@@ -106,10 +112,14 @@ describe('CrossFunction:connection Switching', () => {
       treeAction
     } = r;
     await connection.connectProfileByHostname({
-      alias: 'db32',
+      alias: '01-db32',
       hostName: r.ec2,
       port: 27032,
-      database: 'test'
+      database: 'admin',
+      authentication: true,
+      authenticationDatabase: 'admin',
+      userName: r.ec2User,
+      password: r.ec2Pass
     });
     expect(await browser.waitForExist(treeAction.treeNodeSelector, r.delay)).toBeTruthy;
   });
@@ -122,7 +132,7 @@ describe('CrossFunction:connection Switching', () => {
       treeAction
     } = r;
     await connection.connectProfileByURL({
-      alias: 'Atlas',
+      alias: '02-Atlas',
       url: `mongodb://${process.env.ATLAS_SERVER_HOSTNAME}`,
       database: 'admin',
       authentication: true,
@@ -135,12 +145,13 @@ describe('CrossFunction:connection Switching', () => {
 
   test('Connect EC2 shards', async () => {
     await r.connection.connectProfileByURL({
-      alias: 'EC2',
+      alias: '03-EC2',
       url: `mongodb://${r.ec2}:27017`,
       database: 'admin',
       authentication: true,
       userName: process.env.EC2_SHARD_CLUSTER_USERNAME,
-      password: process.env.EC2_SHARD_CLUSTER_PASSWORD
+      password: process.env.EC2_SHARD_CLUSTER_PASSWORD,
+      authenticationDatabase: 'admin'
     });
     // if (debug) await r.debug();
     expect(await r.browser.waitForExist(r.treeAction.treeNodeSelector, DELAY_TIMEOUT)).toBeTruthy;
@@ -218,7 +229,7 @@ describe('CrossFunction:connection Switching', () => {
     await r.browser.waitForExist(r.treeAction.treeNodeSelector);
     await r.editor._editorElementsExist();
     await addNewEditor();
-    await r.browser.pause(r.delay); // Atlas takes longer
+    await r.browser.pause(r.delay * 2); // Atlas takes longer
     let mongoCmds = 'print ("version="+dbe.majorVersion());\n';
     mongoCmds += 'print("hosted by "+db.serverStatus().host.split(".")[1]);\n';
     const output = await editorCommand(mongoCmds);
@@ -230,6 +241,7 @@ describe('CrossFunction:connection Switching', () => {
   });
 
   test('Check version on 3.0', async () => {
+    if (debug) console.log('Check version on 3.0');
     await r.profileList.clickProfile(0);
     await r.browser.waitForExist(r.treeAction.treeNodeSelector);
     await r.editor._editorElementsExist();
@@ -239,18 +251,22 @@ describe('CrossFunction:connection Switching', () => {
   });
 
   test('Check version on 3.2', async () => {
+    if (debug) console.log('Check version on 3.2');
     await r.profileList.clickProfile(1);
     await r.browser.waitForExist(r.treeAction.treeNodeSelector);
     await r.editor._editorElementsExist();
+    await r.browser.pause(r.delay);
     const output = await newEditorCommand('print ("version="+dbe.majorVersion());\n');
     const expectedOutput = expect.stringMatching('version=3.2');
     expect(output.toString()).toEqual(expectedOutput);
   });
 
   test('Check version on EC2', async () => {
+    if (debug) console.log('Check version on EC2');
     await r.profileList.clickProfile(3);
     await r.browser.waitForExist(r.treeAction.treeNodeSelector);
     await r.editor._editorElementsExist();
+    await r.browser.pause(r.delay);
     const output = await newEditorCommand(
       'print ("version="+dbe.majorVersion());\ndb.serverStatus().host;\n'
     );
@@ -279,6 +295,7 @@ describe('CrossFunction:connection Switching', () => {
   };
 
   test('Check 3.0 version from terminal', async () => {
+    if (debug) console.log('Check 3.0 version from terminal');
     const versionCmd = 'print ("version="+dbe.majorVersion());\n';
     const output = await terminalCommand(0, versionCmd);
     const expectedOutput = expect.stringMatching('version=3');
@@ -286,6 +303,7 @@ describe('CrossFunction:connection Switching', () => {
   });
 
   test('Check 3.2 version from terminal', async () => {
+    if (debug) console.log('Check 3.2 version from terminal');
     const versionCmd = 'print ("version="+dbe.majorVersion());\n';
     const output = await terminalCommand(1, versionCmd);
     const expectedOutput = expect.stringMatching('version=3.2');
@@ -293,6 +311,7 @@ describe('CrossFunction:connection Switching', () => {
   });
 
   test('Check Atlas version from terminal', async () => {
+    if (debug) console.log('Check Atlas version from terminal');
     const versionCmd = 'print ("version="+dbe.majorVersion());\n';
     const output = await terminalCommand(2, versionCmd);
     const expectedOutput = expect.stringMatching('version=3.4');
@@ -316,7 +335,7 @@ describe('CrossFunction:connection Switching', () => {
   test('Switch editor connection to Atlas', async () => {
     if (debug) console.log('Switch editor connection to Atlas');
     if (r.shellVersion >= 3.4) {
-      await r.editor._selectConnectionContext('Atlas');
+      await r.editor._selectConnectionContext('02-Atlas');
       await r.browser.pause(r.delay); // Atlas takes longer
       await r.editor._editorElementsExist();
       r.browser.pause(r.delay);
@@ -330,8 +349,8 @@ describe('CrossFunction:connection Switching', () => {
   });
 
   test('Switch editor connection to 3.2', async () => {
-    if (debug) console.log('Switch editor connection to db32');
-    await r.editor._selectConnectionContext('db32');
+    if (debug) console.log('Switch editor connection to 3.2');
+    await r.editor._selectConnectionContext('01-db32');
     await r.browser.pause(r.delay);
     await r.editor._editorElementsExist();
     r.browser.pause(r.delay);
@@ -342,8 +361,8 @@ describe('CrossFunction:connection Switching', () => {
   });
 
   test('Switch editor connection to EC2 shards', async () => {
-    if (debug) console.log('Switch editor connection to EC2');
-    await r.editor._selectConnectionContext('EC2');
+    if (debug) console.log('Switch editor connection to EC2 shards');
+    await r.editor._selectConnectionContext('03-EC2');
     await r.browser.pause(r.delay);
     await r.editor._editorElementsExist();
     r.browser.pause(r.delay);
@@ -362,6 +381,7 @@ describe('CrossFunction:connection Switching', () => {
   });
 
   test('Check Shard tree node on EC2', async () => {
+    if (debug) console.log('Check Shard tree node on EC2');
     await r.profileList.clickProfile(3);
     await r.browser.waitForExist(r.treeAction.treeNodeSelector);
     await r.treeAction.getTreeNodeByPath(['Shards']).pause(500);
@@ -369,6 +389,7 @@ describe('CrossFunction:connection Switching', () => {
   });
 
   test('Check Replica set node on Atlas', async () => {
+    if (debug) console.log('Check Replica set node on Atlas');
     await r.profileList.clickProfile(2);
     await r.browser.waitForExist(r.treeAction.treeNodeSelector);
     // if (debug) await r.debug();
