@@ -19,6 +19,7 @@ import Editor from '../pageObjects/Editor';
 import { config, getApp } from '../helpers';
 
 describe('output-panel-context-menu', () => {
+  const closeApp = true;
   let mongoPort;
   let app;
   let browser;
@@ -46,7 +47,7 @@ describe('output-panel-context-menu', () => {
 
   afterAll(() => {
     killMongoInstance(mongoPort);
-    if (app && app.isRunning()) {
+    if (closeApp && app && app.isRunning()) {
       return app.stop();
     }
   });
@@ -67,11 +68,11 @@ describe('output-panel-context-menu', () => {
   });
 
   test('open json view', async () => {
-    await output.openJsonView(30);
-    await browser.pause(200);
+    await output.openJsonView(40);
+    await browser.pause(500);
     const tabName = await output.activeTabName();
     viewContents = await jsonView.getJsonViewText();
-    expect(tabName).toContain('Enhanced JSON');
+    expect(tabName).toContain('JSON');
   });
 
   test('browse next document', async () => {
@@ -91,10 +92,10 @@ describe('output-panel-context-menu', () => {
   });
 
   test('clear json view', async () => {
-    await output.clearOutput.click();
+    await output.clearOutput();
     await browser.pause(200);
     const tabName = await output.activeTabName();
-    expect(tabName).not.toContain('EnhancedJson-');
+    expect(tabName).toContain('Raw');
   });
 
   /* test('open table view', async () => {

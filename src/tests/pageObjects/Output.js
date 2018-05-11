@@ -47,7 +47,7 @@ export default class Output extends Page {
   LINE_OFFSET = 4; // First 4px are padding to be skipped
 
   /** @type {WebDriverIoPromise} */
-  get clearOutput() {
+  get clearOutputBtn() {
     return this._getOutputToolbarElement(this.clearOutputSelector);
   }
 
@@ -102,7 +102,8 @@ export default class Output extends Page {
     return this.browser.getHTML(this.outputLinesSelector, false);
   }
 
-  activeTabName() {
+  async activeTabName() {
+    await this.browser.waitForExist(this.selectedTabSelector);
     return this.browser.getHTML(this.selectedTabSelector, false);
   }
 
@@ -130,7 +131,8 @@ export default class Output extends Page {
   }
 
   /** @type {WebDriverIoPromise} */
-  _getOutputToolbarElement(name) {
+  async _getOutputToolbarElement(name) {
+    await this.browser.waitForExist(`.outputToolbar ${name}`);
     return this.browser.element(`.outputToolbar ${name}`);
   }
 
@@ -139,7 +141,7 @@ export default class Output extends Page {
    */
   async _openContextMenu(lineNumber) {
     const xOffset = 100;
-    const yOffset = this.LINE_OFFSET + (this.LINE_HEIGHT * lineNumber);
+    const yOffset = this.LINE_OFFSET + this.LINE_HEIGHT * lineNumber;
     return this.browser
       .waitForExist(`${this.codeMirrorSelector}-scroll`)
       .rightClick(`${this.codeMirrorSelector}-scroll`, xOffset, yOffset)
@@ -156,5 +158,10 @@ export default class Output extends Page {
     return this.browser
       .waitForExist(`${this.tableViewSelector}`)
       .click(`${this.tableViewSelector}`);
+  }
+
+  async clearOutput() {
+    await this.browser.waitForExist(this.clearOutputSelector);
+    return this.browser.click(this.clearOutputSelector);
   }
 }
