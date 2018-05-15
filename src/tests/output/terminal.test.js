@@ -20,47 +20,59 @@ import { config, getApp } from '../helpers';
 describe('output-terminal-test-suite', () => {
   // always config test suite
   config();
+  const closeApp = true; // Set to false if you want to play with app after connections are created
   let app;
   let browser;
   let mongoPort;
   let terminal;
   let output;
   let connection;
+  let debug = {};
 
   beforeAll(async () => {
     mongoPort = getRandomPort();
     launchSingleInstance(mongoPort);
     generateMongoData(mongoPort, 'test', 'test', 500);
-    return getApp().then(res => {
+    return getApp().then(async res => {
       app = res;
       browser = app.client;
       mongoPort = getRandomPort();
       terminal = new Terminal(browser);
       connection = new ConnectionProfile(browser);
       output = new Output(browser);
+      debug = async () => {
+        console.log('\n\nWebdriverIO debugging REPL...');
+        await browser.debug();
+      };
+      global.debug = debug;
       launchSingleInstance(mongoPort);
+      await connection.connectProfileByHostname({
+        alias: 'Local' + mongoPort,
+        hostName: 'localhost',
+        port: mongoPort,
+        database: 'test'
+      });
     });
   });
 
   afterAll(() => {
-    killMongoInstance(mongoPort);
-    if (app && app.isRunning()) {
-      return app.stop();
+    if (closeApp) {
+      killMongoInstance(mongoPort);
+      if (app && app.isRunning()) {
+        return app.stop();
+      }
     }
   });
 
   test('executes command in terminal', async () => {
-    await connection.connectProfileByHostname({
-      alias: 'Local' + mongoPort,
-      hostName: 'localhost',
-      port: mongoPort,
-      database: 'test'
-    });
     await output.setNewOutputCursor();
+    // if (debug) await debug();
     await terminal.executeCommand('use test;');
     await browser.pause(100);
     const outputLines = (await output.getNewOutputLines()).replace(/\r?\n|\r/g, '');
-    const expectedOutput = expect.stringMatching('use test;switched to db testdbKoda&gt;');
+    const expectedOutput = expect.stringMatching(
+      'use test;switched to db testdbKoda Mongo Shell&gt;'
+    );
     expect(outputLines).toEqual(expectedOutput);
   });
 

@@ -10,7 +10,7 @@ import Page from './Page';
 
 export default class OutputTerminal extends Page {
   terminalSelector = '.pt-tab-panel.visible[aria-hidden="false"] > .outputEditor > .outputTerminal ';
-  commandLineSelector = this.terminalSelector + '.outputCmdLine';
+  commandLineSelector = this.terminalSelector + '.outputCmdLine > .CodeMirror';
   commandTextArea = this.terminalSelector + '.outputCmdLine > .CodeMirror .CodeMirror-line span'; // '.outputCmdLine > textarea';
   executeCmdSelector = this.terminalSelector + '.executeCmdBtn > div > a';
   sendToEditorItemSelector = '.pt-menu-item';
@@ -39,6 +39,7 @@ export default class OutputTerminal extends Page {
   async enterText(commandText) {
     await this.commandLine.leftClick();
     return this.browser.keys(commandText.split(''));
+    // return this.executeCmd.leftClick();
   }
 
   /** Enter text (if provided), then click the execute button
