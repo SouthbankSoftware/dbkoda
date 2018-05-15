@@ -28,6 +28,7 @@ import Page from './Page';
 
 export default class Output extends Page {
   outputPanelSelector = '.pt-tab-panel.visible[aria-hidden="false"]';
+  outputToolbarSelector = '.outputToolbar';
   clearOutputSelector = '.clearOutputBtn';
   showMoreSelector = '.showMoreBtn';
   saveOutputSelector = '.saveOutputBtn';
@@ -52,12 +53,12 @@ export default class Output extends Page {
   }
 
   /** @type {WebDriverIoPromise} */
-  get showMore() {
+  get showMoreBtn() {
     return this._getOutputToolbarElement(this.showMoreSelector);
   }
 
   /** @type {WebDriverIoPromise} */
-  get saveOutput() {
+  get saveOutputBtn() {
     return this.browser.click(this._getOutputToolbarElement(this.saveOutputSelector));
   }
 
@@ -132,8 +133,8 @@ export default class Output extends Page {
 
   /** @type {WebDriverIoPromise} */
   async _getOutputToolbarElement(name) {
-    await this.browser.waitForExist(`.outputToolbar ${name}`);
-    return this.browser.element(`.outputToolbar ${name}`);
+    await this.browser.waitForExist(`${this.outputToolbarSelector} ${name}`);
+    return this.browser.element(`${this.outputToolbarSelector} ${name}`);
   }
 
   /*
@@ -163,5 +164,15 @@ export default class Output extends Page {
   async clearOutput() {
     await this.browser.waitForExist(this.clearOutputSelector);
     return this.browser.click(this.clearOutputSelector);
+  }
+
+  async showMore() {
+    await this.browser.waitForExist(this.showMoreSelector);
+    return this.browser.click(this.showMoreSelector);
+  }
+
+  async saveOutput() {
+    await this.browser.waitForExist(this.saveOutputSelector);
+    return this.browser.click(this.saveOutputSelector);
   }
 }

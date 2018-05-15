@@ -181,7 +181,7 @@ describe('CrossFunction:connection Switching', () => {
 
   const editorCommand = async inputCommands => {
     if (debug) console.log(inputCommands);
-    await r.output.clearOutput.click();
+    await r.output.clearOutput();
     await r.editor._clearEditor();
     await r.browser.pause(500);
     await r.editor._appendToEditor(inputCommands);
@@ -198,7 +198,7 @@ describe('CrossFunction:connection Switching', () => {
   const repeatEditorCommand = async () => {
     if (debug) console.log('Repeating last output');
     await r.output.setNewOutputCursor();
-    await r.output.clearOutput.click();
+    await r.output.clearOutput();
     await r.browser.pause(r.delay);
     await r.editor._clickExecuteAll();
     await r.browser.pause(r.delay);
@@ -283,7 +283,7 @@ describe('CrossFunction:connection Switching', () => {
 
     if (debug) console.log(mongoCommands);
 
-    await r.output.clearOutput.click();
+    await r.output.clearOutput();
     r.browser.pause(r.delay);
 
     await r.terminal.executeCommand(mongoCommands);

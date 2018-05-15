@@ -76,7 +76,7 @@ describe('output-panel-test-suite', () => {
     const showMoreDisabled = await output._isShowMoreDisabled();
     expect(showMoreDisabled).toBe(false);
     await output.setNewOutputCursor();
-    await output.showMore.leftClick();
+    await output.showMore();
     // TODO A better way of waiting for execution completion
     await browser.pause(1000);
     outputLines = await output.getNewOutputLines();
@@ -84,7 +84,7 @@ describe('output-panel-test-suite', () => {
   });
 
   test('clears output', async () => {
-    await output.clearOutput.leftClick();
+    await output.clearOutput();
     const outputLines = await output.getAllOutputLines();
     expect(outputLines).toBe('');
   });

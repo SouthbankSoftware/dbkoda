@@ -160,7 +160,7 @@ describe('TreeAction:SimpleQuery', () => {
 
   /** Press execute */
   test('allows user to press `execute` button', async () => {
-    await r.output.clearOutput.leftClick();
+    await r.output.clearOutput();
     await r.treeAction.execute();
     await r.browser.pause(1000);
   });

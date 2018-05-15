@@ -71,6 +71,7 @@ rules:
   arrow-parens: off
   no-lone-blocks: off
   no-multi-assign: off
+  no-mixed-operators: off
 plugins: [react, import, flowtype]
 settings:
   import/resolver:

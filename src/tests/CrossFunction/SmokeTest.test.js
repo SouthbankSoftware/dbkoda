@@ -164,7 +164,7 @@ describe('Smoke Test', () => {
     const showMoreDisabled = await r.output._isShowMoreDisabled();
     expect(showMoreDisabled).toBe(false);
     await r.output.setNewOutputCursor();
-    await r.output.showMore.leftClick();
+    await r.output.showMore();
     // TODO A better way of waiting for execution completion
     await r.browser.pause(1000);
     outputLines = await r.output.getNewOutputLines();
@@ -172,7 +172,7 @@ describe('Smoke Test', () => {
   });
 
   test('Clear output button.', async () => {
-    await r.output.clearOutput.leftClick();
+    await r.output.clearOutput();
     const outputLines = await r.output.getAllOutputLines();
     expect(outputLines).toBe('');
   });

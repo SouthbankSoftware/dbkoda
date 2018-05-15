@@ -115,7 +115,7 @@ describe('TreeAction:StorageDrillDown', () => {
 
   const editorCommand = async inputCommands => {
     if (debug) console.log(inputCommands);
-    await r.output.clearOutput.click();
+    await r.output.clearOutput();
     await r.editor._clearEditor();
     await r.browser.pause(500);
     await r.editor._appendToEditor(inputCommands);
