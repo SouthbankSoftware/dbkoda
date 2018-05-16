@@ -44,6 +44,7 @@ mongoCmd: /usr/local/bin/mongo
 Please configure docker command if you are using mongo shell through a docker container:
 
 ```yaml
+dockerEnabled: true
 docker:
   mongoCmd: docker run -it --rm mongo mongo
   mongoVersionCmd: docker run --rm mongo mongo --version
@@ -52,6 +53,7 @@ docker:
 Below configuration is used to run mongo shell through existed docker container:
 
 ```yaml
+dockerEnabled: true
 docker:
   mongoCmd: docker exec -it CONTAINER_ID mongo
   mongoVersionCmd: docker exec CONTAINER_ID mongo --version
@@ -60,6 +62,7 @@ docker:
 Please configure the mongo os commands if you want to use backup/restore through docker container. You need to specify the mount points for the docker container in order to backup/resore your mongo file. Otherwise, the data you backedup will be wipped after the container exist. 
 
 ```yaml
+dockerEnabled: true
 docker:
   mongoexportCmd: docker run --rm -v OS_PATH:CONTAINER_PATH mongo mongoexport
   mongoimportCmd: docker run --rm -v OS_PATH:CONTAINER_PATH mongo mongoimport
