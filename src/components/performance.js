@@ -145,6 +145,7 @@ const handlePerformanceBrokerRequest = (event, args) => {
       case 'mw_focusWindow':
         if (winState && winState.window) {
           winState.window.focus();
+          global.sendMsgToPerformanceWindow('performance', args);
         }
         break;
       case 'mw_closeWindow':
