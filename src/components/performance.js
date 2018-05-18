@@ -52,7 +52,7 @@ const deletePerformanceWindow = (win, bDestroy = false) => {
 };
 
 const createPerformanceWindow = options => {
-  const url =
+  let url =
     global.MODE === 'byo' || global.MODE === 'super_dev'
       ? 'http://localhost:3000/ui/performance.html'
       : `http://localhost:${global.uiPort}/ui/performance.html`;
@@ -66,6 +66,15 @@ const createPerformanceWindow = options => {
     },
     options
   );
+  if (options.params) {
+    let urlParams = '?';
+    _.forOwn(options.params, (v, k) => {
+      urlParams += `${k}=${v}&`;
+    });
+    url += urlParams;
+  }
+  console.log('options:', options);
+  console.log('url:', url);
   const win = new BrowserWindow(options);
 
   win.loadURL(url);
@@ -123,7 +132,7 @@ const handlePerformanceBrokerRequest = (event, args) => {
     switch (args.command) {
       case 'mw_createWindow':
         if (!winState) {
-          const window = createPerformanceWindow();
+          const window = createPerformanceWindow(args);
           const profileAlias = args.profileAlias
             ? 'dbKoda - ' + args.profileAlias
             : 'dbKoda - Performance Panel';
