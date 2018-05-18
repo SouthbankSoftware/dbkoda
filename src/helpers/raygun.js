@@ -5,7 +5,7 @@
  * @Date:   2018-04-27T11:01:11+10:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-08T16:02:12+10:00
+ * @Last modified time: 2018-05-18T10:47:02+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -35,6 +35,7 @@ import sh from 'shelljs';
 import Transport from 'winston-transport';
 // $FlowFixMe
 import { version, apiKey } from './pkginfo';
+import OfflineStorage from './raygun.offline';
 
 export let raygunClient; // eslint-disable-line
 
@@ -51,6 +52,7 @@ export const initRaygun = (cachePath: string, defaultTags: string[]) => {
   raygunClient = new raygun.Client().init({
     apiKey,
     isOffline: true,
+    offlineStorage: new OfflineStorage(),
     offlineStorageOptions: {
       cachePath,
       cacheLimit: 1000
