@@ -1,6 +1,6 @@
 /**
- * @Last modified by:   guiguan
- * @Last modified time: 2018-01-23T09:53:49+11:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-05-23T09:41:24+10:00
  */
 
 import _ from 'lodash';
@@ -14,7 +14,7 @@ import Output from '#/pageObjects/Output';
 import { config, getApp } from '#/helpers';
 import { mongoPortOutput } from './uiDefinitions/inputAndTest/common';
 
-const debug = false;
+const debug = true;
 
 describe('TreeAction:Collections', () => {
   /** Global (to current test suite) setup */
@@ -74,7 +74,7 @@ describe('TreeAction:Collections', () => {
   const editorCommand = async inputCommands => {
     if (debug) console.log('Editor input: ', inputCommands);
     await r.editor._clickAddNewEditor();
-    await r.browser.waitForExist('.pt-toast-message');
+    // await r.browser.waitForExist('.pt-toast-message');
     await r.browser.pause(1000);
 
     await r.output.setNewOutputCursor();

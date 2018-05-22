@@ -1,6 +1,6 @@
 /**
- * @Last modified by:   guiguan
- * @Last modified time: 2017-06-23T23:17:16+10:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-05-23T09:38:30+10:00
  */
 
 /* eslint no-await-in-loop: 0 */
@@ -14,7 +14,7 @@ import Output from '#/pageObjects/Output';
 
 import { config, getApp } from '#/helpers';
 
-const debug = false;
+const debug = true;
 
 describe('TreeAction:CheckAttributes', () => {
   /** Global (to current test suite) setup */
@@ -91,7 +91,7 @@ describe('TreeAction:CheckAttributes', () => {
       password: process.env.ATLAS_SERVER_PASSWORD
     });
     expect(await browser.waitForExist(treeAction.treeNodeSelector, 10000)).toBeTruthy;
-    if (debug) await r.debug();
+    // if (debug) await r.debug();
   });
 
   const editorCommand = async inputCommands => {
@@ -112,10 +112,11 @@ describe('TreeAction:CheckAttributes', () => {
 
   test('List collections in SampleCollections', async () => {
     const output = await editorCommand('db.getSiblingDB("SampleCollections").getCollectionNames()');
-    if (debug) await r.debug();
+    // if (debug) await r.debug();
     const lines = output.split('\n');
+    if (debug) console.log(lines);
     lines.shift();
-    lines.pop();
+    // lines.pop();
     lines.pop();
     if (lines[lines.length - 1].indexOf('dbKoda&gt;') >= 0) {
       lines.pop();

@@ -3,7 +3,7 @@
  * @Date:   2017-04-28T15:03:44+10:00
  * @Email:  chris@southbanksoftware.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-05-23T08:16:32+10:00
+ * @Last modified time: 2018-05-23T09:34:35+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -99,19 +99,20 @@ export default class Output extends Page {
   }
 
   /** @type {WebDriverIoPromise} */
-  async getAllOutputLines() {
+  getAllOutputLines() {
     // return this.browser.getHTML(this.outputLinesSelector, false);
-    let res = await this.browser.getText(this.outputLinesSelector);
-    res = res.split(/\r?\n/);
-    let tmp = []; //eslint-disable-line
-    for (let i = 1; i < res.length; i += 1) {
-      if (res[i].match(/^[0-9]+$/g)) {
-        // Probably a number?
-      } else {
-        tmp.push(res[i]);
-      }
-    }
-    return tmp.join('\n');
+    return this.browser.getText(this.outputLinesSelector);
+    // let res = await this.browser.getText(this.outputLinesSelector);
+    // res = res.split(/\r?\n/);
+    // let tmp = []; //eslint-disable-line
+    // for (let i = 1; i < res.length; i += 1) {
+    //   if (res[i].match(/^[0-9]+$/g)) {
+    //     // Probably a number?
+    //   } else {
+    //     tmp.push(res[i]);
+    //   }
+    // }
+    // return tmp.join('\n');
   }
 
   async activeTabName() {
