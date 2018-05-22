@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   wahaj
- * @Last modified time: 2018-05-23T09:41:24+10:00
+ * @Last modified time: 2018-05-23T09:50:13+10:00
  */
 
 import _ from 'lodash';
@@ -14,7 +14,7 @@ import Output from '#/pageObjects/Output';
 import { config, getApp } from '#/helpers';
 import { mongoPortOutput } from './uiDefinitions/inputAndTest/common';
 
-const debug = true;
+const debug = false;
 
 describe('TreeAction:Collections', () => {
   /** Global (to current test suite) setup */

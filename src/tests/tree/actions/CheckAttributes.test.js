@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   wahaj
- * @Last modified time: 2018-05-23T09:38:30+10:00
+ * @Last modified time: 2018-05-23T09:50:07+10:00
  */
 
 /* eslint no-await-in-loop: 0 */
@@ -14,7 +14,7 @@ import Output from '#/pageObjects/Output';
 
 import { config, getApp } from '#/helpers';
 
-const debug = true;
+const debug = false;
 
 describe('TreeAction:CheckAttributes', () => {
   /** Global (to current test suite) setup */

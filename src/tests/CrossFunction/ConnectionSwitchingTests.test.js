@@ -1,6 +1,6 @@
 /**
  * @Last modified by:   wahaj
- * @Last modified time: 2018-05-10T12:43:44+10:00
+ * @Last modified time: 2018-05-23T09:50:29+10:00
  */
 
 import _ from 'lodash';
@@ -14,7 +14,7 @@ import Terminal from '#/pageObjects/OutputTerminal';
 import { config, getApp } from '#/helpers';
 import { DELAY_TIMEOUT } from '../helpers/config';
 
-const debug = true;
+const debug = false;
 
 describe('CrossFunction:connection Switching', () => {
   /** Global (to current test suite) setup */
