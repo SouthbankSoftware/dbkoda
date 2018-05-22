@@ -2,8 +2,8 @@
  * @Author: chris
  * @Date:   2017-04-28T15:03:44+10:00
  * @Email:  chris@southbanksoftware.com
- * @Last modified by:   guiguan
- * @Last modified time: 2017-11-27T13:29:22+11:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-05-23T08:16:32+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -35,7 +35,7 @@ export default class Output extends Page {
   visibleTabsSelector = '.outputTabView .pt-tab.visible';
   selectedTabSelector = '.outputTabView .pt-tab.visible[aria-selected="true"]';
   currentVisibleOutputSelector = '.pt-tab-panel.visible .outputEditor';
-  outputLinesSelector = '.pt-tab-panel.visible > .outputEditor > .ReactCodeMirror > textarea';
+  outputLinesSelector = '.pt-tab-panel.visible > .outputEditor > .ReactCodeMirror .CodeMirror-code';
   newOutputCursor = 0;
   codeMirrorSelector = this.outputPanelSelector + ' .CodeMirror';
   // Context Menu selectors
@@ -99,8 +99,19 @@ export default class Output extends Page {
   }
 
   /** @type {WebDriverIoPromise} */
-  getAllOutputLines() {
-    return this.browser.getHTML(this.outputLinesSelector, false);
+  async getAllOutputLines() {
+    // return this.browser.getHTML(this.outputLinesSelector, false);
+    let res = await this.browser.getText(this.outputLinesSelector);
+    res = res.split(/\r?\n/);
+    let tmp = []; //eslint-disable-line
+    for (let i = 1; i < res.length; i += 1) {
+      if (res[i].match(/^[0-9]+$/g)) {
+        // Probably a number?
+      } else {
+        tmp.push(res[i]);
+      }
+    }
+    return tmp.join('\n');
   }
 
   async activeTabName() {

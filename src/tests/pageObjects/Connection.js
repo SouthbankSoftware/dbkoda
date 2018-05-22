@@ -3,7 +3,7 @@
  * @Date:   2017-05-01T09:06:09+10:00
  * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-05-10T11:00:30+10:00
+ * @Last modified time: 2018-05-23T07:59:36+10:00
  */
 
 import Page from './Page';
@@ -16,7 +16,7 @@ export default class ConnectionProfile extends Page {
 
   basicConnectionSettings = '.ProfileManager .connectionLeftPane .btn-basic';
 
-  authenticationConnectionSettings = '.ProfileManager .connectionLeftPane .btn-authentication';
+  // authenticationConnectionSettings = '.ProfileManager .connectionLeftPane .btn-authentication';
 
   clusterConnectionSettings = '.ProfileManager .connectionLeftPane .btn-cluster';
 
@@ -26,7 +26,9 @@ export default class ConnectionProfile extends Page {
 
   sshConnectionSettings = '.ProfileManager .connectionLeftPane .btn-ssh';
 
-  aliasInputSelector = 'input#alias';
+  aliasInputParentSelector = '.ProfileManager .connectionLeftPane .pt-input-alias';
+
+  aliasInputSelector = '.ProfileManager .connectionLeftPane .pt-input-alias > input.pt-editable-input';
 
   hostNameInputSelector = 'input#host';
 
@@ -137,7 +139,7 @@ export default class ConnectionProfile extends Page {
    */
   _connectProfileElementsExist() {
     return this.browser
-      .waitForExist(this.aliasInputSelector)
+      .waitForExist(this.aliasInputParentSelector)
       .waitForExist(this.hostNameInputSelector)
       .waitForExist(this.portInputSelector)
       .waitForExist(this.databaseInputSelector)
@@ -156,6 +158,8 @@ export default class ConnectionProfile extends Page {
     }
     if (profile.alias) {
       await bro
+        .leftClick(this.aliasInputParentSelector)
+        .waitForExist(this.aliasInputSelector)
         .setValue(this.aliasInputSelector, '')
         .setValue(this.aliasInputSelector, profile.alias)
         .waitForValue(this.aliasInputSelector, profile.alias);
@@ -247,7 +251,6 @@ export default class ConnectionProfile extends Page {
   async _fillInAuthentication(profile, bro) {
     return profile.authentication
       ? bro
-          .leftClick(this.authenticationConnectionSettings)
           .waitForExist(this.shaCheckboxSelector)
           .leftClick(this.shaCheckboxSelector)
           .waitForEnabled(this.userNameInputSelector)
@@ -274,7 +277,7 @@ export default class ConnectionProfile extends Page {
   getCurrentProfileData() {
     const promises = [];
     promises.push(
-      this.browser.getValue(this.aliasInputSelector),
+      this.browser.getValue(this.aliasInputParentSelector),
       this.browser.getValue(this.hostNameInputSelector),
       this.browser.getValue(this.portInputSelector),
       this.browser.getValue(this.urlSelector),
@@ -309,7 +312,7 @@ export default class ConnectionProfile extends Page {
   }
 
   get alias() {
-    return this._getProfileElement(this.aliasInputSelector);
+    return this._getProfileElement(this.aliasInputParentSelector);
   }
 
   get hostName() {
