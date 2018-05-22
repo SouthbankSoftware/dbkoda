@@ -65,12 +65,14 @@ describe('output-terminal-test-suite', () => {
   });
 
   test('executes command in terminal', async () => {
-    await output.clearOutput();
+    await output.setNewOutputCursor();
     // if (debug) await debug();
     await terminal.executeCommand('use test;');
     await browser.pause(100);
-    const outputLines = (await output.getAllOutputLines()).replace(/\r?\n|\r/g, '');
-    const expectedOutput = expect.stringMatching('switched to db testdbKoda Mongo Shell>');
+    const outputLines = (await output.getNewOutputLines()).replace(/\r?\n|\r/g, '');
+    const expectedOutput = expect.stringMatching(
+      'use test;switched to db testdbKoda Mongo Shell&gt;'
+    );
     expect(outputLines).toEqual(expectedOutput);
   });
 
