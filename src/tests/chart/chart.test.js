@@ -2,7 +2,7 @@
  * @Author: guiguan
  * @Date:   2017-10-12T20:10:14+11:00
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-23T09:57:10+10:00
+ * @Last modified time: 2018-05-23T10:59:17+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -165,7 +165,7 @@ describe('ChartPanel', () => {
     expect(await r.chart.isLegendExisting('`other')).toBeTruthy();
     expect(await r.chart.minYValue).toEqual('0');
     expect(await r.chart.maxYValue).toEqual('20000000');
-    expect(await r.chart.minXValue).toEqual('company446');
+    expect(await r.chart.minXValue).toMatch(/^company\d{2,4}/);
     expect(await r.chart.maxXValue).toEqual('`other');
   });
 
@@ -181,7 +181,7 @@ describe('ChartPanel', () => {
     expect(await r.chart.isLegendExisting('`other')).toBeFalsy();
     expect(await r.chart.minYValue).toEqual('0');
     expect(await r.chart.maxYValue).toEqual('100000');
-    expect(await r.chart.minXValue).toEqual('company443');
-    expect(await r.chart.maxXValue).toEqual('company500');
+    expect(await r.chart.minXValue).toMatch(/^company\d{2,4}/);
+    expect(await r.chart.maxXValue).toMatch(/^company\d{2,4}/);
   });
 });
