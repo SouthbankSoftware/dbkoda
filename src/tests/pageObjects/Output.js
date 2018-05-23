@@ -3,7 +3,7 @@
  * @Date:   2017-04-28T15:03:44+10:00
  * @Email:  chris@southbanksoftware.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-05-23T09:51:08+10:00
+ * @Last modified time: 2018-05-23T09:53:59+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -128,7 +128,7 @@ export default class Output extends Page {
    * called, returns all output.
    */
   async getNewOutputLines() {
-    const newOutput = await this.browser.getHTML(this.outputLinesSelector, false);
+    const newOutput = await this.browser.getText(this.outputLinesSelector);
     return newOutput.substring(this.newOutputCursor);
   }
 

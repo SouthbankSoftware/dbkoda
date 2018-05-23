@@ -2,8 +2,8 @@
  * @Author: chris
  * @Date:   2017-05-02T14:40:47+10:00
  * @Email:  chris@southbanksoftware.com
- * @Last modified by:   guiguan
- * @Last modified time: 2018-01-30T14:01:22+11:00
+ * @Last modified by:   wahaj
+ * @Last modified time: 2018-05-23T10:00:59+10:00
  */
 
 import {
@@ -70,9 +70,7 @@ describe('output-terminal-test-suite', () => {
     await terminal.executeCommand('use test;');
     await browser.pause(100);
     const outputLines = (await output.getNewOutputLines()).replace(/\r?\n|\r/g, '');
-    const expectedOutput = expect.stringMatching(
-      'use test;switched to db testdbKoda Mongo Shell&gt;'
-    );
+    const expectedOutput = expect.stringMatching('use test;switched to db testdbKoda Mongo Shell>');
     expect(outputLines).toEqual(expectedOutput);
   });
 
