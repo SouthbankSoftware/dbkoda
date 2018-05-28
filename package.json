@@ -114,7 +114,7 @@
       "bash -c 'INPUT=$(IFS=\"\n\"; echo \"$0\n$*\"); FI=$(egrep '\"'\"'\\.jsx?$|\\.json$|\\.scss$'\"'\"' <<< \"$INPUT\"); if [[ ! -z \"$FI\" ]]; then prettier --write $FI; fi; FI=$(egrep '\"'\"'\\.jsx?$'\"'\"' <<< \"$INPUT\"); if [[ ! -z \"$FI\" ]]; then eslint --fix $FI; fi'",
     "prepush": "yarn flow",
     "precommit":
-      "INPUT=$(git diff --name-only --cached); if [[ ! -z \"$INPUT\" ]]; then yarn format $INPUT; git add $INPUT; fi"
+      "INPUT=$(git diff --name-only --cached --diff-filter=d); if [[ ! -z \"$INPUT\" ]]; then yarn format $INPUT; git add $INPUT; fi"
   },
   "repository": {
     "type": "git",
