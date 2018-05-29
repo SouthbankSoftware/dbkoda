@@ -5,7 +5,7 @@
  * @Date:   2018-04-27T11:01:11+10:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-18T10:47:02+10:00
+ * @Last modified time: 2018-05-29T18:11:33+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -55,7 +55,7 @@ export const initRaygun = (cachePath: string, defaultTags: string[]) => {
     offlineStorage: new OfflineStorage(),
     offlineStorageOptions: {
       cachePath,
-      cacheLimit: 1000
+      cacheLimit: 100
     }
   });
 
@@ -78,13 +78,31 @@ export const initRaygun = (cachePath: string, defaultTags: string[]) => {
 
 export let isRaygunEnabled = false; // eslint-disable-line
 
-let bringRaygunOnlineTimeout = null;
-const BRING_RAYGUN_ONLINE_TIMEOUT = 60000; // after a minute
+let retryRaygunTimeout = null;
+const RETRY_RAYGUN_TIMEOUT = 300000; // after 5 min
+const RETRY_RAYGUN_TIMES = 6; // retry for 30 min
+
+const retryRaygun = (count: number) => {
+  if (count > 0 && !retryRaygunTimeout) {
+    raygunClient.offline();
+
+    retryRaygunTimeout = setTimeout(() => {
+      retryRaygunTimeout = null;
+      // wait for Raygun to become available
+      raygunClient.online(err => {
+        if (err) {
+          // failed to bring Raygun online, trying it again
+          retryRaygun(count - 1);
+        }
+      });
+    }, RETRY_RAYGUN_TIMEOUT);
+  }
+};
 
 export const toggleRaygun = (enabled: boolean) => {
-  if (bringRaygunOnlineTimeout) {
-    clearTimeout(bringRaygunOnlineTimeout);
-    bringRaygunOnlineTimeout = null;
+  if (retryRaygunTimeout) {
+    clearTimeout(retryRaygunTimeout);
+    retryRaygunTimeout = null;
   }
 
   if (enabled) {
@@ -154,30 +172,35 @@ export class RaygunTransport extends Transport {
         }
 
         if (raygunError) {
+          global.l._error(raygunError);
+
           if (isRaygunEnabled) {
-            raygunClient.offline();
+            // Raygun is enabled but we have trouble to connect to Raygun server. We try to save the
+            // error in offline cache and bring Raygun online again after a timeout
+            retryRaygun(RETRY_RAYGUN_TIMES);
 
-            if (!bringRaygunOnlineTimeout) {
-              bringRaygunOnlineTimeout = setTimeout(() => {
-                raygunClient.online();
-                bringRaygunOnlineTimeout = null;
-              }, BRING_RAYGUN_ONLINE_TIMEOUT);
-            }
-
-            // save the error to offline cache
             sendError(error, {
               customData,
               request,
-              tags
+              tags,
+              callback: (err: Error) => {
+                if (err) {
+                  l._error(err);
+                }
+
+                callback && callback();
+                cb && cb(raygunError);
+              }
             });
+            return;
           }
 
-          global.l._error(raygunError);
           callback && callback();
           cb && cb(raygunError);
           return;
         }
 
+        // at this point, error is correctly reported
         this.emit('logged');
         callback && callback();
         cb && cb(res);

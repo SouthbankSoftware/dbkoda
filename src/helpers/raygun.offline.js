@@ -3,7 +3,7 @@
  * @Date:   2018-05-18T09:55:29+10:00
  * @Email:  root@guiguan.net
  * @Last modified by:   guiguan
- * @Last modified time: 2018-05-18T11:09:12+10:00
+ * @Last modified time: 2018-05-29T18:02:02+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -36,23 +36,47 @@ const raygunTransport = require('raygun/lib/raygun.transport');
 const OfflineStorage = function() {
   const storage = this;
 
-  function _sendAndDelete(item) {
+  function _deleteError(item) {
+    fs.unlink(path.join(storage.cachePath, item), err => {
+      if (err) {
+        l._error('RaygunOfflineCacheProvider: error removing old cache error', err);
+      }
+    });
+  }
+
+  function _sendAndDelete(item, cb) {
     fs.readFile(path.join(storage.cachePath, item), 'utf8', (err, cacheContents) => {
+      if (err) {
+        l._error('RaygunOfflineCacheProvider: error reading cache error', err);
+        return;
+      }
+
       try {
-        raygunTransport.send(JSON.parse(cacheContents));
+        const errorOptions = JSON.parse(cacheContents);
+
+        errorOptions.callback = (err, _res) => {
+          if (err) {
+            // cannot report the error to raygun yet
+            return cb && cb(err);
+          }
+
+          _deleteError(item);
+          cb && cb();
+        };
+
+        raygunTransport.send(errorOptions);
       } catch (e) {
-        l._error(e);
-      } finally {
-        fs.unlink(path.join(storage.cachePath, item), err => {
-          if (err) l._error(err);
-        });
+        l._error('RaygunOfflineCacheProvider:', e);
+        _deleteError(item);
       }
     });
   }
 
   storage.init = function(offlineStorageOptions) {
     if (!offlineStorageOptions && !offlineStorageOptions.cachePath) {
-      throw new Error('Cache Path must be set before Raygun can cache offline');
+      throw new Error(
+        'RaygunOfflineCacheProvider: cache path must be set before Raygun can cache offline'
+      );
     }
 
     storage.cachePath = offlineStorageOptions.cachePath;
@@ -66,34 +90,35 @@ const OfflineStorage = function() {
   };
 
   storage.save = function(transportItem, callback) {
-    const filename = path.join(storage.cachePath, Date.now() + '.json');
+    const writeFilename = path.join(storage.cachePath, Date.now() + '.json');
     delete transportItem.callback;
 
     if (!callback) {
       callback = function() {};
     }
 
-    fs.readdir(storage.cachePath, (err, files) => {
+    storage.retrieve((err, files) => {
       if (err) {
-        console.log('[Raygun] Error reading cache folder');
-        console.log(err);
+        l._error('RaygunOfflineCacheProvider: error reading cache folder', err);
         return callback(err);
       }
 
-      if (files.length > storage.cacheLimit) {
-        console.log('[Raygun] Error cache reached limit');
-        return callback(null);
+      if (files.length >= storage.cacheLimit) {
+        // remove old errors
+        const removeNum = Math.min(files.length, files.length - storage.cacheLimit + 1);
+
+        for (let i = 0; i < removeNum; i += 1) {
+          _deleteError(files[i]);
+        }
       }
 
-      fs.writeFile(filename, JSON.stringify(transportItem), 'utf8', err => {
-        if (!err) {
-          return callback(null);
+      fs.writeFile(writeFilename, JSON.stringify(transportItem), 'utf8', err => {
+        if (err) {
+          l._error('RaygunOfflineCacheProvider: error writing to cache folder', err);
+          return callback(err);
         }
 
-        console.log('[Raygun] Error writing to cache folder');
-        console.log(err);
-
-        return callback(err);
+        callback(null);
       });
     });
   };
@@ -109,16 +134,26 @@ const OfflineStorage = function() {
 
     storage.retrieve((err, items) => {
       if (err) {
-        console.log('[Raygun] Error reading cache folder');
-        console.log(err);
+        l._error('RaygunOfflineCacheProvider: error reading cache folder', err);
         return callback(err);
       }
 
-      for (let i = 0; i < items.length; i += 1) {
-        _sendAndDelete(items[i]);
+      if (items.length <= 0) {
+        return callback(null, items);
       }
 
-      callback(err, items);
+      // try first file and continue the rest if it succeeds
+      _sendAndDelete(items[0], err => {
+        if (!err) {
+          for (let i = 1; i < items.length; i += 1) {
+            _sendAndDelete(items[i]);
+          }
+
+          callback(null, items);
+        } else {
+          callback(err, items);
+        }
+      });
     });
   };
 };
