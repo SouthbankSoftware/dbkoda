@@ -2,7 +2,7 @@
  * Test connection profile
  *
  * @Last modified by:   wahaj
- * @Last modified time: 2018-05-10T12:45:27+10:00
+ * @Last modified time: 2018-06-01T09:17:44+10:00
  *
  * dbKoda - a modern, open source code editor, for MongoDB.
  * Copyright (C) 2017-2018 Southbank Software
@@ -111,35 +111,162 @@ describe('connection-profile-test-suite', () => {
       .then(() => browser.waitForExist(connectProfile.newProfileButtonSelector));
   });
 
-  test('open connection profile through hostname', () => {
+  // test('open connection profile through hostname', () => {
+  //   return connectProfile
+  //     .connectProfileByHostname({
+  //       alias: 'Test ' + mongoPort + '(' + getRandomPort() + ')',
+  //       hostName: 'localhost',
+  //       port: mongoPort,
+  //       database: 'test'
+  //     })
+  //     .catch(err => assert.fail(false, true, err));
+  // });
+  //
+  // test('open connection profile through url', () => {
+  //   return connectProfile.connectProfileByURL({
+  //     alias: 'TestUrl' + mongoPort + '(' + getRandomPort() + ')',
+  //     url: 'mongodb://localhost:' + mongoPort,
+  //     database: 'test'
+  //   });
+  // });
+  //
+  // test('open atlas connection with SSL', () => {
+  //   return connectProfile
+  //     .connectProfileByURL({
+  //       alias: 'Atlas' + getRandomPort(),
+  //       url: `mongodb://${process.env.ATLAS_SERVER_HOSTNAME}`,
+  //       database: 'admin',
+  //       authentication: true,
+  //       ssl: true,
+  //       userName: process.env.ATLAS_SERVER_USERNAME,
+  //       password: process.env.ATLAS_SERVER_PASSWORD
+  //     })
+  //     .then(() => {
+  //       browser.waitForExist(connectProfile.newProfileButtonSelector);
+  //     })
+  //     .catch(err => assert.fail(false, true, err));
+  // });
+  //
+  // test('connect to mongo instance with authentication', () => {
+  //   if (os.platform() === 'win32') {
+  //     return;
+  //   }
+  //   return connectProfile.connectProfileByURL({
+  //     alias: 'TestAuth' + mongoPort + '(' + getRandomPort() + ')',
+  //     url: 'mongodb://localhost:' + authMongoPort,
+  //     database: 'admin',
+  //     authentication: true,
+  //     userName: 'admin',
+  //     password: '123456'
+  //   });
+  // });
+  //
+  // test('connect to mongo instance with authentication through hostname', () => {
+  //   if (os.platform() === 'win32') {
+  //     return;
+  //   }
+  //   return connectProfile
+  //     .connectProfileByHostname({
+  //       alias: 'TestAuth' + mongoPort + '(' + getRandomPort() + ')',
+  //       hostName: 'localhost',
+  //       port: authMongoPort,
+  //       database: 'admin',
+  //       authentication: true,
+  //       userName: 'admin',
+  //       password: '123456'
+  //     })
+  //     .catch(err => console.error(err));
+  // });
+  //
+  // test('Connect Mongo 3.0', () => {
+  //   return connectProfile
+  //     .connectProfileByHostname({
+  //       alias: 'Test30' + mongoPort + '(' + getRandomPort() + ')',
+  //       hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
+  //       port: 27030,
+  //       database: 'admin',
+  //       authentication: true,
+  //       authenticationDatabase: 'admin',
+  //       userName: r.ec2User,
+  //       password: r.ec2Pass
+  //     })
+  //     .catch(err => assert.fail(false, true, err));
+  // });
+  //
+  // test('Connect Mongo 3.2', () => {
+  //   return connectProfile
+  //     .connectProfileByHostname({
+  //       alias: 'Test32' + mongoPort + '(' + getRandomPort() + ')',
+  //       hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
+  //       port: 27032,
+  //       database: 'admin',
+  //       authentication: true,
+  //       authenticationDatabase: 'admin',
+  //       userName: r.ec2User,
+  //       password: r.ec2Pass
+  //     })
+  //     .catch(err => assert.fail(false, true, err));
+  // });
+  //
+  // test('open connection profile through hostname via SSH Tunnel', () => {
+  //   return connectProfile
+  //     .connectProfileByHostname({
+  //       alias: 'Test EC2 with SSH (27017)',
+  //       hostName: r.ec2,
+  //       port: 27017,
+  //       database: 'admin',
+  //       ssh: true,
+  //       remoteHost: r.ec2,
+  //       remoteUser: r.ec2SshUser,
+  //       keyRadio: true,
+  //       sshKeyFile: r.ec2SshKey2,
+  //       authentication: true,
+  //       authenticationDatabase: 'admin',
+  //       userName: r.ec2User,
+  //       password: r.ec2Pass,
+  //       sshTunnel: true
+  //     })
+  //     .catch(err => assert.fail(false, true, err));
+  // });
+  //
+  // test('open connection profile through hostname via SSH Tunnel with passPhrase', () => {
+  //   return connectProfile
+  //     .connectProfileByHostname({
+  //       alias: 'Test EC2 with SSH + passPhrase(27017)',
+  //       hostName: r.ec2,
+  //       port: 27017,
+  //       database: 'admin',
+  //       ssh: true,
+  //       remoteHost: r.ec2,
+  //       remoteUser: r.ec2SshUser,
+  //       keyRadio: true,
+  //       sshKeyFile: r.ec2SshKey,
+  //       passPhrase: r.ec2SshKeyPass,
+  //       authentication: true,
+  //       authenticationDatabase: 'admin',
+  //       userName: r.ec2User,
+  //       password: r.ec2Pass,
+  //       sshTunnel: true
+  //     })
+  //     .catch(err => assert.fail(false, true, err));
+  // });
+
+  test('open atlas connection with SSL using Cluster Configuration', () => {
+    const atlasUrl = process.env.ATLAS_SERVER_HOSTNAME;
+    const atlasUrlArray = atlasUrl.split('/');
+    const hostsList = atlasUrlArray[0];
+    const replicaSetName = atlasUrlArray[1].split('=')[1];
     return connectProfile
       .connectProfileByHostname({
-        alias: 'Test ' + mongoPort + '(' + getRandomPort() + ')',
-        hostName: 'localhost',
-        port: mongoPort,
-        database: 'test'
-      })
-      .catch(err => assert.fail(false, true, err));
-  });
-
-  test('open connection profile through url', () => {
-    return connectProfile.connectProfileByURL({
-      alias: 'TestUrl' + mongoPort + '(' + getRandomPort() + ')',
-      url: 'mongodb://localhost:' + mongoPort,
-      database: 'test'
-    });
-  });
-
-  test('open atlas connection with SSL', () => {
-    return connectProfile
-      .connectProfileByURL({
-        alias: 'Atlas' + getRandomPort(),
-        url: `mongodb://${process.env.ATLAS_SERVER_HOSTNAME}`,
-        database: 'admin',
-        authentication: true,
-        ssl: true,
-        userName: process.env.ATLAS_SERVER_USERNAME,
-        password: process.env.ATLAS_SERVER_PASSWORD
+        alias: 'Atlas using Cluster Configuration',
+        useClusterConfig: true,
+        hostsList,
+        replicaSetName,
+        databaseCluster: 'admin',
+        sslCluster: true,
+        shaCluster: true,
+        usernameCluster: process.env.ATLAS_SERVER_USERNAME,
+        passwordCluster: process.env.ATLAS_SERVER_PASSWORD
       })
       .then(() => {
         browser.waitForExist(connectProfile.newProfileButtonSelector);
@@ -147,106 +274,21 @@ describe('connection-profile-test-suite', () => {
       .catch(err => assert.fail(false, true, err));
   });
 
-  test('connect to mongo instance with authentication', () => {
-    if (os.platform() === 'win32') {
-      return;
-    }
-    return connectProfile.connectProfileByURL({
-      alias: 'TestAuth' + mongoPort + '(' + getRandomPort() + ')',
-      url: 'mongodb://localhost:' + authMongoPort,
-      database: 'admin',
-      authentication: true,
-      userName: 'admin',
-      password: '123456'
-    });
-  });
-
-  test('connect to mongo instance with authentication through hostname', () => {
-    if (os.platform() === 'win32') {
-      return;
-    }
+  test('open atlas connection with SSL using Cluster URL', () => {
     return connectProfile
       .connectProfileByHostname({
-        alias: 'TestAuth' + mongoPort + '(' + getRandomPort() + ')',
-        hostName: 'localhost',
-        port: authMongoPort,
-        database: 'admin',
-        authentication: true,
-        userName: 'admin',
-        password: '123456'
+        alias: 'Atlas using Cluster URL',
+        useClusterConfig: true,
+        urlClusterRadio: true,
+        urlCluster: `mongodb://${process.env.ATLAS_SERVER_HOSTNAME}`,
+        databaseCluster: 'admin',
+        sslCluster: true,
+        shaCluster: true,
+        usernameCluster: process.env.ATLAS_SERVER_USERNAME,
+        passwordCluster: process.env.ATLAS_SERVER_PASSWORD
       })
-      .catch(err => console.error(err));
-  });
-
-  test('Connect Mongo 3.0', () => {
-    return connectProfile
-      .connectProfileByHostname({
-        alias: 'Test30' + mongoPort + '(' + getRandomPort() + ')',
-        hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
-        port: 27030,
-        database: 'admin',
-        authentication: true,
-        authenticationDatabase: 'admin',
-        userName: r.ec2User,
-        password: r.ec2Pass
-      })
-      .catch(err => assert.fail(false, true, err));
-  });
-
-  test('Connect Mongo 3.2', () => {
-    return connectProfile
-      .connectProfileByHostname({
-        alias: 'Test32' + mongoPort + '(' + getRandomPort() + ')',
-        hostName: process.env.EC2_SHARD_CLUSTER_HOSTNAME,
-        port: 27032,
-        database: 'admin',
-        authentication: true,
-        authenticationDatabase: 'admin',
-        userName: r.ec2User,
-        password: r.ec2Pass
-      })
-      .catch(err => assert.fail(false, true, err));
-  });
-
-  test('open connection profile through hostname via SSH Tunnel', () => {
-    return connectProfile
-      .connectProfileByHostname({
-        alias: 'Test EC2 with SSH (27017)',
-        hostName: r.ec2,
-        port: 27017,
-        database: 'admin',
-        ssh: true,
-        remoteHost: r.ec2,
-        remoteUser: r.ec2SshUser,
-        keyRadio: true,
-        sshKeyFile: r.ec2SshKey2,
-        authentication: true,
-        authenticationDatabase: 'admin',
-        userName: r.ec2User,
-        password: r.ec2Pass,
-        sshTunnel: true
-      })
-      .catch(err => assert.fail(false, true, err));
-  });
-
-  test('open connection profile through hostname via SSH Tunnel with passPhrase', () => {
-    return connectProfile
-      .connectProfileByHostname({
-        alias: 'Test EC2 with SSH + passPhrase(27017)',
-        hostName: r.ec2,
-        port: 27017,
-        database: 'admin',
-        ssh: true,
-        remoteHost: r.ec2,
-        remoteUser: r.ec2SshUser,
-        keyRadio: true,
-        sshKeyFile: r.ec2SshKey,
-        passPhrase: r.ec2SshKeyPass,
-        authentication: true,
-        authenticationDatabase: 'admin',
-        userName: r.ec2User,
-        password: r.ec2Pass,
-        sshTunnel: true
+      .then(() => {
+        browser.waitForExist(connectProfile.newProfileButtonSelector);
       })
       .catch(err => assert.fail(false, true, err));
   });

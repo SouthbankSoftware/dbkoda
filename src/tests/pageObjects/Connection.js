@@ -3,7 +3,7 @@
  * @Date:   2017-05-01T09:06:09+10:00
  * @Email:  wahaj@southbanksoftware.com
  * @Last modified by:   wahaj
- * @Last modified time: 2018-05-23T07:59:36+10:00
+ * @Last modified time: 2018-06-01T09:07:56+10:00
  */
 
 import Page from './Page';
@@ -16,11 +16,7 @@ export default class ConnectionProfile extends Page {
 
   basicConnectionSettings = '.ProfileManager .connectionLeftPane .btn-basic';
 
-  // authenticationConnectionSettings = '.ProfileManager .connectionLeftPane .btn-authentication';
-
   clusterConnectionSettings = '.ProfileManager .connectionLeftPane .btn-cluster';
-
-  advancedConnectionSettings = '.ProfileManager .connectionLeftPane .btn-advanced';
 
   urlbuilderConnectionSettings = '.ProfileManager .connectionLeftPane .btn-url';
 
@@ -30,11 +26,22 @@ export default class ConnectionProfile extends Page {
 
   aliasInputSelector = '.ProfileManager .connectionLeftPane .pt-input-alias > input.pt-editable-input';
 
+  // Basic Connection Page Objects
+  useBasicConfigSwitchSelector = 'input#useBasicConfig';
+
   hostNameInputSelector = 'input#host';
 
   portInputSelector = 'input#port';
 
   databaseInputSelector = 'input#database';
+
+  urlRadioSelector = 'input#urlRadio';
+
+  urlSelector = 'input#url';
+
+  sslCheckboxSelector = 'input#ssl';
+
+  sslInvalidCertsCheckboxSelector = 'input#sslAllowInvalidCertificates';
 
   shaCheckboxSelector = 'input#sha';
 
@@ -44,27 +51,58 @@ export default class ConnectionProfile extends Page {
 
   authDatabaseInputSelector = 'input#authenticationDatabase';
 
-  urlRadioSelector = 'input#urlRadio';
+  // Cluster Configuration Page Objects
 
-  urlSelector = 'input#url';
+  useClusterConfigSwitchSelector = 'input#useClusterConfig';
 
-  sslCheckboxSelector = 'input#ssl';
+  hostsListInputSelector = 'input#hostsList';
 
+  replicaSetNameInputSelector = 'input#replicaSetName';
+
+  wInputSelector = 'input#w';
+
+  wtimeoutMSInputSelector = 'input#wtimeoutMS';
+
+  journalCheckboxSelector = 'input#journal';
+
+  readPrefComboSelector = 'select#readPref';
+
+  urlClusterRadioSwitchSelector = 'input#urlClusterRadio';
+
+  urlClusterInputSelector = 'input#urlCluster';
+
+  databaseClusterInputSelector = 'input#databaseCluster';
+
+  sslClusterCheckboxSelector = 'input#sslCluster';
+
+  sslAllowInvalidCertsClusterCheckboxSelector = 'input#sslAllowInvalidCertificatesCluster';
+
+  shaClusterSwitchSelector = 'input#shaCluster';
+
+  usernameClusterInputSelector = 'input#usernameCluster';
+
+  passwordClusterInputSelector = 'input#passwordCluster';
+
+  authenticationDatabaseClusterInputSelector = 'input#authenticationDatabaseCluster';
+
+  // SSH Options Page Objects
   sshCheckboxSelector = 'input#ssh';
 
   remoteHostInputSelector = 'input#remoteHost';
 
+  sshPortInputSelector = 'input#sshPort';
+
   remoteUserInputSelector = 'input#remoteUser';
 
   remotePassInputSelector = 'input#remotePass';
+
+  sshTunnelCheckboxSelector = 'input#sshTunnel';
 
   keyRadioSelector = 'input#keyRadio';
 
   sshKeyFileInputSelector = 'input#sshKeyFile';
 
   passPhraseInputSelector = 'input#passPhrase';
-
-  sshTunnelCheckboxSelector = 'input#sshTunnel';
 
   connectButtonSelector = '.ProfileManager .profile-button-panel .connectButton';
   closeButtonSelector = '.ProfileManager .close-button';
@@ -164,34 +202,120 @@ export default class ConnectionProfile extends Page {
         .setValue(this.aliasInputSelector, profile.alias)
         .waitForValue(this.aliasInputSelector, profile.alias);
     }
-    if (profile.url) {
+
+    if (profile.useClusterConfig) {
       await bro
-        .leftClick(this.urlRadioSelector)
-        .waitForEnabled(this.urlSelector)
-        .setValue(this.urlSelector, profile.url)
-        .waitForValue(this.urlSelector, profile.url);
+        .leftClick(this.clusterConnectionSettings)
+        .waitForExist(this.useClusterConfigSwitchSelector)
+        .leftClick(this.useClusterConfigSwitchSelector)
+        .waitForEnabled(this.hostsListInputSelector);
+      if (profile.hostsList) {
+        await bro
+          .setValue(this.hostsListInputSelector, profile.hostsList)
+          .waitForValue(this.hostsListInputSelector, profile.hostsList);
+      }
+      if (profile.replicaSetName) {
+        await bro
+          .setValue(this.replicaSetNameInputSelector, profile.replicaSetName)
+          .waitForValue(this.replicaSetNameInputSelector, profile.replicaSetName);
+      }
+      if (profile.w) {
+        await bro
+          .setValue(this.wInputSelector, profile.w)
+          .waitForValue(this.wInputSelector, profile.w);
+      }
+      if (profile.wtimeoutMS) {
+        await bro
+          .setValue(this.wtimeoutMSInputSelector, profile.wtimeoutMS)
+          .waitForValue(this.wtimeoutMSInputSelector, profile.wtimeoutMS);
+      }
+      if (profile.journal) {
+        await bro
+          .waitForExist(this.journalCheckboxSelector)
+          .leftClick(this.journalCheckboxSelector);
+      }
+      if (profile.readPref) {
+        await bro
+          .setValue(this.readPrefComboSelector, profile.readPref)
+          .waitForValue(this.readPrefComboSelector, profile.readPref);
+      }
+      if (profile.urlClusterRadio && profile.urlCluster) {
+        await bro
+          .leftClick(this.urlClusterRadioSwitchSelector)
+          .waitForEnabled(this.urlClusterInputSelector)
+          .setValue(this.urlClusterInputSelector, profile.urlCluster)
+          .waitForValue(this.urlClusterInputSelector, profile.urlCluster);
+      }
+      if (profile.databaseCluster) {
+        await bro
+          .setValue(this.databaseClusterInputSelector, '')
+          .setValue(this.databaseClusterInputSelector, profile.databaseCluster)
+          .waitForValue(this.databaseClusterInputSelector, profile.databaseCluster);
+      }
+      if (profile.sslCluster) {
+        await bro
+          .waitForExist(this.sslClusterCheckboxSelector)
+          .leftClick(this.sslClusterCheckboxSelector);
+      }
+      if (profile.sslAllowInvalidCertificatesCluster) {
+        await bro
+          .waitForExist(this.sslAllowInvalidCertsClusterCheckboxSelector)
+          .leftClick(this.sslAllowInvalidCertsClusterCheckboxSelector);
+      }
+      if (profile.shaCluster) {
+        bro
+          .waitForExist(this.shaClusterSwitchSelector)
+          .leftClick(this.shaClusterSwitchSelector)
+          .waitForEnabled(this.usernameClusterInputSelector)
+          .waitForEnabled(this.passwordClusterInputSelector)
+          .setValue(this.usernameClusterInputSelector, profile.usernameCluster)
+          .setValue(this.passwordClusterInputSelector, profile.passwordCluster)
+          .waitForValue(this.usernameClusterInputSelector)
+          .waitForValue(this.passwordClusterInputSelector);
+      }
+      if (profile.authenticationDatabaseCluster) {
+        await bro
+          .waitForExist(this.authenticationDatabaseClusterInputSelector)
+          .setValue(
+            this.authenticationDatabaseClusterInputSelector,
+            profile.authenticationDatabaseCluster
+          )
+          .waitForValue(
+            this.authenticationDatabaseClusterInputSelector,
+            profile.authenticationDatabaseCluster
+          );
+      }
+    } else {
+      if (profile.url) {
+        await bro
+          .leftClick(this.urlRadioSelector)
+          .waitForEnabled(this.urlSelector)
+          .setValue(this.urlSelector, profile.url)
+          .waitForValue(this.urlSelector, profile.url);
+      }
+      if (profile.hostName) {
+        await bro
+          .setValue(this.hostNameInputSelector, profile.hostName)
+          .waitForValue(this.hostNameInputSelector, profile.hostName)
+          .setValue(this.portInputSelector, profile.port)
+          .waitForValue(this.portInputSelector, profile.port);
+      }
+      if (profile.database) {
+        await bro
+          .setValue(this.databaseInputSelector, '')
+          .setValue(this.databaseInputSelector, profile.database)
+          .waitForValue(this.databaseInputSelector, profile.database);
+      }
+      await this._selectSSL(profile, bro);
+      await this._fillInAuthentication(profile, bro);
+      if (profile.authentication && profile.authenticationDatabase) {
+        await bro
+          .waitForExist(this.authDatabaseInputSelector)
+          .setValue(this.authDatabaseInputSelector, profile.authenticationDatabase)
+          .waitForValue(this.authDatabaseInputSelector, profile.authenticationDatabase);
+      }
     }
-    if (profile.hostName) {
-      await bro
-        .setValue(this.hostNameInputSelector, profile.hostName)
-        .waitForValue(this.hostNameInputSelector, profile.hostName)
-        .setValue(this.portInputSelector, profile.port)
-        .waitForValue(this.portInputSelector, profile.port);
-    }
-    if (profile.database) {
-      await bro
-        .setValue(this.databaseInputSelector, '')
-        .setValue(this.databaseInputSelector, profile.database)
-        .waitForValue(this.databaseInputSelector, profile.database);
-    }
-    await this._selectSSL(profile, bro);
-    await this._fillInAuthentication(profile, bro);
-    if (profile.authentication && profile.authenticationDatabase) {
-      await bro
-        .waitForExist(this.authDatabaseInputSelector)
-        .setValue(this.authDatabaseInputSelector, profile.authenticationDatabase)
-        .waitForValue(this.authDatabaseInputSelector, profile.authenticationDatabase);
-    }
+
     if (profile.ssh) {
       await bro
         .leftClick(this.sshConnectionSettings)
