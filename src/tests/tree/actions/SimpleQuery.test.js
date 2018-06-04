@@ -149,13 +149,13 @@ describe('TreeAction:SimpleQuery', () => {
     // Workaround: Click add button for Filter table
     await r.browser
       .element(
-        '.dynamic-form > div > form > fieldset:nth-child(4) > .tableHeader > .right > span > span > div > a'
+        '.dynamic-form > div > form > fieldset:nth-child(5) > .tableHeader > .right > span > span > div > a'
       )
       .click();
     // Workaround: Click add button for Projection table
     await r.browser
       .element(
-        '.dynamic-form > div > form > fieldset:nth-child(5) > .tableHeader > .right > span > span > div > a'
+        '.dynamic-form > div > form > fieldset:nth-child(6) > .tableHeader > .right > span > span > div > a'
       )
       .click();
     await r.treeAction.fillInDialogue(r.template, r.templateInput);
