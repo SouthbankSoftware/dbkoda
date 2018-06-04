@@ -134,11 +134,11 @@ describe('TreeAction:StorageDrillDown', () => {
     // if (debug) await r.debug();
     const lines = output.split('\n');
     lines.shift();
-    lines.pop();
-    lines.pop();
-    if (lines[lines.length - 1].indexOf('dbKoda&gt;') >= 0) {
+    if (lines[lines.length - 1].indexOf('dbKoda Mongo Shell>') >= 0) {
       lines.pop();
     }
+    lines.pop();
+    lines.pop();
     console.log(lines.join(''));
     r.summary = JSON.parse(lines.join(''));
     if (debug) console.log(r.summary);
@@ -155,7 +155,7 @@ describe('TreeAction:StorageDrillDown', () => {
 
   /** Fill in action dialogue */
   test('Match the no of table rows with the data', async () => {
-    await r.browser.pause(1000);
+    await r.browser.pause(100000);
     const dataName = await r.storageDrillDown.getRowDataName(0);
     console.log(dataName);
     const dataSize = await r.storageDrillDown.getRowDataSize(0);
