@@ -55,8 +55,8 @@ export default class ProfileListContextMenu extends Page {
   async openContextMenu(profileName?: string) {
     if (profileName) {
       return this.browser
-        .waitForExist('div.bp-table-truncated-text=' + profileName)
-        .rightClick('div.bp-table-truncated-text=' + profileName, 5, 5)
+        .waitForExist('div.pt-table-truncated-text=' + profileName)
+        .rightClick('div.pt-table-truncated-text=' + profileName, 5, 5)
         .waitForExist(this.menuSelector);
     }
     return this.browser
@@ -76,6 +76,7 @@ export default class ProfileListContextMenu extends Page {
       .waitForExist(this.closeConnectionSelector)
       .leftClick(this.closeConnectionSelector, 1, 1)
       .waitForExist(this.closeProfileAlertSelector)
+      .waitForExist(this.confirmCloseButtonSelector)
       .leftClick(this.confirmCloseButtonSelector);
   }
 

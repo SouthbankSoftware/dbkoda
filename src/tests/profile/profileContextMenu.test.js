@@ -129,6 +129,7 @@ describe('test profile list', () => {
       expect(res).toBe(true);
 
       // Click the Close Button and check it is closed.
+      await browser.pause(500);
       res = await connectProfileContextMenu.closeProfile();
       await browser.pause(500);
       res = await browser.waitForExist('i.closedProfile');
@@ -142,7 +143,7 @@ describe('test profile list', () => {
 
       // Click the delete button and check it is closed.
       res = await connectProfileContextMenu.deleteProfile();
-      res = await browser.waitForExist('div.bp-table-truncated-text=Test1', 500, true);
+      res = await browser.waitForExist('div.pt-table-truncated-text=Test1', 500, true);
       expect(res).toBe(true);
     } catch (err) {
       console.log(err);
