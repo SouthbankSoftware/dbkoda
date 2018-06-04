@@ -71,7 +71,6 @@ describe('Mongoscripts:tests', () => {
   const editorCommand = async inputCommands => {
     if (debug) console.log('Editor input: ', inputCommands);
     await r.editor._clickAddNewEditor();
-    await r.browser.waitForExist('.pt-toast-message');
     await r.browser.pause(1000);
 
     await r.output.setNewOutputCursor();

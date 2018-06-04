@@ -128,6 +128,7 @@ export default class Editor extends Page {
   }
   async _clickAddNewEditor() {
     await this.addEditorButton.click();
+    await this.browser.waitForEnabled(this.addEditorButtonSelector);
   }
   async _loadFile(filePath) {
     // eslint-disable-line
