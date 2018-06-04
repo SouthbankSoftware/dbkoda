@@ -133,7 +133,7 @@ describe('mongo import test suite', () => {
       cmd = cmd.replace(' --parseGrace "stop" ', ' ').replace(' --mode "insert" ', ' ');
       assert.equal(
         cmd,
-        `mongoimport --host "localhost" --port "${mongoPort}" --db "${dbName}" --collection "test-import-collections" --jsonArray --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --bypassDocumentValidation "data/test/dump"`
+        `mongoimport --host "localhost" --port "${mongoPort}" --db "${dbName}" --collection "test-import-collections" --jsonArray --type "json" --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --bypassDocumentValidation "data/test/dump"`
       );
     } catch (err) {
       console.error(err);
@@ -183,7 +183,7 @@ describe('mongo import test suite', () => {
       cmd = cmd.replace(' --parseGrace "stop" ', ' ').replace(' --mode "insert" ', ' ');
       assert.equal(
         cmd,
-        `mongoimport --host "localhost" --port "${mongoPort}" --db "${dbName}" --collection "testcol" --jsonArray --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --bypassDocumentValidation "data/test/dump"`
+        `mongoimport --host "localhost" --port "${mongoPort}" --db "${dbName}" --collection "testcol" --jsonArray --type "json" --drop --ignoreBlanks --maintainInsertionOrder --stopOnError --bypassDocumentValidation "data/test/dump"`
       );
     } catch (err) {
       console.error(err);
