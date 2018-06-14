@@ -6,11 +6,66 @@ To get help or to request features or simply to tell us what you think, visit ou
 
 To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
 
+---
+
+## Version 1.0
+
+_Thursday June 14th 2018_
+
+This is the big one, our first full release of **dbKoda**!
+
+To the dbKoda team, this represents the first major milestone in our attempt to create a fully featured, open source, buzzword compliant, next generation IDE for MongoDB. We've worked hard with the help of our users to fix bugs (**so** many bugs), improve the user experience, increase performance and add features that will help MongoDB users across many disciplines. See our [1.0 blog post](https://medium.com/dbkoda) for more information on the features listed below.
+
+### The Performance Lab
+
+We've taken our performance view from release 0.10 and integrated it into a suite of new performance oriented tools. We're calling this the _Performance Lab_, mainly because it sounds cool (and we think it is cool). Along side the previous functionality of the Performance View we have added:
+
+**Top Connections** - Have a suspicion that some pesky user is sending slow, unoptomized queries to your server and hogging all the utilization? Well with the Top Connections view you can find which connections are hogging the resources and more specifically which queries are long running. From there you can run an explain on that operation, generate indexing recomendations, or if you're feeling a little more aggresive, kill that operation on the spot.
+
+**Profiling** - Leverage MongoDBs in built profiling with a new Interface allowing more insight into exactly what is happening on a database. The profile explorer lets you configure profiling, explore the captured commands, generate explain plans and generate indexing recomendations.
+
+**Storage Explorer** - The storage drilldown shows you how your storage breaks down across databases and collections and lets you drill into collections to see the storage consumed by emdedded objects and indexes. 
+
+### Cluster Connection Options
+
+The connection wizard now includes improved support for replica-set specific options, and we've reorganized the options to help you configure connections more efficiently.   
+
+### User Interface Overhaul
+
+dbKoda has undergone an extensive make over both in terms of User Experience and it's visual style. This new coat of paint isn't just for looks though, we're hoping to make it easier for users to find the features they need. A few of thse major changes include:
+
+**Full Screen Navigation** - There is now a left side navigation bar for moving between full screen views in both the main window and the performance lab.
+
+**Context Menus** - We heard from our users that a lot of our features were hidden beneath the surface so the topology tree and profile list now have context menus that appear on hover. These menus contain lists of functionality that dbKoda can perform.
+
+**Quick Functionality** - The top toolbar now contains some buttons for quickly getting to some of our core features, such as the Performance Lab and Aggregate Builder.
+
+**Auto Table View** - For us organic life forms, JSON isn't the easiest thing to read, so we've added an option in preferences to see your output in a more human readable table view.
+
+**Auto-auto complete** - In previous versions, autocomplete was activated only by control-space.  In this release auto-complete suggestions show up automatically as you type.
+
+### Docker Support
+
+In the Home Tab -> Settings menu, you can now provide some configuration items to use Docker with dbKoda! Due to the different ways you can invoke Docker this UI may not always work for your specific set up so we've also added some information about manually configuring Docker with dbKoda [here](https://github.com/SouthbankSoftware/dbkoda/blob/master/README.md).
+
+### Bug fixes and performance increase
+
+We've made a massive amount of changes across the board to make the product more stable and performant (possibly introducing billions of additional bugs) but in particular we have cleaned up the Aggregation Builder.
+
+### Known Issues
+
+* If the output of a query does not produce standard JSON output, the automatic table view will not render.
+* Automatic Table Mode can create some instabilities with certain output, if you run into issues with your output, try turning this option off in the Home Tab -> Settings Menu.
+
+---
+
 ## Version 0.10.1
 
 Friday March 23rd 2018
 
 This minor release included some minor fixes to our telemetry service, along with a convenient button for opening our beautiful new performance panel from the toolbar, try it out!
+
+---
 
 ## Version 0.10.0
 
@@ -22,7 +77,7 @@ See our [blogs page](https://medium.com/dbkoda) for more detailed discussions ab
 
 ### Performance View
 
-dbKoda can now provide you an X-ray view of what's going on under the hood of your MongoDB server by providing a graphical representation of real time performance at the server and OS level.  Our intuitive dashboard shows graphically the rate of activity at each layer of the stack - network, server, wiredTiger cache and disk subsystems. Read time data is displayed on the dashboard and you can view history by clicking on a metric. dbKoda will also generate a list of alarms if we think something isn't quite right with the server that can be viewed in a list format by clicking the exclamation marks on the side of each section. For more details checkout [This blob post](https://medium.com/dbkoda/announcing-the-dbkoda-0-10-performance-panel-3c2e6bdb421f). 
+dbKoda can now provide you an X-ray view of what's going on under the hood of your MongoDB server by providing a graphical representation of real time performance at the server and OS level. Our intuitive dashboard shows graphically the rate of activity at each layer of the stack - network, server, wiredTiger cache and disk subsystems. Read time data is displayed on the dashboard and you can view history by clicking on a metric. dbKoda will also generate a list of alarms if we think something isn't quite right with the server that can be viewed in a list format by clicking the exclamation marks on the side of each section. For more details checkout [This blog post](https://medium.com/dbkoda/announcing-the-dbkoda-0-10-performance-panel-3c2e6bdb421f).
 
 ### Upgraded Connection Wizard
 
@@ -32,19 +87,21 @@ Our connection Panel was looking a little tired, so we've revamped the whole thi
 
 ### Password Manager
 
-Entering passwords again and again can become tedious very quickly so we've added a Password Store to keep an encrypted version of your passwords (locally on your machine only) that you can access with a Master Password. Now you'll only have to enter your passwords once for each MongoDB instance you connect to. This should save you time that can be better spent looking at the beautiful performance graphs we've added.  Your passwords are encrypted and can only be extracted using the master password.  The master password system stores both SSH and mongoDB passwords.
+Entering passwords again and again can become tedious very quickly so we've added a Password Store to keep an encrypted version of your passwords (locally on your machine only) that you can access with a Master Password. Now you'll only have to enter your passwords once for each MongoDB instance you connect to. This should save you time that can be better spent looking at the beautiful performance graphs we've added. Your passwords are encrypted and can only be extracted using the master password. The master password system stores both SSH and mongoDB passwords.
 
 ### Known issues
 
-*  Operating system metrics cannot be displayed for MongoDB servers running on Windows OS.  You can still display MongoDB metrics, but you can't see things like CPU utilisation or the run queue length.
-*  We can only show limited information for MongoDB servers which are not using the WiredTiger storage engine
-*  We currently report data from the master server in a replica set, and we don't yet support extracting statistics from a mongos process.
-*  You currently must be looking at the dbKoda performance dashboard in order to view performance statistics.  In a future release, we hope to transmit the relevant information directly into your cerebral cortex.
+* Operating system metrics cannot be displayed for MongoDB servers running on Windows OS. You can still display MongoDB metrics, but you can't see things like CPU utilisation or the run queue length.
+* We can only show limited information for MongoDB servers which are not using the WiredTiger storage engine
+* We currently report data from the master server in a replica set, and we don't yet support extracting statistics from a mongos process.
+* You currently must be looking at the dbKoda performance dashboard in order to view performance statistics. In a future release, we hope to transmit the relevant information directly into your cerebral cortex.
 
 ### Minor Fixes
 
-* You can now specify which port you would like to connect to via SSH.  Previously SSH connections could only be established over port 22.
-* You can now export your table style output into a CSV or JSON formatted file. This is useful if you want to import your data into Excel or another similar program.  
+* You can now specify which port you would like to connect to via SSH. Previously SSH connections could only be established over port 22.
+* You can now export your table style output into a CSV or JSON formatted file. This is useful if you want to import your data into Excel or another similar program.
+
+---
 
 ## Version 0.9.0
 
@@ -87,11 +144,15 @@ We now allow you to issue SQL commands against your MongoDB host using Apache Dr
 * On Microsoft Windows when using an SSH tunnel, an export or import may crash dbKoda, requiring a restart of our product. We'll be releasing a patch for this issue within a few weeks of the 0.9.0 release.
 * After sitting at a desk and using dbKoda for a long time, your back or butt may get sore or numb. As a workaround for this problem, try standing up and moving around from time to time.
 
+---
+
 ## Version 0.8.1
 
 December 5th 2017
 
 Minor bug fixes, particularly to the "phone home" telemetry.
+
+---
 
 ## Version 0.8.0
 
@@ -119,11 +180,15 @@ To translate your MonogDB shell query into executable NodeJS Driver code, simply
 
 We made a few minor changes to the connection panel. Specifically, you can now specify an authorisation database which differs from your connection database, and you can ignore invalid SSL certificates.
 
+---
+
 ## Version 0.7.3
 
 Friday October 13st, 2017
 
 In this minor patch we updated our telemetry dialog and added some minor changes to the auto-updater to support differences in our next major release.
+
+---
 
 ## Version 0.7.2
 
@@ -138,6 +203,8 @@ In this hotfix release we fixed a few key bugs, as well as updating some error m
 * Added a new dialogue to confirm whether a user would like to download any available updates.
 * If a user modified the config.yml file to specify the location of their mongo binary, the application will now check this location whenever a connection is created, instead of just on application start.
 * New logic has been added to detect corruption of the applications state, now backing up the corrupt store and notifying the user of what has occurred.
+
+---
 
 ## Release 0.7.0
 
@@ -169,9 +236,13 @@ You can now "tunnel" through an intermediate server if you do not have direct ac
 
 In 0.6, the windows build would suffer significant delays when rendering large amounts of output. In 0.7, there should be no difference in performance between Windows, Mac and Linux. The Commodore 64 build is still pretty slow however.
 
+---
+
 ## Release 0.6.1
 
 This is a hotfix that corrects the error "Create Shell Connection Failed" when mongodb binaries are located in a local path but not in the system path. See https://dbkoda.useresponse.com/knowledge-base/article/dealing-with-create-shell-connection-failed-errors for further information about this bug.
+
+---
 
 ## Release 0.6
 
