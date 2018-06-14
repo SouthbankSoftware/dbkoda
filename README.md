@@ -5,6 +5,8 @@
 [![dependencies](https://img.shields.io/david/SouthbankSoftware/dbkoda.svg?style=flat-square)](https://david-dm.org/SouthbankSoftware/dbkoda)
 [![devDependencies](https://img.shields.io/david/dev/SouthbankSoftware/dbkoda.svg?style=flat-square)](https://david-dm.org/SouthbankSoftware/dbkoda?type=dev)
 
+Latest release: [v1.0.0](https://github.com/SouthbankSoftware/dbkoda/releases/tag/v1.0.0)
+
 This repository defines dbKoda's building, user acceptance testing (UAT), launching and packaging workflows.
 
 ## Requirement
@@ -59,7 +61,7 @@ docker:
   mongoVersionCmd: docker exec CONTAINER_ID mongo --version
 ```
 
-Please configure the mongo os commands if you want to use backup/restore through docker container. You need to specify the mount points for the docker container in order to backup/resore your mongo file. Otherwise, the data you backedup will be wipped after the container exist. 
+Please configure the mongo os commands if you want to use backup/restore through docker container. You need to specify the mount points for the docker container in order to backup/resore your mongo file. Otherwise, the data you backedup will be wipped after the container exist.
 
 ```yaml
 dockerEnabled: true
