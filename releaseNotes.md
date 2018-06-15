@@ -1,6 +1,6 @@
 # dbKoda release notes
 
-For more information about dbKoda, visit out website [dbkoda.com](www.dbkoda.com).
+For more information about dbKoda, visit out website [dbkoda.com](https://www.dbkoda.com).
 
 To get help or to request features or simply to tell us what you think, visit our support system at https://dbkoda.useresponse.com.
 
@@ -14,7 +14,7 @@ _Thursday June 14th 2018_
 
 This is the big one, our first full release of **dbKoda**!
 
-To the dbKoda team, this represents the first major milestone in our attempt to create a fully featured, open source, buzzword compliant, next generation IDE for MongoDB. We've worked hard with the help of our users to fix bugs (**so** many bugs), improve the user experience, increase performance and add features that will help MongoDB users across many disciplines. See our [1.0 blog post](https://medium.com/dbkoda) for more information on the features listed below.
+To the dbKoda team, this represents the first major milestone in our attempt to create a fully featured, open source, buzzword compliant, next generation IDE for MongoDB. We've worked hard with the help of our users to fix bugs (**so** many bugs), improve the user experience, increase performance and add features that will help MongoDB users across many disciplines. See our [1.0 blog post](https://medium.com/dbkoda/dbkoda-1-0-is-released-w00t-45ea64f25a13) for more information on the features listed below.
 
 ### The Performance Lab
 
@@ -24,7 +24,7 @@ We've taken our performance view from release 0.10 and integrated it into a suit
 
 **Profiling** - Leverage MongoDBs in built profiling with a new Interface allowing more insight into exactly what is happening on a database. The profile explorer lets you configure profiling, explore the captured commands, generate explain plans and generate indexing recomendations.
 
-**Storage Explorer** - The storage drilldown shows you how your storage breaks down across databases and collections and lets you drill into collections to see the storage consumed by emdedded objects and indexes. 
+**Storage Explorer** - The storage drilldown shows you how your storage breaks down across databases and collections and lets you drill into collections to see the storage consumed by emdedded objects and indexes.
 
 ### Cluster Connection Options
 

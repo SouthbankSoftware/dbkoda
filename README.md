@@ -5,7 +5,7 @@
 [![dependencies](https://img.shields.io/david/SouthbankSoftware/dbkoda.svg?style=flat-square)](https://david-dm.org/SouthbankSoftware/dbkoda)
 [![devDependencies](https://img.shields.io/david/dev/SouthbankSoftware/dbkoda.svg?style=flat-square)](https://david-dm.org/SouthbankSoftware/dbkoda?type=dev)
 
-Latest release: [v1.0.0](https://github.com/SouthbankSoftware/dbkoda/releases/tag/v1.0.0)
+**Download latest release:** [v1.0.0](https://github.com/SouthbankSoftware/dbkoda/releases/tag/v1.0.0)
 
 This repository defines dbKoda's building, user acceptance testing (UAT), launching and packaging workflows.
 
