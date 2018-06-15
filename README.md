@@ -5,6 +5,18 @@
 [![dependencies](https://img.shields.io/david/SouthbankSoftware/dbkoda.svg?style=flat-square)](https://david-dm.org/SouthbankSoftware/dbkoda)
 [![devDependencies](https://img.shields.io/david/dev/SouthbankSoftware/dbkoda.svg?style=flat-square)](https://david-dm.org/SouthbankSoftware/dbkoda?type=dev)
 
+dbKoda is a modern (JavaScript/Electron framework), open source IDE for MongoDB. It has features to support development, administration and performance tuning on MongoDB databases. It has a rich feature set, including:
+
+* Rich text editor with auto-complete, syntax highlighting and code formatting
+* Visual explain plan with indexing advisors
+* A real time performance dashboard
+* Graphical aggregation and command builders
+* One-click access to MongoDB administration commands
+* Disk Storage analysis
+* SQL queries using Apache Drill
+* Data load and unload utilities
+* and a lot of more… check our [blogs](https://medium.com/dbkoda) and [website](https://www.dbkoda.com) for details.
+
 **Download latest release:** [v1.0.0](https://github.com/SouthbankSoftware/dbkoda/releases/tag/v1.0.0)
 
 This repository defines dbKoda's building, user acceptance testing (UAT), launching and packaging workflows.
