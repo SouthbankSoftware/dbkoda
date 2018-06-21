@@ -2,8 +2,8 @@
   "@0": {
     "config": "@1",
     "locale": "en",
-    "version": "0.11.0-beta",
-    "previousVersion": "0.11.0-beta",
+    "version": "1.0.0",
+    "previousVersion": "1.0.0",
     "updateAvailable": false,
     "editors": "@2",
     "outputs": "@3",
@@ -34,10 +34,22 @@
     "path": "/Users/wahaj/.dbKoda/config.yml",
     "settings": "@24"
   },
-  "@2": { "entries": "@25", "__dump__": "ObservableMap" },
-  "@3": { "entries": "@26", "__dump__": "ObservableMap" },
-  "@4": { "entries": "@27", "__dump__": "ObservableMap" },
-  "@5": { "entries": "@28", "__dump__": "ObservableMap" },
+  "@2": {
+    "entries": "@25",
+    "__dump__": "ObservableMap"
+  },
+  "@3": {
+    "entries": "@26",
+    "__dump__": "ObservableMap"
+  },
+  "@4": {
+    "entries": "@27",
+    "__dump__": "ObservableMap"
+  },
+  "@5": {
+    "entries": "@28",
+    "__dump__": "ObservableMap"
+  },
   "@6": {
     "__dump__": "ObservableObject",
     "isOpen": true,
@@ -103,7 +115,11 @@
     "leftSplitPos": "50%",
     "rightSplitPos": "60%"
   },
-  "@12": { "__dump__": "ObservableObject", "drawerChild": "default", "activeNavPane": "Editor" },
+  "@12": {
+    "__dump__": "ObservableObject",
+    "drawerChild": "default",
+    "activeNavPane": "Editor"
+  },
   "@13": {
     "__dump__": "ObservableObject",
     "treeNode": null,
@@ -127,7 +143,10 @@
     "detailsViewInfo": null,
     "activeEditorId": ""
   },
-  "@16": { "__dump__": "ObservableObject", "selectedDatabase": null },
+  "@16": {
+    "__dump__": "ObservableObject",
+    "selectedDatabase": null
+  },
   "@17": {
     "__dump__": "ObservableObject",
     "isRefreshing": false,
@@ -137,9 +156,19 @@
     "drillDownloadProgress": null,
     "drillStatusMsg": ""
   },
-  "@18": { "__dump__": "ObservableObject", "explainAvailable": false },
-  "@19": { "__dump__": "ObservableObject", "prompt": "dbkoda>" },
-  "@20": { "__dump__": "ObservableObject", "selectedProfile": null, "creatingNewProfile": false },
+  "@18": {
+    "__dump__": "ObservableObject",
+    "explainAvailable": false
+  },
+  "@19": {
+    "__dump__": "ObservableObject",
+    "prompt": "dbkoda>"
+  },
+  "@20": {
+    "__dump__": "ObservableObject",
+    "selectedProfile": null,
+    "creatingNewProfile": false
+  },
   "@21": {
     "__dump__": "ObservableObject",
     "dragDrop": false,
@@ -155,7 +184,12 @@
     "initialPassword": "",
     "repeatPassword": ""
   },
-  "@23": { "__dump__": "ObservableObject", "isChanged": false, "json": "@36", "profileId": "" },
+  "@23": {
+    "__dump__": "ObservableObject",
+    "isChanged": false,
+    "json": "@36",
+    "profileId": ""
+  },
   "@24": {
     "__dump__": "ObservableObject",
     "user": "@37",
@@ -179,8 +213,14 @@
   "@26": [],
   "@27": [],
   "@28": [],
-  "@29": { "values": "@39", "__dump__": "ObservableArray" },
-  "@30": { "values": "@40", "__dump__": "ObservableArray" },
+  "@29": {
+    "values": "@39",
+    "__dump__": "ObservableArray"
+  },
+  "@30": {
+    "values": "@40",
+    "__dump__": "ObservableArray"
+  },
   "@31": {
     "__dump__": "ObservableObject",
     "user": "@41",
@@ -200,12 +240,26 @@
     "passwordStoreEnabled": false,
     "performancePanel": "@42"
   },
-  "@32": { "values": "@43", "__dump__": "ObservableArray" },
+  "@32": {
+    "values": "@43",
+    "__dump__": "ObservableArray"
+  },
   "@33": [],
-  "@34": { "entries": "@44", "__dump__": "ObservableMap" },
-  "@35": { "values": "@45", "__dump__": "ObservableArray" },
-  "@36": { "__dump__": "ObservableObject" },
-  "@37": { "__dump__": "ObservableObject", "id": "VbtwcsPR5A1EgjlutbS4K" },
+  "@34": {
+    "entries": "@44",
+    "__dump__": "ObservableMap"
+  },
+  "@35": {
+    "values": "@45",
+    "__dump__": "ObservableArray"
+  },
+  "@36": {
+    "__dump__": "ObservableObject"
+  },
+  "@37": {
+    "__dump__": "ObservableObject",
+    "id": "VbtwcsPR5A1EgjlutbS4K"
+  },
   "@38": {
     "__dump__": "ObservableObject",
     "preventDisplaySleep": false,
@@ -218,7 +272,10 @@
   },
   "@39": [],
   "@40": [],
-  "@41": { "__dump__": "ObservableObject", "id": "VbtwcsPR5A1EgjlutbS4K" },
+  "@41": {
+    "__dump__": "ObservableObject",
+    "id": "VbtwcsPR5A1EgjlutbS4K"
+  },
   "@42": {
     "__dump__": "ObservableObject",
     "preventDisplaySleep": false,
