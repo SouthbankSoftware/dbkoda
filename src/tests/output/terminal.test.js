@@ -70,7 +70,7 @@ describe('output-terminal-test-suite', () => {
     await terminal.executeCommand('use test;');
     await browser.pause(100);
     const outputLines = (await output.getNewOutputLines()).replace(/\r?\n|\r/g, '');
-    const expectedOutput = expect.stringMatching('use test;switched to db testdbKoda Mongo Shell>');
+    const expectedOutput = expect.stringMatching('use test;switched to db test');
     expect(outputLines).toEqual(expectedOutput);
   });
 
