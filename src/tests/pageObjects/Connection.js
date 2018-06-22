@@ -331,8 +331,6 @@ export default class ConnectionProfile extends Page {
         .waitForValue(this.remoteUserInputSelector, profile.remoteUser);
       if (profile.keyRadio === false) {
         await bro
-          .waitForExist(this.passRadioSelector)
-          .leftClick(this.passRadioSelector)
           .waitForEnabled(this.remotePassInputSelector)
           .setValue(this.remotePassInputSelector, profile.remotePass)
           .waitForValue(this.remotePassInputSelector, profile.remotePass);
@@ -503,10 +501,6 @@ export default class ConnectionProfile extends Page {
 
   get remoteUser() {
     return this._getProfileElement(this.remoteUserInputSelector);
-  }
-
-  get passRadio() {
-    return this._getProfileElement(this.passRadioSelector);
   }
 
   get remotePass() {

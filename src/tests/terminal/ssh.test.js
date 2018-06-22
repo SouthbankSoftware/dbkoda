@@ -103,6 +103,7 @@ describe('Terminal', () => {
       remoteUser: r.ssh.remoteUser,
       remotePass: r.ssh.remotePass,
       passRadio: true,
+      keyRadio: false,
       authentication: false
     });
     await r.profileListContextMenu.openContextMenu(alias);
