@@ -97,7 +97,7 @@ describe('test profile list', () => {
   });
 
   test('close connection', async () => {
-    await profileListContextMenu.openContextMenu();
+    await profileListContextMenu.openContextMenu('', true);
     await browser.pause(1000);
     return profileListContextMenu.closeProfile();
   });
@@ -125,10 +125,10 @@ describe('test profile list', () => {
 
   test('remove connection', async () => {
     await profileList.clickProfile(1);
-    await profileListContextMenu.openContextMenu();
+    await profileListContextMenu.openContextMenu('', true);
     await profileListContextMenu.closeProfile();
     await browser.pause(100);
-    await profileListContextMenu.openContextMenu();
+    await profileListContextMenu.openContextMenu('', true);
     await profileListContextMenu.deleteProfile();
     const elements = await profileList.getConnectionProfileList();
     assert.equal(1, elements.value.length);
