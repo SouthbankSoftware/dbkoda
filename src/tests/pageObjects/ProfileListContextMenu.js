@@ -50,7 +50,9 @@ export default class ProfileListContextMenu extends Page {
   confirmRemoveButtonSelector = '.remove-profile-alert-dialog .dialogButtons .submitButton';
 
   /**
-   * open connection panel
+   * open context menu
+   * profileName (optional) - The name of the profile to open the menu for.
+   *   If not specified, opens the selected profile context menu
    */
   async openContextMenu(profileName?: string) {
     if (profileName) {
@@ -59,10 +61,11 @@ export default class ProfileListContextMenu extends Page {
         .rightClick('div.pt-table-truncated-text=' + profileName, 5, 5)
         .waitForExist(this.menuSelector);
     }
+    // If no name is specified, open the context menu for the selected profile
     return this.browser
-      .waitForExist('.profileList')
-      .rightClick('.profileList')
-      .waitForExist('.profilePanelContextMenu');
+      .waitForExist('.connection-profile-cell-selected')
+      .rightClick('.connection-profile-cell-selected')
+      .waitForExist(this.menuSelector);
   }
 
   async newEditor() {

@@ -16,18 +16,6 @@ export default class ProfileList extends Page {
     return this.profileListSelector + ' .newProfileButton';
   }
 
-  get editProfileButtonSelector() {
-    return this.profileListSelector + ' .editProfileButton';
-  }
-
-  get closeProfileButtonSelector() {
-    return this.profileListSelector + ' .closeProfileButton';
-  }
-
-  get removeProfileButtonSelector() {
-    return this.profileListSelector + ' .removeProfileButton';
-  }
-
   connectionProfilesSelector = '.connection-profile-cell';
 
   selectedProfileClassName = 'connection-profile-cell-selected';
@@ -81,7 +69,7 @@ export default class ProfileList extends Page {
    * edit the connection profile
    * @param index the index of the profile
    */
-  editConnectionProfile() {
+  editSelectedConnectionProfile() {
     return this.browser
       .leftClick(this.editProfileButtonSelector)
       .waitForExist(this.newProfileButtonSelector, DELAY_TIMEOUT, true);
@@ -91,11 +79,7 @@ export default class ProfileList extends Page {
    * check all dom element exists on this panel
    */
   exist() {
-    return this.browser
-      .waitForExist(this.newProfileButtonSelector)
-      .waitForExist(this.editProfileButtonSelector)
-      .waitForExist(this.closeProfileButtonSelector)
-      .waitForExist(this.removeProfileButtonSelector);
+    return this.browser.waitForExist(this.newProfileButtonSelector);
   }
 
   /**

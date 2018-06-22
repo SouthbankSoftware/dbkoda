@@ -287,9 +287,11 @@ export default class ConnectionProfile extends Page {
       }
     } else {
       if (profile.url) {
+        const selected = await bro.isSelected(this.urlRadioSelector);
+        if (!selected) {
+          await bro.leftClick(this.urlRadioSelector).waitForEnabled(this.urlSelector);
+        }
         await bro
-          .leftClick(this.urlRadioSelector)
-          .waitForEnabled(this.urlSelector)
           .setValue(this.urlSelector, profile.url)
           .waitForValue(this.urlSelector, profile.url);
       }

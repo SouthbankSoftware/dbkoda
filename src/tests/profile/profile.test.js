@@ -8,7 +8,10 @@ import uuidV1 from 'uuid/v1';
 import { getRandomPort, killMongoInstance, launchSingleInstance } from 'test-utils';
 
 import ProfileList from '../pageObjects/ProfileList';
+import ProfileListContextMenu from '../pageObjects/ProfileListContextMenu';
+import SideNav from '../pageObjects/SideNav';
 import ConnectionProfile from '../pageObjects/Connection';
+import Editor from '../pageObjects/Editor';
 
 import { config, getApp } from '../helpers';
 
@@ -16,17 +19,23 @@ describe('test profile list', () => {
   config();
 
   let profileList;
+  let profileListContextMenu;
   let app;
   let browser;
   let mongoPort;
   let connectProfile;
+  let editor;
+  let sideNav;
 
   beforeAll(async () => {
     return getApp().then(res => {
       app = res;
       browser = app.client;
       profileList = new ProfileList(browser);
+      profileListContextMenu = new ProfileListContextMenu(browser);
       connectProfile = new ConnectionProfile(browser);
+      editor = new Editor(browser);
+      sideNav = new SideNav(browser);
       mongoPort = getRandomPort();
       launchSingleInstance(mongoPort);
     });
@@ -84,28 +93,18 @@ describe('test profile list', () => {
   });
 
   test('click connection ', () => {
-    return profileList
-      .clickProfile(0)
-      .waitForEnabled(profileList.closeProfileButtonSelector)
-      .waitUntil(() => {
-        return browser
-          .getAttribute(profileList.removeProfileButtonSelector, 'disabled')
-          .then(disabled => {
-            return disabled === 'true';
-          });
-      });
+    return profileList.clickProfile(0).waitForEnabled(editor.executeLineButtonSelector);
   });
 
-  test('close connection', () => {
-    return profileList
-      .closeConnectionProfile()
-      .waitForEnabled(profileList.removeProfileButtonSelector)
-      .waitForEnabled(profileList.editProfileButtonSelector);
+  test('close connection', async () => {
+    await profileListContextMenu.openContextMenu();
+    await browser.pause(1000);
+    return profileListContextMenu.closeProfile();
   });
 
   test('edit connection', () => {
-    return profileList
-      .editConnectionProfile()
+    return sideNav
+      .clickMenuItem('Profile')
       .then(() => {
         return connectProfile.getCurrentProfileData();
       })
@@ -120,28 +119,19 @@ describe('test profile list', () => {
         });
       })
       .then(() => {
-        return browser.waitForEnabled(profileList.closeProfileButtonSelector);
+        return browser.waitForEnabled(editor.executeLineButtonSelector);
       });
   });
 
-  test('remove connection', () => {
-    return profileList
-      .clickProfile(1)
-      .then(() => {
-        return profileList.closeConnectionProfile();
-      })
-      .then(() => {
-        return browser.waitForEnabled(profileList.removeProfileButtonSelector);
-      })
-      .then(() => {
-        return profileList.removeConnectionProfile();
-      })
-      .then(() => {
-        return profileList.getConnectionProfileList();
-      })
-      .then(elements => {
-        assert.equal(1, elements.value.length);
-      });
+  test('remove connection', async () => {
+    await profileList.clickProfile(1);
+    await profileListContextMenu.openContextMenu();
+    await profileListContextMenu.closeProfile();
+    await browser.pause(100);
+    await profileListContextMenu.openContextMenu();
+    await profileListContextMenu.deleteProfile();
+    const elements = await profileList.getConnectionProfileList();
+    assert.equal(1, elements.value.length);
   });
 
   test('save connection', async () => {
