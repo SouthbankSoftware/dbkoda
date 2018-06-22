@@ -45,8 +45,8 @@ export default class AggregateBuilder extends Page {
   graphicalBuilderWrapper = '.graphicalBuilderBlockList';
 
   // Toolbars //
-  showButtonSelector = '.aggregateGraphicalBuilderWrapper > .topButtons > .pt-popover-target > .showLeftPanelButton';
-  hideButtonSelector = '.aggregateDetailsToolbar > .pt-align-right > .pt-popover-target > .hideLeftPanelButton';
+  showButtonSelector = '.aggregateGraphicalBuilderWrapper > .topButtons > .pt-popover-wrapper > .pt-popover-target > .showLeftPanelButton';
+  hideButtonSelector = '.aggregateDetailsToolbar > .pt-align-right > .pt-popover-wrapper > .pt-popover-target > .hideLeftPanelButton';
 
   async addBlockFromPalette(blockName) {
     const blockSelector = '.aggregateBlock.' + blockName + '.selected_undefined > div > svg';

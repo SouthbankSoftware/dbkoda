@@ -135,9 +135,6 @@ describe('aggregate-test-suite', () => {
       await browser.pause(500);
       await aggregate.addBlockFromPalette('Group');
       await aggregate.isBlockSelected(2);
-      // Check Output - Unfilled.
-      res = await output.getAllOutputLines();
-      expect(res).toMatch('Please fill in Stage details and click on the stage to see results');
 
       // Check Editor for block.
       res = await editor._getEditorContentsAsString();
@@ -182,7 +179,7 @@ describe('aggregate-test-suite', () => {
 
       // Check Output - All Rows.
       let res = await output.getAllOutputLines();
-      expect(res).toMatch('{"_id":"ObjectId');
+      expect(res).toMatch('{"_id":{"$oid');
 
       // Check Editor for block.
       await aggregate.selectBlock(1);
