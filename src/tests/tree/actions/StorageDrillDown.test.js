@@ -25,7 +25,7 @@ import { mongoPortOutput } from './uiDefinitions/inputAndTest/common';
 
 const debug = false;
 
-describe('TreeAction:StorageDrillDown', () => {
+describe.skip('TreeAction:StorageDrillDown', () => {
   /** Global (to current test suite) setup */
   config();
 

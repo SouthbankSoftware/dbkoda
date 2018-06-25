@@ -22,7 +22,7 @@ describe('CrossFunction:connection Switching', () => {
 
   /** Global (to current test suite) vars */
   const r = {};
-  r.delay = 5000; // Set higher to make sure that tests don't fail on slow cloud
+  r.delay = 7500; // Set higher to make sure that tests don't fail on slow cloud
   const cleanupWorkflows = [];
 
   const cleanup = async () => {
