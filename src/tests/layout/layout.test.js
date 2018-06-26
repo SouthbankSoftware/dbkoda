@@ -8,7 +8,7 @@
 import Layout from '../pageObjects/Layout';
 import { config, getApp } from '../helpers';
 
-describe('Layout', () => {
+describe.skip('Layout', () => {
   // always config test suite
   config();
 

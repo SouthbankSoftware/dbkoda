@@ -133,7 +133,7 @@ describe('ChartPanel', () => {
     await r.aggregateBuilder.generateChartButton.click().pause(500);
   });
 
-  test('Unload all components and load X, Y and Center components', async () => {
+  test.skip('Unload all components and load X, Y and Center components', async () => {
     await r.chart
       .getDataTreeNodeByPath(['_id'])
       .rightClick()
