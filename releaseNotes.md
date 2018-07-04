@@ -8,6 +8,16 @@ To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
 
 ---
 
+## Version 1.0.1
+
+_Wednesday July 4th 2018_
+
+* Minor hotfix to help with detecting MongoDB binaries: dbKoda will now search some default install locations to try and find your binary before giving an error message, this should help Windows Users the most who may not have added the binary to their path.
+* We also put back a link to the FAQ for what to do when dbKoda can't find your binary.
+* Small fix to eliminate a memory leak in the editor.
+
+---
+
 ## Version 1.0
 
 _Thursday June 14th 2018_
@@ -28,7 +38,7 @@ We've taken our performance view from release 0.10 and integrated it into a suit
 
 ### Cluster Connection Options
 
-The connection wizard now includes improved support for replica-set specific options, and we've reorganized the options to help you configure connections more efficiently.   
+The connection wizard now includes improved support for replica-set specific options, and we've reorganized the options to help you configure connections more efficiently.
 
 ### User Interface Overhaul
 
@@ -42,7 +52,7 @@ dbKoda has undergone an extensive make over both in terms of User Experience and
 
 **Auto Table View** - For us organic life forms, JSON isn't the easiest thing to read, so we've added an option in preferences to see your output in a more human readable table view.
 
-**Auto-auto complete** - In previous versions, autocomplete was activated only by control-space.  In this release auto-complete suggestions show up automatically as you type.
+**Auto-auto complete** - In previous versions, autocomplete was activated only by control-space. In this release auto-complete suggestions show up automatically as you type.
 
 ### Docker Support
 
