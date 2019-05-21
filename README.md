@@ -18,8 +18,8 @@ dbKoda is a modern (JavaScript/Electron framework), open source IDE for MongoDB.
 * Data load and unload utilities
 * and a lot of more… check our [blogs](https://medium.com/dbkoda) and [website](https://www.dbkoda.com) for details.
 
-**Download latest release:** [v1.0.1](https://github.com/SouthbankSoftware/dbkoda/releases/tag/v1.0.1)
-**Download latest beta release:** [v1.1rc9](https://github.com/SouthbankSoftware/dbkoda/releases/tag/1.1rc9)
+**Download latest release:** [v1.1.0](https://github.com/SouthbankSoftware/dbkoda/releases/tag/v1.1.0)
+**Download latest beta release:** [v1.1rc9](https://github.com/SouthbankSoftware/dbkoda/releases/tag/1.1.0)
 
 This repository defines dbKoda's building, user acceptance testing (UAT), launching and packaging workflows.
 

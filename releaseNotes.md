@@ -6,6 +6,18 @@ To get help or to request features or simply to tell us what you think, visit ou
 
 To access our source code, visit https://github.com/SouthbankSoftware/dbkoda.
 
+--
+
+## Version 1.1.0
+
+_Tuesday July 4th 2018_
+
+Some various minor bug fixes along with usability improvements and expanded support for ProvenDB or docker.
+* Misc. Minor Bug fixes.
+* Fixed major bug where mutliple tabs couldn't be opened under certain conditions (like SSL connections).
+* Support for connections to [ProvenDB](https://provendb.com) services.
+* Improved Docker support.
+* New and improved settings panel.
 ---
 
 ## Version 1.0.1
