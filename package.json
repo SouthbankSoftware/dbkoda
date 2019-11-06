@@ -132,7 +132,7 @@
     "config": "^1.29.4",
     "electron-updater": "^2.20.1",
     "global": "^4.3.2",
-    "js-yaml": "^3.10.0",
+    "js-yaml": "^3.13.1",
     "lodash": "^4.17.5",
     "moment": "^2.20.1",
     "path": "^0.12.7",
