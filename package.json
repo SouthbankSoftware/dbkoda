@@ -165,7 +165,7 @@
     "electron-devtools-installer": "^2.2.3",
     "electron-publisher-s3": "^20.2.0",
     "esdoc": "^1.0.4",
-    "eslint": "^4.18.1",
+    "eslint": "^4.18.2",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-flowtype": "^2.46.3",
     "eslint-plugin-import": "^2.9.0",
