@@ -174,7 +174,7 @@
     "flow-bin": "^0.70.0",
     "flow-typed": "^2.4.0",
     "fs-extra": "^5.0.0",
-    "handlebars": "^4.0.11",
+    "handlebars": "^4.5.3",
     "husky": "^0.14.3",
     "jest": "^22.4.3",
     "jest-html-reporter": "github:SouthbankSoftware/jest-html-reporter",
