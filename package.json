@@ -133,7 +133,7 @@
     "electron-updater": "^2.20.1",
     "global": "^4.3.2",
     "js-yaml": "^3.10.0",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.21",
     "moment": "^2.20.1",
     "path": "^0.12.7",
     "pkginfo": "^0.4.1",
