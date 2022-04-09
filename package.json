@@ -134,7 +134,7 @@
     "global": "^4.3.2",
     "js-yaml": "^3.10.0",
     "lodash": "^4.17.5",
-    "moment": "^2.20.1",
+    "moment": "^2.29.2",
     "path": "^0.12.7",
     "pkginfo": "^0.4.1",
     "portscanner": "^2.1.1",
