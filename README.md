@@ -1,4 +1,6 @@
-# dbKoda
+# dbKoda [No Longer Maintained]
+
+**Note:** Unfortunately this project is no longer under active development.
 
 _State of the art MongoDB IDE_
 
